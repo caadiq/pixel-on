@@ -14,7 +14,15 @@ const kstKey = (d: Date) => d.toISOString().slice(0, 10);
  * 셀에 게이지 막대, 날짜 클릭 시 그 주 아래로 상세 카드(썸네일 포함)가 펼쳐짐.
  * 방송일 귀속: 시작일 기준.
  */
-export function BroadcastRecord({ id, color }: { id: number; color: string }) {
+export function BroadcastRecord({
+  id,
+  color,
+  liveThumbnail,
+}: {
+  id: number;
+  color: string;
+  liveThumbnail?: string | null;
+}) {
   const now = kstNow();
   const [ym, setYm] = useState<[number, number]>([now.getUTCFullYear(), now.getUTCMonth()]);
   const [picked, setPicked] = useState<string | null>(null);
@@ -105,7 +113,6 @@ export function BroadcastRecord({ id, color }: { id: number; color: string }) {
   while (cells.length % 7 !== 0) cells.push({ key: null, day: 0 });
   const weeks: Cell[][] = [];
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
-  const activeWeek = activeKey ? weeks.findIndex((w) => w.some((c) => c.key === activeKey)) : -1;
 
   return (
     <section className="sec">
@@ -144,17 +151,19 @@ export function BroadcastRecord({ id, color }: { id: number; color: string }) {
                   />
                 ),
               )}
-              {wi === activeWeek && activeKey && (
-                <DayExpand
-                  dateKey={activeKey}
-                  sessions={activeSessions}
-                  color={color}
-                  resolveVod={resolveVod}
-                />
-              )}
             </Fragment>
           ))}
         </div>
+
+        {activeKey && (
+          <DayExpand
+            dateKey={activeKey}
+            sessions={activeSessions}
+            color={color}
+            resolveVod={resolveVod}
+            liveThumbnail={liveThumbnail ?? null}
+          />
+        )}
 
         <PatternInsight pattern={pattern} color={color} />
       </div>
@@ -191,12 +200,13 @@ function DayCell({
 }
 
 function DayExpand({
-  dateKey, sessions, color, resolveVod,
+  dateKey, sessions, color, resolveVod, liveThumbnail,
 }: {
   dateKey: string;
   sessions: SessionItem[];
   color: string;
   resolveVod: (s: SessionItem) => { thumbnail: string | null; url: string } | null;
+  liveThumbnail: string | null;
 }) {
   const d = new Date(`${dateKey}T00:00:00+09:00`);
   const title = d.toLocaleDateString('ko-KR', {
@@ -213,13 +223,21 @@ function DayExpand({
       {sessions.map((s) => {
         const vod = resolveVod(s);
         const url = vod?.url ?? (s.vodId ? fallbackVodUrl(s.vodId) : null);
+        // DB 저장 썸네일 → VOD 매칭 → (방송 중이면) 라이브 썸네일
+        const thumb = s.thumbnail ?? vod?.thumbnail ?? (s.endedAt === null ? liveThumbnail : null);
         return (
           <div key={s.id} className="brow">
-            {vod?.thumbnail ? (
-              <a className="bthumb" href={url!} target="_blank" rel="noreferrer">
-                <img src={vod.thumbnail} alt="" loading="lazy" />
-                <span className="bplay">▶</span>
-              </a>
+            {thumb ? (
+              url ? (
+                <a className="bthumb" href={url} target="_blank" rel="noreferrer">
+                  <img src={thumb} alt="" loading="lazy" />
+                  <span className="bplay">▶</span>
+                </a>
+              ) : (
+                <div className="bthumb">
+                  <img src={thumb} alt="" loading="lazy" />
+                </div>
+              )
             ) : (
               <div className="bthumb none">▶</div>
             )}

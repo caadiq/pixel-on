@@ -50,6 +50,8 @@ export const sessions = mysqlTable(
     /** poll=실시간 기록 / backfill=VOD 역산(시각 근사) */
     source: mysqlEnum('source', ['poll', 'backfill']).notNull().default('poll'),
     vodId: varchar('vod_id', { length: 64 }),
+    /** 다시보기 썸네일 URL (백필·연결 시 저장) */
+    thumbnail: varchar('thumbnail', { length: 500 }),
   },
   (t) => [
     index('idx_sessions_streamer_started').on(t.streamerId, t.startedAt),

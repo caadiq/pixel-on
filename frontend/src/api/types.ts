@@ -3,6 +3,7 @@ export interface LiveNow {
   category: string | null;
   viewers: number;
   startedAt: string;
+  thumbnail: string | null;
 }
 
 export interface Streamer {
@@ -35,6 +36,7 @@ export interface SessionItem {
   accumulate: number | null;
   source: 'poll' | 'backfill';
   vodId: string | null;
+  thumbnail: string | null;
 }
 
 export interface SessionsResponse {

@@ -87,6 +87,18 @@ export async function fetchChzzkLiveStatus(channelId: string): Promise<ChzzkLive
   };
 }
 
+interface LiveDetailRaw {
+  liveImageUrl: string | null;
+}
+
+/** 현재 라이브 썸네일 URL (방송 중이 아닐 땐 null) */
+export async function fetchChzzkLiveThumbnail(channelId: string): Promise<string | null> {
+  const c = await get<LiveDetailRaw>(
+    `https://api.chzzk.naver.com/service/v2/channels/${channelId}/live-detail`,
+  );
+  return c?.liveImageUrl ? c.liveImageUrl.replace('{type}', '480') : null;
+}
+
 export interface ChzzkVideo {
   videoNo: number;
   title: string;

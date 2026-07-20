@@ -30,6 +30,7 @@ interface VodSpan {
   startedAt: Date;
   endedAt: Date;
   accumulate: number | null;
+  thumbnail: string | null;
 }
 
 /** 한 스트리머의 전체(또는 maxPages까지) VOD를 백필. 생성된 세션 수 반환 */
@@ -64,6 +65,7 @@ async function backfillStreamerInner(s: Streamer, maxPages: number): Promise<num
     if (last && v.startedAt.getTime() - last.endedAt.getTime() < SPLIT_MERGE_MS) {
       last.endedAt = v.endedAt;
       last.accumulate = maxNullable(last.accumulate, v.accumulate);
+      last.thumbnail = last.thumbnail ?? v.thumbnail;
     } else {
       merged.push({ ...v });
     }
@@ -82,6 +84,7 @@ async function backfillStreamerInner(s: Streamer, maxPages: number): Promise<num
       accumulate: v.accumulate,
       source: 'backfill',
       vodId: v.vodId,
+      thumbnail: v.thumbnail,
     });
     created++;
   }
@@ -102,6 +105,7 @@ async function collectChzzk(chzzkId: string, maxPages: number): Promise<VodSpan[
         startedAt: new Date(v.publishDate.getTime() - v.duration * 1000),
         endedAt: v.publishDate,
         accumulate: v.livePv,
+        thumbnail: v.thumbnail,
       });
     }
     if (!res.hasMore) break;
@@ -124,6 +128,7 @@ async function collectSoop(soopId: string, maxPages: number): Promise<VodSpan[]>
         startedAt: new Date(v.regDate.getTime() - v.duration * 1000),
         endedAt: v.regDate,
         accumulate: null,
+        thumbnail: v.thumbnail,
       });
     }
     if (!res.hasMore) break;
@@ -140,7 +145,7 @@ async function linkOrSkipOverlap(streamerId: number, v: VodSpan): Promise<boolea
   // 하한: 48시간 전 시작 세션까지만 보면 충분 (그보다 긴 방송은 없다)
   const floor = new Date(lo.getTime() - 48 * 60 * 60 * 1000);
   const rows = await db
-    .select({ id: sessions.id, vodId: sessions.vodId, endedAt: sessions.endedAt })
+    .select({ id: sessions.id, vodId: sessions.vodId, endedAt: sessions.endedAt, thumbnail: sessions.thumbnail })
     .from(sessions)
     .where(
       and(
@@ -151,8 +156,11 @@ async function linkOrSkipOverlap(streamerId: number, v: VodSpan): Promise<boolea
     );
   const hit = rows.find((r) => r.endedAt === null || r.endedAt.getTime() >= lo.getTime());
   if (!hit) return false;
-  if (!hit.vodId) {
-    await db.update(sessions).set({ vodId: v.vodId }).where(eq(sessions.id, hit.id));
+  if (!hit.vodId || !hit.thumbnail) {
+    await db
+      .update(sessions)
+      .set({ vodId: hit.vodId ?? v.vodId, thumbnail: hit.thumbnail ?? v.thumbnail })
+      .where(eq(sessions.id, hit.id));
   }
   return true;
 }

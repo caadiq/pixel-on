@@ -10,7 +10,12 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { sessions, snapshots, streamers, type Streamer } from '../db/schema.js';
-import { fetchChzzkChannel, fetchChzzkLiveStatus, ThrottledError } from '../services/chzzk.js';
+import {
+  fetchChzzkChannel,
+  fetchChzzkLiveStatus,
+  fetchChzzkLiveThumbnail,
+  ThrottledError,
+} from '../services/chzzk.js';
 import { extractColorFromUrl } from '../services/palette.js';
 import { fetchSoopStation } from '../services/soop.js';
 import { backfillActive, backfillStreamer } from './backfill.js';
@@ -25,6 +30,7 @@ export interface LiveNow {
   category: string | null;
   viewers: number;
   startedAt: string;
+  thumbnail: string | null;
 }
 
 /** 홈 화면용 실시간 상태 (streamerId → 라이브 정보) */
@@ -124,6 +130,12 @@ async function pollOne(s: Streamer): Promise<void> {
     if (st.trafficThrottling > 0) throw new ThrottledError(0);
 
     if (st.status === 'OPEN') {
+      // 라이브 썸네일은 같은 방송에서 1회만 조회 (URL은 방송 내내 유지됨)
+      const prev = liveNow.get(s.id);
+      let thumbnail = prev?.startedAt === st.openDate.toISOString() ? prev.thumbnail : null;
+      if (!thumbnail && s.chzzkId) {
+        thumbnail = await fetchChzzkLiveThumbnail(s.chzzkId).catch(() => null);
+      }
       await handleLive(s, {
         title: st.title,
         category: st.category,
@@ -131,6 +143,7 @@ async function pollOne(s: Streamer): Promise<void> {
         accumulate: st.accumulate,
         startedAt: st.openDate,
         endedAt: null,
+        thumbnail,
       });
     } else {
       // 치지직은 종료 후에도 closeDate 정확값이 남는다
@@ -161,6 +174,7 @@ async function pollOne(s: Streamer): Promise<void> {
         accumulate: null,
         startedAt: st.live.startedAt,
         endedAt: null,
+        thumbnail: st.live.thumbnail,
       });
     } else {
       // 숲은 종료 시각을 주지 않음 → 감지 시각 사용 (±폴링 주기 오차)
@@ -172,7 +186,15 @@ async function pollOne(s: Streamer): Promise<void> {
 
 async function handleLive(
   s: Streamer,
-  live: { title: string; category: string | null; viewers: number; accumulate: number | null; startedAt: Date; endedAt: null },
+  live: {
+    title: string;
+    category: string | null;
+    viewers: number;
+    accumulate: number | null;
+    startedAt: Date;
+    endedAt: null;
+    thumbnail: string | null;
+  },
 ): Promise<void> {
   await onLive(s.id, s.platform, live);
   liveNow.set(s.id, {
@@ -180,6 +202,7 @@ async function handleLive(
     category: live.category,
     viewers: live.viewers,
     startedAt: live.startedAt.toISOString(),
+    thumbnail: live.thumbnail,
   });
 
   const sessionId = snapshotDue(s.id);

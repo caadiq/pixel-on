@@ -124,6 +124,7 @@ streamerDetailRoute.get('/sessions', async (c) => {
       accumulate: r.accumulate,
       source: r.source,
       vodId: r.vodId,
+      thumbnail: r.thumbnail,
     })),
     daily: [...daily.entries()].map(([date, hours]) => ({ date, hours: Math.round(hours * 10) / 10 })),
   });

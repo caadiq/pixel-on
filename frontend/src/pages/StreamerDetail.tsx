@@ -59,7 +59,7 @@ export function StreamerDetail() {
           </div>
         </div>
 
-        <BroadcastRecord id={id} color={c} />
+        <BroadcastRecord id={id} color={c} liveThumbnail={s.live?.thumbnail ?? null} />
         <Vods id={id} color={c} />
       </div>
     </main>

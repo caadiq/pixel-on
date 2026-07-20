@@ -881,16 +881,6 @@
   outline: 2.5px solid var(--ink);
   outline-offset: -1px;
 }
-.bday.sel::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -14px;
-  transform: translateX(-50%);
-  border: 7px solid transparent;
-  border-top-color: var(--ink);
-  z-index: 2;
-}
 @media (max-width: 720px) {
   .bday {
     min-height: 50px;
@@ -906,7 +896,7 @@
 }
 /* 펼쳐지는 상세 (검은 카드) */
 .bexp {
-  grid-column: 1 / -1;
+  margin-top: 14px;
   background: var(--ink);
   border-radius: 15px;
   padding: 17px 19px;

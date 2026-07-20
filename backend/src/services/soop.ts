@@ -39,6 +39,8 @@ export interface SoopStation {
     viewers: number;
     startedAt: Date;
     category: string | null;
+    /** 라이브 썸네일 (캐시버스터 필요 시 ?t= 추가) */
+    thumbnail: string;
   } | null;
 }
 
@@ -79,6 +81,7 @@ export async function fetchSoopStation(soopId: string): Promise<SoopStation | nu
           // 정확한 시작 시각은 station.broad_start (KST 문자열)
           startedAt: parseKst(j.station.broad_start),
           category: broad.broad_cate_no != null ? String(broad.broad_cate_no) : null,
+          thumbnail: `https://liveimg.sooplive.com/m/${broad.broad_no ?? 0}`,
         }
       : null,
   };
