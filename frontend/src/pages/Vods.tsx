@@ -5,6 +5,7 @@ import { useStreamers } from '../api/hooks';
 import type { Streamer } from '../api/types';
 import { StreamerPicker } from '../components/StreamerPicker';
 import { FALLBACK_COLOR, fmtDurClock, fmtRelDate } from '../lib/format';
+import { useTitle } from '../lib/useTitle';
 
 const PAGE_SIZE = 24;
 
@@ -21,6 +22,7 @@ interface DbVod {
 
 /** 다시보기 — DB 기반, 총 개수를 알아서 페이지 번호가 처음부터 고정 표시됨 */
 export function Vods() {
+  useTitle('다시보기');
   const { data: streamers } = useStreamers();
   const [params, setParams] = useSearchParams();
   const filter = params.get('s') ? Number(params.get('s')) : null;

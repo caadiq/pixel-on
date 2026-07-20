@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FALLBACK_COLOR, fmtCompact } from '../lib/format';
+import { useTitle } from '../lib/useTitle';
 
 interface AdminStreamer {
   id: number;
@@ -32,6 +33,7 @@ async function adminFetch<T>(key: string, url: string, init?: RequestInit): Prom
 }
 
 export function Admin() {
+  useTitle('관리자');
   const [key, setKey] = useState(() => localStorage.getItem(KEY_STORAGE) ?? '');
   const [authed, setAuthed] = useState(false);
 

@@ -2,10 +2,12 @@ import { Link, useParams } from 'react-router-dom';
 import { useStreamerDetail, useStreamerVods } from '../api/hooks';
 import { BroadcastRecord } from '../components/BroadcastRecord';
 import { FALLBACK_COLOR, fmtCompact, fmtDurClock, fmtMinOfDay, fmtRelDate } from '../lib/format';
+import { useTitle } from '../lib/useTitle';
 
 export function StreamerDetail() {
   const id = Number(useParams().id);
   const { data: s, isLoading } = useStreamerDetail(id);
+  useTitle(s?.name);
 
   if (isLoading) return <div className="loading">불러오는 중…</div>;
   if (!s) return <div className="loading">스트리머를 찾을 수 없어요</div>;

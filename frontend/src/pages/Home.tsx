@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useTitle } from '../lib/useTitle';
 import { useDaySessions, useStreamers, useWeeklyStats } from '../api/hooks';
 import type { Streamer } from '../api/types';
 import { FALLBACK_COLOR, fmtCompact, fmtDurKo, fmtMinOfDay } from '../lib/format';
 
 export function Home() {
+  useTitle();
   const { data: streamers, isLoading } = useStreamers();
 
   if (isLoading || !streamers) return <div className="loading">불러오는 중…</div>;

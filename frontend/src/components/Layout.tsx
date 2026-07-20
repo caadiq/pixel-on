@@ -19,9 +19,7 @@ export function Layout() {
         <div className="wrap">
           <NavLink to="/" className="logo">
             <img className="logoimg" src="/favicon-192.png?v=2" alt="" />
-            <b>
-              픽셀온<em>PIXEL ON</em>
-            </b>
+            <b>PIXEL ON</b>
           </NavLink>
           <nav className="nav">
             {NAV.map((n) => (

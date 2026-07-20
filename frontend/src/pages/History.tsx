@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDaySessions } from '../api/hooks';
 import type { DaySession } from '../api/types';
 import { FALLBACK_COLOR, fmtDateFull, fmtDurKo, fmtTime } from '../lib/format';
+import { useTitle } from '../lib/useTitle';
 
 const kstToday = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 
@@ -104,6 +105,7 @@ function DatePicker({ value, onChange }: { value: string; onChange: (d: string) 
 }
 
 export function History() {
+  useTitle('방송 이력');
   const [date, setDate] = useState(kstToday());
   const { data, isLoading } = useDaySessions(date);
   const [tip, setTip] = useState<Tip | null>(null);
