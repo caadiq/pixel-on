@@ -7,11 +7,12 @@
  * - 1시간마다 채널 정보(프로필·팔로워) 갱신
  * - 현재 라이브 상태를 메모리에 유지 → API가 DB 조회 없이 즉답
  */
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, lte } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { snapshots, streamers, type Streamer } from '../db/schema.js';
+import { sessions, snapshots, streamers, type Streamer } from '../db/schema.js';
 import { fetchChzzkChannel, fetchChzzkLiveStatus, ThrottledError } from '../services/chzzk.js';
 import { fetchSoopStation } from '../services/soop.js';
+import { backfillStreamer } from './backfill.js';
 import { onLive, onOffline, restoreOpenSessions, snapshotDue } from './tracker.js';
 
 const POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_SEC ?? 60) * 1000;
@@ -90,6 +91,28 @@ async function pollAll(): Promise<void> {
     lastChannelRefresh = Date.now();
     void refreshChannels(rows).catch((e) => console.error('채널 갱신 실패:', e));
   }
+
+  // 일일 안전망: 새벽 5시(KST)에 최근 VOD 1페이지만 훑어 폴링이 놓친 방송 복구
+  const kstHour = (new Date().getUTCHours() + 9) % 24;
+  const today = new Date().toISOString().slice(0, 10);
+  if (kstHour === 5 && lastDailyBackfill !== today) {
+    lastDailyBackfill = today;
+    void dailyBackfill(rows).catch((e) => console.error('일일 백필 실패:', e));
+  }
+}
+
+let lastDailyBackfill = '';
+async function dailyBackfill(rows: Streamer[]): Promise<void> {
+  let total = 0;
+  for (const s of rows) {
+    try {
+      total += await backfillStreamer(s, 1);
+    } catch {
+      /* 개별 실패 무시 */
+    }
+    await sleep(GAP_MS);
+  }
+  if (total > 0) console.log(`일일 백필: 놓친 방송 ${total}건 복구`);
 }
 
 async function pollOne(s: Streamer): Promise<void> {
@@ -112,6 +135,17 @@ async function pollOne(s: Streamer): Promise<void> {
       // 치지직은 종료 후에도 closeDate 정확값이 남는다
       liveNow.delete(s.id);
       await onOffline(s.id, st.closeDate);
+      // 직전 방송 리커버리: 다운타임 중 놓친 방송을 잔존값으로 복구
+      // (다시보기 없는 스트리머(지누 등)를 위한 유일한 보험 — 추가 요청 0건)
+      if (st.closeDate) {
+        await recoverLastBroadcast(s, {
+          title: st.title,
+          category: st.category,
+          startedAt: st.openDate,
+          endedAt: st.closeDate,
+          accumulate: st.accumulate,
+        });
+      }
     }
   } else {
     if (!s.soopId) return;
@@ -151,6 +185,39 @@ async function handleLive(
   if (sessionId !== null) {
     await db.insert(snapshots).values({ sessionId, at: new Date(), viewers: live.viewers });
   }
+}
+
+/** 이미 기록된 직전 방송인지 확인 후 없으면 backfill 세션 생성 (시각은 정확값) */
+const recoveredOnce = new Set<number>();
+async function recoverLastBroadcast(
+  s: Streamer,
+  b: { title: string; category: string | null; startedAt: Date; endedAt: Date; accumulate: number },
+): Promise<void> {
+  // 같은 잔존값을 폴링마다 재검사하지 않도록 스트리머당 1회만
+  if (recoveredOnce.has(s.id)) return;
+  recoveredOnce.add(s.id);
+
+  const lo = new Date(b.startedAt.getTime() - 60 * 1000);
+  const hi = new Date(b.startedAt.getTime() + 60 * 1000);
+  const existing = await db
+    .select({ id: sessions.id })
+    .from(sessions)
+    .where(
+      and(eq(sessions.streamerId, s.id), gte(sessions.startedAt, lo), lte(sessions.startedAt, hi)),
+    );
+  if (existing.length > 0) return;
+
+  await db.insert(sessions).values({
+    streamerId: s.id,
+    platform: 'chzzk',
+    title: b.title,
+    category: b.category,
+    startedAt: b.startedAt,
+    endedAt: b.endedAt,
+    accumulate: b.accumulate,
+    source: 'backfill',
+  });
+  console.log(`↺ 직전 방송 리커버리 ${s.name}: ${b.startedAt.toISOString()} ~ ${b.endedAt.toISOString()}`);
 }
 
 /** 프로필 이미지·팔로워 갱신 (1시간 주기) */
