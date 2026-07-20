@@ -214,46 +214,42 @@ export function History() {
               </div>
             </div>
 
-            {/* 모바일: 리스트 + 24시간 미니 트랙 */}
+            {/* 모바일: 세로 타임라인 — 위에서 아래로 하루의 흐름 */}
             <div className="panel mb-only">
               <Summary count={started.length} totalMs={totalMs} />
-              <div className="maxis num">
-                <span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span>
-              </div>
-              {started.map((r) => {
-                const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
-                const st = Math.max(0, (new Date(r.startedAt).getTime() - dayStart) / 86400_000);
-                const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
-                const en = Math.min(1, rawEn);
-                const url = linkOf(r);
-                // 시간 라벨을 막대 중앙 아래에 (가장자리는 잘리지 않게 클램프)
-                const mid = Math.min(Math.max(((st + en) / 2) * 100, 15), 85);
-                return (
-                  <div key={r.id} className="mrow">
-                    <div className="mtop">
-                      <img src={r.profileImage} alt="" loading="lazy" />
-                      <span className="who">{r.name}</span>
-                      <span className="hrs num">{fmtDurKo(fullMs(r))}</span>
-                    </div>
-                    <span
-                      className="mtrack"
-                      style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}
-                      onClick={() => url && window.open(url, '_blank', 'noopener')}
-                      role={url ? 'link' : undefined}
-                    >
-                      <span
-                        className={rawEn > 1 ? 'over' : ''}
-                        style={{ left: `${st * 100}%`, width: `${Math.max(1.2, (en - st) * 100)}%` }}
-                      />
-                    </span>
-                    <div className="mtimewrap">
-                      <span className="mtime num" style={{ left: `${mid}%` }}>
-                        {fmtTime(r.startedAt)} → {r.endedAt ? `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt)}` : '방송 중'}
+              <div className="tl">
+                {started.map((r) => {
+                  const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
+                  const url = linkOf(r);
+                  const color = r.color ?? FALLBACK_COLOR;
+                  const live = r.endedAt === null;
+                  return (
+                    <div key={r.id} className="tlrow">
+                      <span className="tltime num">{fmtTime(r.startedAt)}</span>
+                      <span className="tlrail">
+                        <i className={`tldot ${live ? 'live' : ''}`} style={{ background: live ? undefined : color }} />
                       </span>
+                      <div
+                        className={`tlcard ${url ? 'linked' : ''}`}
+                        style={{ '--c': color } as React.CSSProperties}
+                        onClick={() => url && window.open(url, '_blank', 'noopener')}
+                        role={url ? 'link' : undefined}
+                      >
+                        <img src={r.profileImage} alt="" loading="lazy" />
+                        <div className="tlinfo">
+                          <b>{r.name}</b>
+                          <span className={`tlend num ${live ? 'live' : ''}`}>
+                            {live ? '방송 중' : `→ ${crossed ? '익일 ' : ''}${fmtTime(r.endedAt!)}`}
+                          </span>
+                        </div>
+                        <span className="tldur num" style={{ background: color, color: contrastText(color) }}>
+                          {fmtDurKo(fullMs(r))}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </>
         )}
