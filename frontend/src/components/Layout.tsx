@@ -6,12 +6,6 @@ const NAV = [
   { to: '/vods', label: '다시보기' },
 ];
 
-const TAB_ICONS: Record<string, string> = {
-  홈: 'M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z',
-  '방송 이력': 'M12 8v5l3.5 2M21 12a9 9 0 1 1-9-9 9 9 0 0 1 9 9z',
-  다시보기: 'M4 5h16v12H4zM8 21h8M10 9l5 2.5L10 14z',
-};
-
 export function Layout() {
   return (
     <>
@@ -41,16 +35,6 @@ export function Layout() {
         </p>
       </footer>
 
-      <nav className="tabbar">
-        {NAV.map((n) => (
-          <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive ? 'on' : '')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
-              <path d={TAB_ICONS[n.label]} />
-            </svg>
-            {n.label}
-          </NavLink>
-        ))}
-      </nav>
     </>
   );
 }

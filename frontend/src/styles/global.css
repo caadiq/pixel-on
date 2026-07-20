@@ -100,9 +100,6 @@ select {
   .wrap {
     padding: 0 16px;
   }
-  :root {
-    --tabbar-h: 62px;
-  }
 }
 
 @keyframes pulse {
