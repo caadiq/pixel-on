@@ -25,6 +25,84 @@ interface Tip {
   s: DaySession;
 }
 
+const DP_HEADS = ['일', '월', '화', '수', '목', '금', '토'];
+
+/** 커스텀 데이트픽커 — 날짜 버튼 클릭 시 미니 달력 */
+function DatePicker({ value, onChange }: { value: string; onChange: (d: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [ym, setYm] = useState<[number, number]>(() => [
+    Number(value.slice(0, 4)),
+    Number(value.slice(5, 7)) - 1,
+  ]);
+
+  // 화살표 등으로 날짜가 바뀌면 보이는 달도 따라감
+  useEffect(() => {
+    setYm([Number(value.slice(0, 4)), Number(value.slice(5, 7)) - 1]);
+  }, [value]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const [year, month] = ym;
+  const todayKey = kstToday();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const leadBlanks = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  const isCurrentMonth = todayKey.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`);
+
+  const move = (d: number) => {
+    const m = new Date(Date.UTC(year, month + d, 1));
+    setYm([m.getUTCFullYear(), m.getUTCMonth()]);
+  };
+
+  return (
+    <span className="dpwrap">
+      <button className="db num" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        {fmtDateFull(value)}
+      </button>
+      {open && (
+        <>
+          <span className="pickscrim" onClick={() => setOpen(false)} />
+          <div className="dpick">
+            <div className="dp-head">
+              <button onClick={() => move(-1)} aria-label="이전 달">←</button>
+              <b className="num">{year}년 {month + 1}월</b>
+              <button onClick={() => move(1)} disabled={isCurrentMonth} aria-label="다음 달">→</button>
+            </div>
+            <div className="dp-grid">
+              {DP_HEADS.map((d, i) => (
+                <span key={d} className={`dp-h ${i === 0 ? 'sun' : ''} ${i === 6 ? 'sat' : ''}`}>{d}</span>
+              ))}
+              {Array.from({ length: leadBlanks }, (_, i) => (
+                <span key={`b${i}`} />
+              ))}
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`;
+                return (
+                  <button
+                    key={key}
+                    className={`dp-d num ${key === value ? 'sel' : ''} ${key === todayKey ? 'today' : ''}`}
+                    disabled={key > todayKey}
+                    onClick={() => {
+                      onChange(key);
+                      setOpen(false);
+                    }}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
 export function History() {
   const [date, setDate] = useState(kstToday());
   const { data, isLoading } = useDaySessions(date);
@@ -54,7 +132,7 @@ export function History() {
           <button className="arr" onClick={() => setDate(shiftDate(date, -1))} aria-label="이전 날">
             ←
           </button>
-          <span className="db">{fmtDateFull(date)}</span>
+          <DatePicker value={date} onChange={setDate} />
           <button className="arr" onClick={() => setDate(shiftDate(date, 1))} disabled={isToday} aria-label="다음 날">
             →
           </button>
