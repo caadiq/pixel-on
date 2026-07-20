@@ -250,7 +250,7 @@ function DayExpand({
               </div>
               <div className="btl">{s.title || '(제목 없음)'}</div>
               <div className="bsub">
-                {s.category && <span>{s.category}</span>}
+                {s.category && <span className="bcat">{s.category}</span>}
                 {s.peakViewers > 0 && <span className="num">최고 {s.peakViewers.toLocaleString('ko-KR')}명</span>}
               </div>
             </div>
