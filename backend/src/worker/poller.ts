@@ -99,17 +99,15 @@ async function pollAll(): Promise<void> {
     void refreshChannels(rows).catch((e) => console.error('채널 갱신 실패:', e));
   }
 
-  // 일일 안전망: 새벽 5시(KST)에 최근 VOD 1페이지만 훑어 폴링이 놓친 방송 복구
-  const kstHour = (new Date().getUTCHours() + 9) % 24;
-  const today = new Date().toISOString().slice(0, 10);
-  if (kstHour === 5 && lastDailyBackfill !== today) {
-    lastDailyBackfill = today;
-    void dailyBackfill(rows).catch((e) => console.error('일일 백필 실패:', e));
+  // 경량 백필: 1시간마다 최근 VOD 1페이지씩 — 놓친 방송 복구 + 다시보기 목록 신선도
+  if (Date.now() - lastLightBackfill > 60 * 60 * 1000) {
+    lastLightBackfill = Date.now();
+    void lightBackfill(rows).catch((e) => console.error('경량 백필 실패:', e));
   }
 }
 
-let lastDailyBackfill = '';
-async function dailyBackfill(rows: Streamer[]): Promise<void> {
+let lastLightBackfill = 0;
+async function lightBackfill(rows: Streamer[]): Promise<void> {
   let total = 0;
   for (const s of rows) {
     try {
@@ -119,7 +117,7 @@ async function dailyBackfill(rows: Streamer[]): Promise<void> {
     }
     await sleep(GAP_MS);
   }
-  if (total > 0) console.log(`일일 백필: 놓친 방송 ${total}건 복구`);
+  if (total > 0) console.log(`경량 백필: 놓친 방송 ${total}건 복구`);
 }
 
 async function pollOne(s: Streamer): Promise<void> {

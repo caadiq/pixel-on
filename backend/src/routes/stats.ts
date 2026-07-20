@@ -1,6 +1,6 @@
 /** 홈·이력 페이지용 집계 라우트 */
 import { Hono } from 'hono';
-import { and, eq, gte, inArray, lt } from 'drizzle-orm';
+import { and, desc, eq, gte, isNotNull, lt, sql } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { sessions, streamers } from '../db/schema.js';
 import { kstDateStr, kstDayRange, kstParts } from '../lib/time.js';
@@ -54,6 +54,69 @@ statsRoute.get('/sessions/day', async (c) => {
       peakViewers: r.peakViewers,
       source: r.source,
     })),
+  });
+});
+
+/**
+ * 다시보기 목록 — DB 기반 (vodId·썸네일 있는 세션만).
+ * 총 개수를 함께 반환해 페이지 번호를 처음부터 전부 표시할 수 있다.
+ * ?page=0&streamerId=&size=24
+ */
+statsRoute.get('/vods', async (c) => {
+  const page = Math.max(0, Number(c.req.query('page') ?? 0));
+  const size = Math.min(Math.max(1, Number(c.req.query('size') ?? 24)), 48);
+  const sid = Number(c.req.query('streamerId') ?? 0);
+
+  const conds = [
+    isNotNull(sessions.vodId),
+    isNotNull(sessions.thumbnail),
+    eq(streamers.active, true),
+    ...(sid ? [eq(sessions.streamerId, sid)] : []),
+  ];
+  const where = and(...conds);
+
+  const [{ total }] = await db
+    .select({ total: sql<number>`COUNT(*)` })
+    .from(sessions)
+    .innerJoin(streamers, eq(streamers.id, sessions.streamerId))
+    .where(where);
+
+  const rows = await db
+    .select({
+      id: sessions.id,
+      streamerId: sessions.streamerId,
+      title: sessions.title,
+      category: sessions.category,
+      thumbnail: sessions.thumbnail,
+      vodId: sessions.vodId,
+      startedAt: sessions.startedAt,
+      endedAt: sessions.endedAt,
+    })
+    .from(sessions)
+    .innerJoin(streamers, eq(streamers.id, sessions.streamerId))
+    .where(where)
+    .orderBy(desc(sessions.startedAt))
+    .limit(size)
+    .offset(page * size);
+
+  return c.json({
+    total,
+    vods: rows.map((r) => {
+      const [platform, no] = (r.vodId ?? ':').split(':');
+      return {
+        id: r.id,
+        streamerId: r.streamerId,
+        title: r.title,
+        category: r.category,
+        thumbnail: r.thumbnail,
+        startedAt: r.startedAt.toISOString(),
+        duration: Math.round(((r.endedAt ?? new Date()).getTime() - r.startedAt.getTime()) / 1000),
+        url:
+          platform === 'soop'
+            ? `https://vod.sooplive.co.kr/player/${no}`
+            : `https://chzzk.naver.com/video/${no}`,
+      };
+    }),
   });
 });
 
