@@ -5,6 +5,14 @@ import { FALLBACK_COLOR, fmtDateFull, fmtDurKo, fmtTime } from '../lib/format';
 
 const kstToday = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 
+function vodUrl(vodId: string | null): string | null {
+  if (!vodId) return null;
+  const [platform, no] = vodId.split(':');
+  return platform === 'soop'
+    ? `https://vod.sooplive.co.kr/player/${no}`
+    : `https://chzzk.naver.com/video/${no}`;
+}
+
 function shiftDate(dateStr: string, days: number): string {
   const d = new Date(`${dateStr}T00:00:00+09:00`);
   return new Date(d.getTime() + days * 86400_000 + 9 * 3600_000).toISOString().slice(0, 10);
@@ -78,10 +86,14 @@ export function History() {
                     </span>
                     <span className="gt">
                       <span
-                        className={overflow ? 'over' : ''}
+                        className={`${overflow ? 'over' : ''} ${r.vodId ? 'linked' : ''}`}
                         style={{ left: `${st * 100}%`, width: `${Math.max(0.5, (en - st) * 100)}%` }}
                         onMouseMove={showTip(r)}
                         onMouseLeave={() => setTip(null)}
+                        onClick={() => {
+                          const url = vodUrl(r.vodId);
+                          if (url) window.open(url, '_blank', 'noopener');
+                        }}
                       />
                     </span>
                     <span className="hrs num">{(fullMs(r) / 3600_000).toFixed(1)}h</span>
@@ -171,8 +183,11 @@ function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
           {fmtDurKo(endMs - startMs)}
         </span>
       </div>
-      {s.peakViewers > 0 && (
-        <div className="gtip-sub num">최고 {s.peakViewers.toLocaleString('ko-KR')}명 시청</div>
+      {(s.peakViewers > 0 || s.vodId) && (
+        <div className="gtip-sub num">
+          {s.peakViewers > 0 && <>최고 {s.peakViewers.toLocaleString('ko-KR')}명 시청</>}
+          {s.vodId && <span className="gtip-go">▶ 클릭하면 다시보기</span>}
+        </div>
       )}
     </div>
   );

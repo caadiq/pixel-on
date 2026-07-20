@@ -32,6 +32,7 @@ statsRoute.get('/sessions/day', async (c) => {
       endedAt: sessions.endedAt,
       peakViewers: sessions.peakViewers,
       source: sessions.source,
+      vodId: sessions.vodId,
       name: streamers.name,
       color: streamers.color,
       autoColor: streamers.autoColor,
@@ -62,6 +63,7 @@ statsRoute.get('/sessions/day', async (c) => {
       endedAt: r.endedAt?.toISOString() ?? null,
       peakViewers: r.peakViewers,
       source: r.source,
+      vodId: r.vodId,
     })),
   });
 });
