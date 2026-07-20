@@ -90,8 +90,9 @@ export function Vods() {
                   <div className="bd">
                     <b>{v.title || '(제목 없음)'}</b>
                     <span className="sub">
+                      {s && <img className="pav" src={s.profileImage} alt="" loading="lazy" />}
                       <span className="who">{s?.name ?? ''}</span>
-                      <span>{fmtRelDate(v.startedAt)}</span>
+                      <span className="when">{fmtRelDate(v.startedAt)}</span>
                     </span>
                   </div>
                 </a>
