@@ -12,7 +12,7 @@ import { db } from '../db/index.js';
 import { sessions, snapshots, streamers, type Streamer } from '../db/schema.js';
 import { fetchChzzkChannel, fetchChzzkLiveStatus, ThrottledError } from '../services/chzzk.js';
 import { fetchSoopStation } from '../services/soop.js';
-import { backfillStreamer } from './backfill.js';
+import { backfillActive, backfillStreamer } from './backfill.js';
 import { onLive, onOffline, restoreOpenSessions, snapshotDue } from './tracker.js';
 
 const POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_SEC ?? 60) * 1000;
@@ -193,19 +193,25 @@ async function recoverLastBroadcast(
   s: Streamer,
   b: { title: string; category: string | null; startedAt: Date; endedAt: Date; accumulate: number },
 ): Promise<void> {
+  // 백필 패스 진행 중엔 미룸 (동시 삽입 레이스 방지) — 다음 폴링에서 재시도
+  if (backfillActive) return;
   // 같은 잔존값을 폴링마다 재검사하지 않도록 스트리머당 1회만
   if (recoveredOnce.has(s.id)) return;
   recoveredOnce.add(s.id);
 
-  const lo = new Date(b.startedAt.getTime() - 60 * 1000);
-  const hi = new Date(b.startedAt.getTime() + 60 * 1000);
-  const existing = await db
-    .select({ id: sessions.id })
+  // 구간 겹침 검사 (±30분 여유) — VOD 역산 시각과 수 분 어긋나도 같은 방송으로 인식
+  const margin = 30 * 60 * 1000;
+  const lo = new Date(b.startedAt.getTime() - margin);
+  const hi = new Date(b.endedAt.getTime() + margin);
+  const floor = new Date(lo.getTime() - 48 * 60 * 60 * 1000);
+  const rows = await db
+    .select({ id: sessions.id, endedAt: sessions.endedAt })
     .from(sessions)
     .where(
-      and(eq(sessions.streamerId, s.id), gte(sessions.startedAt, lo), lte(sessions.startedAt, hi)),
+      and(eq(sessions.streamerId, s.id), lte(sessions.startedAt, hi), gte(sessions.startedAt, floor)),
     );
-  if (existing.length > 0) return;
+  const overlap = rows.some((r) => r.endedAt === null || r.endedAt.getTime() >= lo.getTime());
+  if (overlap) return;
 
   await db.insert(sessions).values({
     streamerId: s.id,

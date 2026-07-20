@@ -15,6 +15,11 @@ import { fetchSoopVods } from '../services/soop.js';
 const OVERLAP_MARGIN_MS = 30 * 60 * 1000;
 const SPLIT_MERGE_MS = 10 * 60 * 1000;
 const GAP_MS = 300;
+/** 이보다 긴 VOD는 통합본/몰아보기로 간주하고 스킵 (98시간짜리 실측됨) */
+const MAX_PLAUSIBLE_MS = 40 * 60 * 60 * 1000;
+
+/** 백필 진행 중 여부 — 리커버리가 레이스로 중복 생성하지 않도록 노출 */
+export let backfillActive = false;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -29,7 +34,16 @@ interface VodSpan {
 
 /** 한 스트리머의 전체(또는 maxPages까지) VOD를 백필. 생성된 세션 수 반환 */
 export async function backfillStreamer(s: Streamer, maxPages = Infinity): Promise<number> {
-  const spans: VodSpan[] = [];
+  backfillActive = true;
+  try {
+    return await backfillStreamerInner(s, maxPages);
+  } finally {
+    backfillActive = false;
+  }
+}
+
+async function backfillStreamerInner(s: Streamer, maxPages: number): Promise<number> {
+  let spans: VodSpan[] = [];
 
   if (s.chzzkId) {
     // 망개처럼 과거 치지직 이력이 있는 숲 스트리머도 치지직 VOD를 함께 수집
@@ -38,6 +52,8 @@ export async function backfillStreamer(s: Streamer, maxPages = Infinity): Promis
   if (s.soopId) {
     spans.push(...(await collectSoop(s.soopId, maxPages)));
   }
+  // 통합본/몰아보기 제외
+  spans = spans.filter((v) => v.endedAt.getTime() - v.startedAt.getTime() <= MAX_PLAUSIBLE_MS);
   if (spans.length === 0) return 0;
 
   // 시간순 정렬 후 분할 업로드 병합
