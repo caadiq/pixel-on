@@ -56,6 +56,7 @@ export interface DaySession {
   peakViewers: number;
   source: 'poll' | 'backfill';
   vodId: string | null;
+  liveUrl: string | null;
 }
 
 export interface WeeklyStats {

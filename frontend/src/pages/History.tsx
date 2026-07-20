@@ -5,9 +5,10 @@ import { FALLBACK_COLOR, fmtDateFull, fmtDurKo, fmtTime } from '../lib/format';
 
 const kstToday = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 
-function vodUrl(vodId: string | null): string | null {
-  if (!vodId) return null;
-  const [platform, no] = vodId.split(':');
+function linkOf(r: DaySession): string | null {
+  if (r.liveUrl) return r.liveUrl;
+  if (!r.vodId) return null;
+  const [platform, no] = r.vodId.split(':');
   return platform === 'soop'
     ? `https://vod.sooplive.co.kr/player/${no}`
     : `https://chzzk.naver.com/video/${no}`;
@@ -88,12 +89,12 @@ export function History() {
                     </span>
                     <span className="gt">
                       <span
-                        className={`cont ${r.vodId ? 'linked' : ''}`}
+                        className={`cont ${linkOf(r) ? 'linked' : ''}`}
                         style={{ left: 0, width: `${Math.max(0.5, en * 100)}%` }}
                         onMouseMove={showTip(r)}
                         onMouseLeave={() => setTip(null)}
                         onClick={() => {
-                          const url = vodUrl(r.vodId);
+                          const url = linkOf(r);
                           if (url) window.open(url, '_blank', 'noopener');
                         }}
                       />
@@ -115,12 +116,12 @@ export function History() {
                     </span>
                     <span className="gt">
                       <span
-                        className={`${overflow ? 'over' : ''} ${r.vodId ? 'linked' : ''}`}
+                        className={`${overflow ? 'over' : ''} ${linkOf(r) ? 'linked' : ''}`}
                         style={{ left: `${st * 100}%`, width: `${Math.max(0.5, (en - st) * 100)}%` }}
                         onMouseMove={showTip(r)}
                         onMouseLeave={() => setTip(null)}
                         onClick={() => {
-                          const url = vodUrl(r.vodId);
+                          const url = linkOf(r);
                           if (url) window.open(url, '_blank', 'noopener');
                         }}
                       />
@@ -212,9 +213,6 @@ function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
           {fmtDurKo(endMs - startMs)}
         </span>
       </div>
-      {s.peakViewers > 0 && (
-        <div className="gtip-sub num">최고 {s.peakViewers.toLocaleString('ko-KR')}명 시청</div>
-      )}
     </div>
   );
 }

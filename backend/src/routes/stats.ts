@@ -37,6 +37,9 @@ statsRoute.get('/sessions/day', async (c) => {
       color: streamers.color,
       autoColor: streamers.autoColor,
       profileImage: streamers.profileImage,
+      chzzkId: streamers.chzzkId,
+      soopId: streamers.soopId,
+      platform: streamers.platform,
     })
     .from(sessions)
     .innerJoin(streamers, eq(streamers.id, sessions.streamerId))
@@ -64,6 +67,13 @@ statsRoute.get('/sessions/day', async (c) => {
       peakViewers: r.peakViewers,
       source: r.source,
       vodId: r.vodId,
+      /** 방송 중이면 라이브 페이지 링크 */
+      liveUrl:
+        r.endedAt === null
+          ? r.platform === 'soop'
+            ? `https://play.sooplive.co.kr/${r.soopId}`
+            : `https://chzzk.naver.com/live/${r.chzzkId}`
+          : null,
     })),
   });
 });
