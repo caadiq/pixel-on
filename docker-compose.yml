@@ -1,0 +1,42 @@
+services:
+  pixel-backend:
+    build: ./backend
+    container_name: pixel-backend
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+    # .env를 읽기전용 마운트 — dotenv가 직접 읽어 특수문자 보존 (otto 패턴)
+    volumes:
+      - ./backend/.env:/app/.env:ro
+    networks: [app, db]
+    restart: unless-stopped
+
+  # 개발 서버 (Vite watch) — dev.pixel.caadiq.co.kr
+  pixel-frontend:
+    build: ./frontend
+    container_name: pixel-frontend
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+    volumes:
+      - ./frontend:/app
+    depends_on: [pixel-backend]
+    networks: [app]
+    restart: unless-stopped
+
+  # 프로덕션 (vite build + nginx) — pixel.caadiq.co.kr
+  # 프론트 작업 반영: docker compose up -d --build pixel-frontend-prod
+  pixel-frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: pixel-frontend-prod
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+    depends_on: [pixel-backend]
+    networks: [app]
+    restart: unless-stopped
+
+networks:
+  app:
+    external: true
+  db:
+    external: true
