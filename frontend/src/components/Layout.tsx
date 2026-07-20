@@ -25,7 +25,7 @@ export function Layout() {
               <i style={{ background: '#5b8def' }} />
             </span>
             <b>
-              픽셀 트래커<em>PIXEL</em>
+              픽셀온<em>PIXEL ON</em>
             </b>
           </NavLink>
           <nav className="nav">

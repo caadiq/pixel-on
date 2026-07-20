@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { useStreamers } from '../api/hooks';
 import type { Vod } from '../api/types';
+import { StreamerPicker } from '../components/StreamerPicker';
 import { FALLBACK_COLOR, fmtDurClock, fmtRelDate } from '../lib/format';
 
-/** 홈 그리드 순서 상위 스트리머들의 최신 VOD를 모아 시간순으로 */
 export function Vods() {
   const { data: streamers } = useStreamers();
   const [filter, setFilter] = useState<number | null>(null);
@@ -26,12 +26,7 @@ export function Vods() {
   if (!streamers) return <div className="loading">불러오는 중…</div>;
 
   const merged = results
-    .flatMap((r, i) =>
-      (r.data?.vods ?? []).map((v) => ({
-        ...v,
-        streamer: targets[i],
-      })),
-    )
+    .flatMap((r, i) => (r.data?.vods ?? []).map((v) => ({ ...v, streamer: targets[i] })))
     .filter((v) => filter === null || v.streamer.id === filter)
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, 24);
@@ -44,20 +39,9 @@ export function Vods() {
         <div className="shead">
           <h2>다시보기</h2>
           <span className="sub">최신순</span>
-        </div>
-        <div className="fchips">
-          <button className={`pill tab ${filter === null ? 'on' : ''}`} onClick={() => setFilter(null)}>
-            전체
-          </button>
-          {streamers.map((s) => (
-            <button
-              key={s.id}
-              className={`pill tab ${filter === s.id ? 'on' : ''}`}
-              onClick={() => setFilter(filter === s.id ? null : s.id)}
-            >
-              {s.name}
-            </button>
-          ))}
+          <span style={{ marginLeft: 'auto' }}>
+            <StreamerPicker streamers={streamers} value={filter} onChange={setFilter} />
+          </span>
         </div>
 
         {loading && merged.length === 0 ? (
@@ -65,7 +49,7 @@ export function Vods() {
         ) : merged.length === 0 ? (
           <div className="empty">다시보기가 없어요</div>
         ) : (
-          <div className="vgrid" style={{ marginTop: 8 }}>
+          <div className="vgrid">
             {merged.map((v) => (
               <a
                 key={v.id}

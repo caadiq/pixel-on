@@ -1,11 +1,13 @@
-/* 픽셀 트래커 — 디자인 토큰 (시안 B 화이트 확정본) */
+/* 픽셀온 — 디자인 토큰 (시안 B 화이트 확정본) */
+@import 'overlayscrollbars/overlayscrollbars.css';
+
 :root {
   --bg: #ffffff;
   --bg2: #fafbfc;
   --ink: #16181d;
   --ink2: #454a54;
-  --soft: #8b929e;
-  --faint: #c2c8d2;
+  --soft: #7b8290;
+  --faint: #aab1bd;
   --line: #ebedf0;
   --line2: #e2e5ea;
   --live: #ff4757;
@@ -15,6 +17,8 @@
   --accent: #ffd426;
   --sh: 0 1px 2px rgba(16, 20, 30, 0.04);
   --sh2: 0 10px 28px -14px rgba(16, 20, 30, 0.22);
+  /* 모바일 하단 탭바 높이 */
+  --tabbar-h: 0px;
 }
 
 * {
@@ -33,11 +37,26 @@ body {
   font-family: Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.005em;
+  /* 모바일 탭 시 파란 하이라이트 제거 */
+  -webkit-tap-highlight-color: transparent;
+  /* 푸터를 항상 화면 아래에 붙임 */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  display: contents;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -46,6 +65,17 @@ button {
   background: none;
   cursor: pointer;
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+select {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .jua {
@@ -61,11 +91,15 @@ button {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 32px;
+  width: 100%;
 }
 
 @media (max-width: 720px) {
   .wrap {
     padding: 0 16px;
+  }
+  :root {
+    --tabbar-h: 62px;
   }
 }
 
@@ -99,4 +133,13 @@ button {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* OverlayScrollbars 테마 */
+.os-scrollbar {
+  --os-handle-bg: #c8cdd6;
+  --os-handle-bg-hover: #aab1bd;
+  --os-handle-bg-active: #8b929e;
+  --os-size: 10px;
+  --os-handle-border-radius: 99px;
 }

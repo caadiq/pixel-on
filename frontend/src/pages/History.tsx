@@ -88,7 +88,6 @@ export function History() {
                       <span className="who">{r.name}</span>
                       <div className="rng num">
                         {fmtTime(r.startedAt)} → {r.endedAt ? `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt)}` : '방송 중'}
-                        {r.source === 'backfill' && ' ≈'}
                       </div>
                     </span>
                     <span className="hrs num">{fmtDurKo(fullMs(r))}</span>

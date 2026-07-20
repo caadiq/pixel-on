@@ -3,15 +3,16 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: saturate(180%) blur(14px);
   border-bottom: 1px solid var(--line);
+  flex: none;
 }
 .hdr .wrap {
   display: flex;
   align-items: center;
   gap: 20px;
-  height: 64px;
+  height: 66px;
 }
 .logo {
   display: flex;
@@ -23,6 +24,7 @@
   grid-template-columns: repeat(2, 9px);
   grid-template-rows: repeat(2, 9px);
   gap: 2.5px;
+  flex: none;
 }
 .logo .sq i {
   border-radius: 2.5px;
@@ -30,16 +32,16 @@
 .logo b {
   font-family: Jua;
   font-weight: 400;
-  font-size: 22px;
+  font-size: 23px;
 }
 .logo b em {
   font-style: normal;
   color: var(--faint);
-  font-size: 11px;
+  font-size: 12px;
   font-family: Pretendard;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  margin-left: 7px;
+  letter-spacing: 0.14em;
+  margin-left: 8px;
 }
 .nav {
   margin-left: auto;
@@ -47,9 +49,9 @@
   gap: 4px;
 }
 .nav a {
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--soft);
-  padding: 8px 14px;
+  padding: 9px 15px;
   border-radius: 9px;
   font-weight: 500;
   transition: 0.18s;
@@ -65,34 +67,41 @@
 }
 @media (max-width: 720px) {
   .hdr .wrap {
-    height: 52px;
+    height: 54px;
+  }
+  .logo b {
+    font-size: 20px;
+  }
+  .logo b em {
+    display: none;
   }
   .nav {
     display: none;
   }
 }
 
-/* ── 모바일 탭바 ── */
+/* ── 모바일 하단 탭바 (항목 수만큼 균등 분할) ── */
 .tabbar {
   display: none;
 }
 @media (max-width: 720px) {
   .tabbar {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 100;
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(14px);
     border-top: 1px solid var(--line);
-    padding: 7px 0 max(10px, env(safe-area-inset-bottom));
+    padding: 8px 0 max(10px, env(safe-area-inset-bottom));
   }
   .tabbar a {
     text-align: center;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--faint);
     display: flex;
@@ -104,11 +113,8 @@
     color: var(--ink);
   }
   .tabbar svg {
-    width: 21px;
-    height: 21px;
-  }
-  body {
-    padding-bottom: 64px;
+    width: 22px;
+    height: 22px;
   }
 }
 
@@ -119,8 +125,8 @@
   gap: 7px;
   border: 1px solid var(--line2);
   border-radius: 99px;
-  padding: 8px 16px;
-  font-size: 12.5px;
+  padding: 9px 17px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink2);
   background: #fff;
@@ -130,7 +136,7 @@
 .pill b {
   font-family: Jua;
   font-weight: 400;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--ink);
 }
 .pill.hot {
@@ -141,40 +147,40 @@
 .pill.hot b {
   color: var(--live);
 }
-.pill.tab {
-  cursor: pointer;
-}
-.pill.tab.on {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: #fff;
-}
 .pdot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--live);
   animation: pulse 1.7s infinite;
+  flex: none;
 }
 .shead {
   display: flex;
   align-items: baseline;
   gap: 11px;
   margin-bottom: 18px;
+  flex-wrap: wrap;
 }
 .shead h2 {
   font-family: Jua;
   font-weight: 400;
-  font-size: 21px;
+  font-size: 22px;
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
   gap: 9px;
 }
 .shead .sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--faint);
   font-weight: 500;
+}
+.shead .more {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--soft);
 }
 .panel {
   background: #fff;
@@ -186,7 +192,7 @@
 .panel h3 {
   font-family: Jua;
   font-weight: 400;
-  font-size: 15.5px;
+  font-size: 16px;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
@@ -197,21 +203,23 @@
   height: 8px;
   border-radius: 3px;
   background: var(--mint);
+  flex: none;
 }
 .sec {
   padding: 34px 0 0;
 }
 .sec:last-of-type {
-  padding-bottom: 40px;
+  padding-bottom: 44px;
 }
 .pfbadge {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  padding: 2px 6px;
-  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 2px 7px;
+  border-radius: 6px;
   border: 1px solid;
   line-height: 1.5;
+  white-space: nowrap;
 }
 .pfbadge.chzzk {
   color: var(--chzzk);
@@ -222,11 +230,6 @@
   color: var(--soop);
   border-color: #c7d4ff;
   background: #f3f6ff;
-}
-.srcnote {
-  font-size: 10px;
-  color: var(--faint);
-  font-weight: 600;
 }
 
 /* ── 히어로 ── */
@@ -250,7 +253,7 @@
 .hero h1 {
   font-family: Jua;
   font-weight: 400;
-  font-size: clamp(26px, 4.3vw, 47px);
+  font-size: clamp(27px, 4.3vw, 47px);
   line-height: 1.26;
   letter-spacing: -0.02em;
   position: relative;
@@ -263,7 +266,7 @@
 }
 .hero p {
   color: var(--soft);
-  font-size: 14.5px;
+  font-size: 15px;
   margin-top: 14px;
   position: relative;
 }
@@ -278,6 +281,9 @@
 @media (max-width: 720px) {
   .hero {
     padding: 30px 0 22px;
+  }
+  .hero p {
+    font-size: 13px;
   }
 }
 
@@ -304,7 +310,7 @@
     display: none;
   }
   .lives > * {
-    flex: 0 0 160px;
+    flex: 0 0 172px;
   }
 }
 .lvc {
@@ -357,10 +363,10 @@
   left: 10px;
   background: var(--live);
   color: #fff;
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.1em;
-  padding: 4px 9px;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
   border-radius: 99px;
   display: flex;
   align-items: center;
@@ -369,8 +375,8 @@
   box-shadow: 0 2px 8px rgba(255, 71, 87, 0.32);
 }
 .onair i {
-  width: 4.5px;
-  height: 4.5px;
+  width: 5px;
+  height: 5px;
   background: #fff;
   border-radius: 50%;
   animation: pulse 1.4s infinite;
@@ -382,7 +388,7 @@
   background: rgba(255, 255, 255, 0.96);
   border-radius: 99px;
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   z-index: 2;
   box-shadow: var(--sh);
@@ -392,7 +398,7 @@
   padding: 13px 14px 15px;
 }
 .lvc .bd b {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -408,7 +414,7 @@
   flex: none;
 }
 .lvc .bd p {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--soft);
   line-height: 1.55;
   height: 3.1em;
@@ -417,22 +423,13 @@
 .lvc .cat {
   display: inline-block;
   margin-top: 10px;
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   color: color-mix(in srgb, var(--c) 72%, #2a2a2a);
   background: color-mix(in srgb, var(--c) 11%, #fff);
   padding: 3px 9px;
   border-radius: 6px;
   border: 1px solid color-mix(in srgb, var(--c) 20%, #fff);
-}
-.lives-empty {
-  border: 1.5px dashed var(--line2);
-  border-radius: 18px;
-  padding: 34px;
-  text-align: center;
-  color: var(--faint);
-  font-size: 13px;
-  font-weight: 600;
 }
 
 /* ── 스트리머 그리드 ── */
@@ -449,14 +446,15 @@
 @media (max-width: 720px) {
   .sgrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 9px;
   }
 }
 .scard {
   background: #fff;
   border: 1px solid var(--line2);
   border-radius: 16px;
-  padding: 15px 10px 13px;
+  /* 상단 뱃지 자리 확보 — 프로필과 겹치지 않게 */
+  padding: 36px 10px 13px;
   text-align: center;
   transition: 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
   position: relative;
@@ -487,13 +485,13 @@
   filter: saturate(0.72);
 }
 .scard b {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   display: block;
 }
 .scard .sub {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--faint);
   margin-top: 4px;
   font-weight: 500;
@@ -506,20 +504,18 @@
   position: absolute;
   top: 9px;
   right: 9px;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.04em;
   background: var(--live);
   color: #fff;
-  padding: 2.5px 6px;
+  padding: 1.5px 7px;
   border-radius: 99px;
 }
 .scard .pfbadge {
   position: absolute;
-  top: 11px;
-  left: 11px;
-  font-size: 8px;
-  padding: 1px 4px;
+  top: 9px;
+  left: 9px;
 }
 
 /* ── 홈 하단 2단 ── */
@@ -536,13 +532,13 @@
 }
 .trow {
   display: grid;
-  grid-template-columns: 64px 1fr 50px;
+  grid-template-columns: 68px 1fr 52px;
   align-items: center;
   gap: 11px;
   margin-bottom: 10px;
 }
 .trow .nm {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink2);
   overflow: hidden;
@@ -563,17 +559,24 @@
   background: var(--c, var(--mint));
   min-width: 4px;
 }
+.track span.over,
+.grow .gt span.over {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent);
+  mask-image: linear-gradient(90deg, #000 78%, transparent);
+}
 .trow .hrs {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--soft);
   text-align: right;
   font-weight: 600;
 }
 .axis {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--faint);
   margin-top: 14px;
-  padding-left: 75px;
+  padding-left: 79px;
   display: flex;
   justify-content: space-between;
 }
@@ -583,7 +586,7 @@
   gap: 5px;
 }
 .wcal .dh {
-  font-size: 9.5px;
+  font-size: 12px;
   color: var(--faint);
   text-align: center;
   font-weight: 700;
@@ -601,7 +604,7 @@
   margin-top: 17px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 13px;
 }
 .kv dt {
   color: var(--soft);
@@ -612,16 +615,18 @@
   color: var(--ink);
 }
 
-/* ── 푸터 ── */
+/* ── 푸터 (항상 화면 아래) ── */
 .ftr {
+  flex: none;
   margin-top: 44px;
+  margin-bottom: var(--tabbar-h);
   border-top: 1px solid var(--line);
-  padding: 26px 0 46px;
+  padding: 26px 0 30px;
   text-align: center;
   background: var(--bg2);
 }
 .ftr p {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--faint);
   line-height: 1.85;
 }
@@ -659,11 +664,12 @@
   object-fit: cover;
   box-shadow: 0 5px 16px rgba(16, 20, 30, 0.16);
   background: #f4f5f7;
+  flex: none;
 }
 .dhead h1 {
   font-family: Jua;
   font-weight: 400;
-  font-size: 27px;
+  font-size: 28px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -673,7 +679,7 @@
   display: flex;
   gap: 13px;
   margin-top: 7px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink2);
   font-weight: 600;
   flex-wrap: wrap;
@@ -682,29 +688,33 @@
 .lbadge {
   background: var(--live);
   color: #fff;
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 4px 10px;
+  letter-spacing: 0.05em;
+  padding: 4px 11px;
   border-radius: 99px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
 }
 .lbadge i {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   background: #fff;
   border-radius: 50%;
   animation: pulse 1.4s infinite;
 }
 @media (max-width: 720px) {
   .dhead img {
-    width: 62px;
-    height: 62px;
+    width: 64px;
+    height: 64px;
   }
   .dhead h1 {
-    font-size: 20px;
+    font-size: 21px;
+  }
+  .dhead .meta {
+    font-size: 12px;
+    gap: 9px;
   }
 }
 .dstats {
@@ -726,7 +736,7 @@
   box-shadow: var(--sh);
 }
 .dstat i {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--soft);
   font-style: normal;
   font-weight: 600;
@@ -736,16 +746,28 @@
 .dstat b {
   font-family: Jua;
   font-weight: 400;
-  font-size: 20px;
+  font-size: 21px;
 }
 .dstat b em {
   font-style: normal;
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--soft);
   font-family: Pretendard;
   font-weight: 600;
 }
-/* 월 달력 */
+
+/* ── 방송 기록 (달력 + 그날 상세 통합) ── */
+.rec {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .rec {
+    grid-template-columns: 1fr;
+  }
+}
 .calnav {
   margin-left: auto;
   display: flex;
@@ -754,18 +776,18 @@
   font-family: Pretendard;
 }
 .calnav b {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
-  min-width: 92px;
+  min-width: 96px;
   text-align: center;
 }
 .calnav button {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--line2);
   border-radius: 8px;
   color: var(--soft);
-  font-size: 12px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -785,7 +807,7 @@
   gap: 4px;
 }
 .mcal .mh {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--faint);
   text-align: center;
   font-weight: 700;
@@ -798,26 +820,39 @@
   color: #94aef0;
 }
 .mday {
-  min-height: 58px;
+  min-height: 54px;
   border-radius: 10px;
   border: 1px solid var(--line);
-  padding: 7px 9px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: 0.15s;
+  text-align: left;
+  width: 100%;
 }
 .mday.blank {
   border: 0;
+  pointer-events: none;
+}
+.mday.has {
+  cursor: pointer;
+}
+.mday.has:hover {
+  border-color: var(--ink2);
 }
 .mday.future {
-  opacity: 0.38;
+  opacity: 0.35;
 }
-.mday.today {
+.mday.today .dn {
+  color: var(--live);
+}
+.mday.sel {
   outline: 2px solid var(--ink);
   outline-offset: -1px;
 }
 .mday .dn {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ink2);
   mix-blend-mode: multiply;
@@ -826,7 +861,7 @@
 .mday .dh {
   font-size: 12px;
   font-weight: 800;
-  color: rgba(22, 24, 29, 0.68);
+  color: rgba(22, 24, 29, 0.66);
   align-self: flex-end;
   line-height: 1;
 }
@@ -837,79 +872,121 @@
     padding: 5px 6px;
   }
   .mday .dn {
-    font-size: 11px;
-  }
-  .mday .dh {
-    font-size: 10px;
+    font-size: 12px;
   }
 }
-.hm {
-  display: grid;
-  grid-template-columns: 30px repeat(24, 1fr);
-  gap: 2.5px;
-  font-size: 8.5px;
-  color: var(--faint);
-}
-.hm .lab {
+/* 달력 아래 패턴 요약 한 줄 */
+.patline {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.patline .lbl {
+  font-size: 12px;
   font-weight: 700;
-}
-.hm i {
-  aspect-ratio: 1;
-  border-radius: 2px;
-  background: #f1f3f6;
-}
-.hm-hint {
-  font-size: 11px;
   color: var(--soft);
-  margin-top: 10px;
-  font-weight: 600;
+  flex: none;
 }
-.hm-hint b {
+.patline .bars {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 28px;
+  flex: 1;
+  min-width: 170px;
+}
+.patline .bars i {
+  flex: 1;
+  background: var(--c, var(--mint));
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  opacity: 0.8;
+}
+.patline .hint {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  flex: none;
+}
+
+/* 선택한 날 상세 */
+.dayx {
+  position: sticky;
+  top: 82px;
+}
+.dayx .dtitle {
+  font-family: Jua;
+  font-weight: 400;
+  font-size: 17px;
+  margin-bottom: 3px;
+}
+.dayx .dsub {
+  font-size: 12.5px;
+  color: var(--soft);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.bcard {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--c, var(--mint));
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 9px;
+  background: #fff;
+}
+.bcard:last-child {
+  margin-bottom: 0;
+}
+.bcard .btime {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+.bcard .btime .dur {
+  margin-left: auto;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--soft);
+}
+.bcard .btitle {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.5;
+  font-weight: 500;
+}
+.bcard .bmeta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 9px;
+  font-size: 12px;
+  color: var(--soft);
+  flex-wrap: wrap;
+}
+.bcard .bmeta .cat {
+  font-weight: 700;
+  color: color-mix(in srgb, var(--c) 70%, #2a2a2a);
+}
+.bcard .vlink {
+  margin-left: auto;
+  font-weight: 700;
   color: var(--ink);
 }
-.sesrow {
-  display: grid;
-  grid-template-columns: 80px 1fr auto auto;
-  gap: 12px;
-  align-items: center;
-  padding: 11px 2px;
-  border-bottom: 1px solid var(--line);
-  font-size: 12.5px;
-}
-.sesrow:last-child {
-  border: 0;
-}
-.sesrow .d {
-  color: var(--soft);
+.dayx .empty-day {
+  border: 1.5px dashed var(--line2);
+  border-radius: 12px;
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--faint);
+  font-size: 13px;
   font-weight: 600;
-  font-size: 11.5px;
-}
-.sesrow .t {
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.sesrow .dur {
-  color: var(--ink2);
-  font-weight: 700;
-  font-size: 11.5px;
-}
-.sesrow .pk {
-  color: var(--soft);
-  font-size: 11px;
-  min-width: 74px;
-  text-align: right;
-}
-@media (max-width: 720px) {
-  .sesrow {
-    grid-template-columns: 58px 1fr auto;
-  }
-  .sesrow .pk {
-    display: none;
-  }
 }
 
 /* ── VOD ── */
@@ -964,7 +1041,7 @@
   right: 7px;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   padding: 2px 7px;
   border-radius: 5px;
@@ -973,7 +1050,7 @@
   padding: 10px 12px 12px;
 }
 .vod .bd b {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   display: block;
   line-height: 1.45;
@@ -981,7 +1058,7 @@
   overflow: hidden;
 }
 .vod .bd .sub {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--faint);
   display: flex;
   gap: 8px;
@@ -992,15 +1069,99 @@
   color: var(--ink2);
   font-weight: 700;
 }
-.fchips {
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  padding: 2px 0 8px;
-  scrollbar-width: none;
+
+/* ── 스트리머 선택 드롭다운 ── */
+.pickwrap {
+  position: relative;
+  display: inline-block;
 }
-.fchips::-webkit-scrollbar {
-  display: none;
+.pickbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: var(--sh);
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.15s;
+}
+.pickbtn:hover {
+  border-color: var(--faint);
+}
+.pickbtn img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #f4f5f7;
+}
+.pickbtn .caret {
+  color: var(--faint);
+  font-size: 12px;
+}
+.pickmenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 60;
+  width: 292px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border: 1px solid var(--line2);
+  border-radius: 14px;
+  box-shadow: 0 18px 44px -18px rgba(16, 20, 30, 0.32);
+  padding: 8px;
+}
+.pickmenu .psearch {
+  width: 100%;
+  border: 1px solid var(--line2);
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 13px;
+  outline: none;
+  margin-bottom: 6px;
+}
+.pickmenu .psearch:focus {
+  border-color: var(--ink);
+}
+.picklist {
+  max-height: 272px;
+  overflow-y: auto;
+}
+.pickitem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  transition: 0.12s;
+}
+.pickitem:hover {
+  background: #f4f5f7;
+}
+.pickitem.on {
+  background: var(--ink);
+  color: #fff;
+}
+.pickitem img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #f4f5f7;
+  flex: none;
+}
+.pickscrim {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
 }
 
 /* ── 이력 페이지 ── */
@@ -1013,21 +1174,21 @@
 .datebar .db {
   border: 1px solid var(--line2);
   border-radius: 11px;
-  padding: 8px 15px;
-  font-size: 13px;
+  padding: 9px 16px;
+  font-size: 13.5px;
   font-weight: 700;
   background: #fff;
   box-shadow: var(--sh);
 }
 .datebar .arr {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--line2);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--soft);
   background: #fff;
   box-shadow: var(--sh);
@@ -1043,12 +1204,12 @@
 }
 .grow {
   display: grid;
-  grid-template-columns: 104px 1fr 48px;
+  grid-template-columns: 110px 1fr 50px;
   gap: 11px;
   align-items: center;
-  padding: 8px 0;
+  padding: 9px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 .grow:last-child {
   border: 0;
@@ -1061,15 +1222,15 @@
   overflow: hidden;
 }
 .grow .nm img {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   object-fit: cover;
   flex: none;
   background: #f4f5f7;
 }
 .grow .gt {
-  height: 15px;
+  height: 16px;
   background: #f6f7f9;
   border-radius: 5px;
   position: relative;
@@ -1094,57 +1255,48 @@
   opacity: 0.92;
   min-width: 3px;
 }
-/* 자정을 넘겨 다음 날까지 이어진 방송 — 오른쪽 페이드로 표시 */
-.grow .gt span.over,
-.track span.over {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent);
-  mask-image: linear-gradient(90deg, #000 78%, transparent);
-}
 .grow .hrs {
   color: var(--soft);
   font-weight: 700;
   text-align: right;
-  font-size: 11px;
+  font-size: 12px;
 }
 .gaxis {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  margin: 8px 0 0 115px;
-  font-size: 9px;
+  margin: 9px 0 0 121px;
+  font-size: 12px;
   color: var(--faint);
 }
-/* 모바일: 간트 → 시간 리스트 */
 .mrow {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 10px;
   align-items: center;
-  padding: 10px 0;
+  padding: 11px 0;
   border-bottom: 1px solid var(--line);
 }
 .mrow:last-child {
   border: 0;
 }
 .mrow img {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   background: #f4f5f7;
 }
 .mrow .who {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 .mrow .rng {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--soft);
   margin-top: 2px;
 }
 .mrow .hrs {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--ink2);
 }
@@ -1180,7 +1332,7 @@
 }
 .admrow {
   display: grid;
-  grid-template-columns: 34px 1fr auto 56px auto 40px;
+  grid-template-columns: 34px 1fr auto 58px auto 40px;
   gap: 11px;
   align-items: center;
   padding: 9px 2px;
@@ -1200,20 +1352,20 @@
   background: #f4f5f7;
 }
 .admrow b {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
 }
 .admrow .csw {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--soft);
 }
 .admrow .csw i {
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
   border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
@@ -1223,7 +1375,7 @@
 }
 .admrow .tg {
   width: 34px;
-  height: 19px;
+  height: 20px;
   border-radius: 99px;
   background: var(--faint);
   position: relative;
@@ -1234,8 +1386,8 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #fff;
   transition: 0.18s;
@@ -1244,22 +1396,21 @@
   background: var(--mint);
 }
 .admrow .tg.on::after {
-  left: 17px;
+  left: 16px;
 }
 .admside {
   display: flex;
   flex-direction: column;
   gap: 14px;
   position: sticky;
-  top: 80px;
+  top: 82px;
 }
 .ainp {
   width: 100%;
   border: 1px solid var(--line2);
   border-radius: 10px;
   padding: 10px 13px;
-  font-size: 13px;
-  font-family: inherit;
+  font-size: 13.5px;
   margin-top: 14px;
   outline: none;
   transition: 0.15s;
@@ -1273,8 +1424,8 @@
   background: var(--ink);
   color: #fff;
   border-radius: 10px;
-  padding: 10px;
-  font-size: 13px;
+  padding: 11px;
+  font-size: 13.5px;
   font-weight: 700;
   transition: 0.15s;
 }
@@ -1311,12 +1462,12 @@
   background: #f4f5f7;
 }
 .ares b {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
 }
 .ares s {
   text-decoration: none;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--faint);
   font-weight: 600;
 }
