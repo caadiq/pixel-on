@@ -4,6 +4,7 @@ import { History } from './pages/History';
 import { Home } from './pages/Home';
 import { StreamerDetail } from './pages/StreamerDetail';
 import { Vods } from './pages/Vods';
+import { Admin } from './pages/Admin';
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
           <Route path="/streamer/:id" element={<StreamerDetail />} />
           <Route path="/history" element={<History />} />
           <Route path="/vods" element={<Vods />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
     </BrowserRouter>
