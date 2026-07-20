@@ -138,12 +138,6 @@ export function History() {
           <button className="arr" onClick={() => setDate(shiftDate(date, 1))} disabled={isToday} aria-label="다음 날">
             →
           </button>
-          {started.length > 0 && (
-            <span className="pill" style={{ marginLeft: 'auto' }}>
-              방송 <b className="num">{started.length}</b>건 · 총{' '}
-              <b className="num">{Math.round(totalMs / 3600_000)}</b>시간
-            </span>
-          )}
         </div>
       </section>
 
@@ -156,6 +150,7 @@ export function History() {
           <>
             {/* PC: 간트 */}
             <div className="panel pc-only">
+              <Summary count={started.length} totalMs={totalMs} />
               {carried.map((r) => {
                 const en = Math.min(
                   1,
@@ -221,6 +216,7 @@ export function History() {
 
             {/* 모바일: 시간 리스트 (그날 시작한 방송만) */}
             <div className="panel mb-only">
+              <Summary count={started.length} totalMs={totalMs} />
               {started.map((r) => {
                 const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
                 return (
@@ -251,6 +247,15 @@ export function History() {
         }
       `}</style>
     </main>
+  );
+}
+
+function Summary({ count, totalMs }: { count: number; totalMs: number }) {
+  if (count === 0) return null;
+  return (
+    <div className="psum num">
+      방송 <b>{count}</b>건 · 총 <b>{Math.round(totalMs / 3600_000)}</b>시간
+    </div>
   );
 }
 

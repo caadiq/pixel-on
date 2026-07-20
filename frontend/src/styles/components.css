@@ -1305,6 +1305,7 @@
 .datebar {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -1531,16 +1532,28 @@
 .gaxis span:last-child {
   transform: translateX(-100%);
 }
+.psum {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--soft);
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--line);
+}
+.psum b {
+  color: var(--ink);
+  font-weight: 800;
+}
 .mrow {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 10px;
   align-items: center;
-  padding: 11px 0;
+  padding: 13px 0;
   border-bottom: 1px solid var(--line);
 }
 .mrow:last-child {
   border: 0;
+  padding-bottom: 0;
 }
 .mrow img {
   width: 38px;
