@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useState } from 'react';
-import { useStreamerPattern, useStreamerSessions, useStreamerVods } from '../api/hooks';
+import { useStreamerMonthSessions, useStreamerPattern, useStreamerVods } from '../api/hooks';
 import type { SessionItem } from '../api/types';
 import { fmtDurKo, fmtTime } from '../lib/format';
 
@@ -15,13 +15,13 @@ const kstKey = (d: Date) => d.toISOString().slice(0, 10);
  * 방송일 귀속: 시작일 기준.
  */
 export function BroadcastRecord({ id, color }: { id: number; color: string }) {
-  const { data } = useStreamerSessions(id, 730);
-  const { data: pattern } = useStreamerPattern(id);
-  const { data: vodData } = useStreamerVods(id);
-
   const now = kstNow();
   const [ym, setYm] = useState<[number, number]>([now.getUTCFullYear(), now.getUTCMonth()]);
   const [picked, setPicked] = useState<string | null>(null);
+  // 보고 있는 달의 세션 전체를 월 단위로 조회 (30건 제한 없음)
+  const { data } = useStreamerMonthSessions(id, ym[0], ym[1]);
+  const { data: pattern } = useStreamerPattern(id);
+  const { data: vodData } = useStreamerVods(id);
 
   /** 시작일(KST) 기준 날짜별 세션 — 시간순 오름차순 */
   const byDate = useMemo(() => {

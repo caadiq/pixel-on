@@ -67,20 +67,43 @@ streamerDetailRoute.get('/', async (c) => {
   });
 });
 
-/** 방송 이력 + 잔디용 일별 집계. ?days=182 */
+/**
+ * 방송 이력 + 일별 집계.
+ * ?month=YYYY-MM (KST 월 단위 — 달력용, 그 달 세션 전체 반환)
+ * ?days=182 (최근 N일 — 목록용, limit 적용)
+ */
 streamerDetailRoute.get('/sessions', async (c) => {
   const id = Number(c.req.param('id'));
   const s = await getStreamer(id);
   if (!s) return c.json({ error: 'not found' }, 404);
 
-  const days = Math.min(Number(c.req.query('days') ?? 182), 730);
-  const limit = Math.min(Number(c.req.query('limit') ?? 30), 100);
-  const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const month = c.req.query('month');
+  let from: Date;
+  let to: Date | null = null;
+  let limit: number;
+
+  if (month && /^\d{4}-\d{2}$/.test(month)) {
+    const [y, m] = month.split('-').map(Number);
+    const next = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
+    from = new Date(`${month}-01T00:00:00+09:00`);
+    to = new Date(`${next}-01T00:00:00+09:00`);
+    limit = 200; // 한 달 세션은 전부 (하루 2방송이어도 ~60건)
+  } else {
+    const days = Math.min(Number(c.req.query('days') ?? 182), 730);
+    from = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    limit = Math.min(Number(c.req.query('limit') ?? 30), 100);
+  }
 
   const rows = await db
     .select()
     .from(sessions)
-    .where(and(eq(sessions.streamerId, id), gte(sessions.startedAt, from)))
+    .where(
+      and(
+        eq(sessions.streamerId, id),
+        gte(sessions.startedAt, from),
+        ...(to ? [lt(sessions.startedAt, to)] : []),
+      ),
+    )
     .orderBy(desc(sessions.startedAt));
 
   // 잔디: KST 날짜별 방송 시간(시간 단위, 시작일 귀속)
