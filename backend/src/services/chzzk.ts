@@ -164,3 +164,33 @@ export async function fetchChzzkChannel(channelId: string): Promise<ChzzkChannel
     followers: c.followerCount,
   };
 }
+
+export interface ChzzkSearchResult {
+  channelId: string;
+  name: string;
+  profileImage: string;
+  followers: number;
+}
+
+interface SearchRaw {
+  data: Array<{
+    channel: {
+      channelId: string;
+      channelName: string;
+      channelImageUrl: string | null;
+      followerCount: number;
+    };
+  }>;
+}
+
+export async function searchChzzkChannels(keyword: string): Promise<ChzzkSearchResult[]> {
+  const c = await get<SearchRaw>(
+    `https://api.chzzk.naver.com/service/v1/search/channels?keyword=${encodeURIComponent(keyword)}&size=5`,
+  );
+  return (c?.data ?? []).map((d) => ({
+    channelId: d.channel.channelId,
+    name: d.channel.channelName,
+    profileImage: d.channel.channelImageUrl ?? '',
+    followers: d.channel.followerCount,
+  }));
+}

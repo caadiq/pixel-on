@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
+import { adminRoute } from './routes/admin.js';
 import { statsRoute } from './routes/stats.js';
 import { streamerDetailRoute } from './routes/streamerDetail.js';
 import { streamersRoute } from './routes/streamers.js';
@@ -10,6 +11,7 @@ app.use('*', logger());
 
 app.get('/api/health', (c) => c.json({ ok: true }));
 
+app.route('/api/admin', adminRoute);
 app.route('/api/streamers', streamersRoute);
 app.route('/api/streamers/:id', streamerDetailRoute);
 app.route('/api', statsRoute);

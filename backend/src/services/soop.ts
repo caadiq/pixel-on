@@ -135,3 +135,31 @@ export async function fetchSoopVods(
 function normalizeDuration(d: number): number {
   return d > 86_400 * 3 ? Math.round(d / 1000) : d;
 }
+
+export interface SoopSearchResult {
+  soopId: string;
+  name: string;
+  profileImage: string;
+  followers: number;
+}
+
+interface BjSearchRaw {
+  DATA?: Array<{
+    user_id: string;
+    user_nick: string;
+    station_logo?: string;
+    favorite_cnt?: string | number;
+  }>;
+}
+
+export async function searchSoopChannels(keyword: string): Promise<SoopSearchResult[]> {
+  const j = (await get(
+    `https://sch.sooplive.co.kr/api.php?m=bjSearch&v=1.0&szKeyword=${encodeURIComponent(keyword)}&c=UTF-8&nPageNo=1&nListCnt=5`,
+  )) as BjSearchRaw | null;
+  return (j?.DATA ?? []).map((d) => ({
+    soopId: d.user_id,
+    name: d.user_nick,
+    profileImage: d.station_logo ?? '',
+    followers: Number(d.favorite_cnt ?? 0),
+  }));
+}
