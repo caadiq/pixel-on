@@ -83,3 +83,52 @@ export async function fetchSoopStation(soopId: string): Promise<SoopStation | nu
       : null,
   };
 }
+
+export interface SoopVod {
+  titleNo: number;
+  title: string;
+  category: string | null;
+  /** 등록 시각 ≈ 방송 종료 직후 */
+  regDate: Date;
+  /** 영상 길이 (초) */
+  duration: number;
+}
+
+interface VodListRaw {
+  data?: Array<{
+    title_no: number;
+    title_name: string;
+    reg_date: string;
+    ucc?: {
+      total_file_duration?: number;
+      category_tags?: string[];
+    };
+  }>;
+  meta?: { last_page?: number; current_page?: number };
+}
+
+/** 다시보기(REVIEW=본방 다시보기) 목록 — page는 1부터 */
+export async function fetchSoopVods(
+  soopId: string,
+  page: number,
+): Promise<{ vods: SoopVod[]; hasMore: boolean } | null> {
+  const j = (await get(
+    `https://chapi.sooplive.co.kr/api/${encodeURIComponent(soopId)}/vods/review?page=${page}&per_page=30&orderby=reg_date`,
+  )) as VodListRaw | null;
+  if (!j?.data) return null;
+  return {
+    vods: j.data.map((v) => ({
+      titleNo: v.title_no,
+      title: v.title_name,
+      category: v.ucc?.category_tags?.[0] ?? null,
+      regDate: parseKst(v.reg_date),
+      duration: normalizeDuration(v.ucc?.total_file_duration ?? 0),
+    })),
+    hasMore: (j.meta?.current_page ?? page) < (j.meta?.last_page ?? page),
+  };
+}
+
+/** 숲 duration은 ms로 오는 경우가 있어 보정 (3일 초과 값이면 ms로 간주) */
+function normalizeDuration(d: number): number {
+  return d > 86_400 * 3 ? Math.round(d / 1000) : d;
+}

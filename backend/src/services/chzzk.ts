@@ -87,6 +87,56 @@ export async function fetchChzzkLiveStatus(channelId: string): Promise<ChzzkLive
   };
 }
 
+export interface ChzzkVideo {
+  videoNo: number;
+  title: string;
+  category: string | null;
+  /** VOD 공개 시각 ≈ 방송 종료 직후 */
+  publishDate: Date;
+  /** 영상 길이 (초) */
+  duration: number;
+  /** 라이브 누적 시청 (있으면) */
+  livePv: number | null;
+}
+
+interface VideoListRaw {
+  totalCount: number;
+  totalPages: number;
+  data: Array<{
+    videoNo: number;
+    videoTitle: string;
+    videoType: string;
+    publishDate: string;
+    duration: number;
+    videoCategoryValue: string | null;
+    livePv: number | null;
+  }>;
+}
+
+/** 다시보기(REPLAY) 목록 — page는 0부터 */
+export async function fetchChzzkVideos(
+  channelId: string,
+  page: number,
+): Promise<{ videos: ChzzkVideo[]; hasMore: boolean } | null> {
+  const c = await get<VideoListRaw>(
+    `https://api.chzzk.naver.com/service/v1/channels/${channelId}/videos?size=30&page=${page}&sortType=LATEST`,
+  );
+  if (!c) return null;
+  return {
+    videos: c.data
+      .filter((v) => v.videoType === 'REPLAY')
+      .map((v) => ({
+        videoNo: v.videoNo,
+        title: v.videoTitle,
+        category: v.videoCategoryValue,
+        publishDate: parseKst(v.publishDate),
+        duration: v.duration,
+        livePv: v.livePv,
+      })),
+    hasMore: page + 1 < c.totalPages,
+  };
+}
+
 export interface ChzzkChannel {
   channelId: string;
   name: string;
