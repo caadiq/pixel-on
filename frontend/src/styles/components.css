@@ -798,12 +798,13 @@
   color: #94aef0;
 }
 .mday {
-  aspect-ratio: 1;
-  border-radius: 9px;
+  min-height: 58px;
+  border-radius: 10px;
   border: 1px solid var(--line);
-  position: relative;
-  padding: 5px 6px;
-  min-height: 0;
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .mday.blank {
   border: 0;
@@ -816,28 +817,30 @@
   outline-offset: -1px;
 }
 .mday .dn {
-  font-size: 10.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--ink2);
   mix-blend-mode: multiply;
+  line-height: 1;
 }
 .mday .dh {
-  position: absolute;
-  right: 6px;
-  bottom: 4px;
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 800;
-  color: rgba(22, 24, 29, 0.65);
+  color: rgba(22, 24, 29, 0.68);
+  align-self: flex-end;
+  line-height: 1;
 }
 @media (max-width: 720px) {
   .mday {
-    border-radius: 6px;
-    padding: 3px 4px;
+    min-height: 46px;
+    border-radius: 8px;
+    padding: 5px 6px;
+  }
+  .mday .dn {
+    font-size: 11px;
   }
   .mday .dh {
-    right: 4px;
-    bottom: 2px;
-    font-size: 8px;
+    font-size: 10px;
   }
 }
 .hm {
