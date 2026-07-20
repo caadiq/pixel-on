@@ -166,15 +166,19 @@ function TodayPanel() {
       {rows.length === 0 && <div className="empty">아직 오늘 방송한 사람이 없어요</div>}
       {rows.map((r) => {
         const dayStart = new Date(`${data!.date}T00:00:00+09:00`).getTime();
-        const st = Math.max(0, (new Date(r.startedAt).getTime() - dayStart) / 86400_000);
-        const en = Math.min(1, ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000);
-        // 그 날과 겹치는 시간만 (막대와 숫자가 일치하도록)
-        const ms = Math.max(0, (en - st) * 86400_000);
+        const st = (new Date(r.startedAt).getTime() - dayStart) / 86400_000;
+        const endMs = r.endedAt ? new Date(r.endedAt).getTime() : Date.now();
+        const rawEn = (endMs - dayStart) / 86400_000;
+        const en = Math.min(1, rawEn);
+        const ms = endMs - new Date(r.startedAt).getTime();
         return (
           <div key={r.id} className="trow" style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}>
             <span className="nm">{r.name}</span>
             <span className="track">
-              <span style={{ left: `${st * 100}%`, width: `${(en - st) * 100}%` }} />
+              <span
+                className={rawEn > 1 ? 'over' : ''}
+                style={{ left: `${st * 100}%`, width: `${Math.max(1, (en - st) * 100)}%` }}
+              />
             </span>
             <span className="hrs num">{(ms / 3600_000).toFixed(1)}h</span>
           </div>

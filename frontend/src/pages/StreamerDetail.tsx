@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   useStreamerDetail,
@@ -82,20 +83,31 @@ export function StreamerDetail() {
   );
 }
 
+const CAL_DAY_HEADS = ['일', '월', '화', '수', '목', '금', '토'];
+
 function Calendar({ id, color }: { id: number; color: string }) {
-  const { data } = useStreamerSessions(id);
+  const { data } = useStreamerSessions(id, 730);
+  const now = new Date(Date.now() + 9 * 3600_000);
+  const [ym, setYm] = useState<[number, number]>([now.getUTCFullYear(), now.getUTCMonth()]);
   if (!data) return null;
 
+  const [year, month] = ym;
   const byDate = new Map(data.daily.map((d) => [d.date, d.hours]));
-  const cells: { date: string; hours: number }[] = [];
-  for (let i = 181; i >= 0; i--) {
-    const key = new Date(Date.now() + 9 * 3600_000 - i * 86400_000).toISOString().slice(0, 10);
-    cells.push({ date: key, hours: byDate.get(key) ?? 0 });
-  }
+  const first = new Date(Date.UTC(year, month, 1));
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const leadBlanks = first.getUTCDay(); // 일요일 시작
+  const todayKey = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
+
   const level = (h: number) => {
-    if (h === 0) return '#f1f3f6';
-    const a = h < 3 ? 0.3 : h < 6 ? 0.55 : h < 9 ? 0.8 : 1;
-    return `color-mix(in srgb, ${color} ${a * 100}%, #f1f3f6)`;
+    if (h === 0) return 'transparent';
+    const a = h < 3 ? 28 : h < 6 ? 52 : h < 9 ? 76 : 100;
+    return `color-mix(in srgb, ${color} ${a}%, #fff)`;
+  };
+
+  const isCurrentMonth = year === now.getUTCFullYear() && month === now.getUTCMonth();
+  const move = (d: number) => {
+    const m = new Date(Date.UTC(year, month + d, 1));
+    setYm([m.getUTCFullYear(), m.getUTCMonth()]);
   };
 
   return (
@@ -104,12 +116,36 @@ function Calendar({ id, color }: { id: number; color: string }) {
         <h3>
           <span className="mark" style={{ background: color }} />
           방송 캘린더
-          <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--faint)' }}>최근 26주</span>
+          <span className="calnav">
+            <button onClick={() => move(-1)} aria-label="이전 달">←</button>
+            <b className="num">{year}년 {month + 1}월</b>
+            <button onClick={() => move(1)} disabled={isCurrentMonth} aria-label="다음 달">→</button>
+          </span>
         </h3>
-        <div className="grass">
-          {cells.map((d) => (
-            <i key={d.date} style={{ background: level(d.hours) }} title={`${d.date} · ${d.hours}시간`} />
+        <div className="mcal">
+          {CAL_DAY_HEADS.map((d, i) => (
+            <div key={d} className={`mh ${i === 0 ? 'sun' : ''} ${i === 6 ? 'sat' : ''}`}>{d}</div>
           ))}
+          {Array.from({ length: leadBlanks }, (_, i) => (
+            <div key={`b${i}`} className="mday blank" />
+          ))}
+          {Array.from({ length: daysInMonth }, (_, i) => {
+            const day = i + 1;
+            const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const hours = byDate.get(key) ?? 0;
+            const isFuture = key > todayKey;
+            return (
+              <div
+                key={key}
+                className={`mday ${key === todayKey ? 'today' : ''} ${isFuture ? 'future' : ''}`}
+                style={{ background: level(hours) }}
+                title={hours > 0 ? `${key} · ${hours}시간 방송` : key}
+              >
+                <span className="dn num">{day}</span>
+                {hours > 0 && <span className="dh num">{hours >= 10 ? Math.round(hours) : hours}h</span>}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

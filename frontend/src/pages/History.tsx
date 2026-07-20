@@ -15,15 +15,11 @@ export function History() {
   const isToday = date === kstToday();
 
   const rows = data?.sessions ?? [];
-  // 그 날과 겹치는 구간만 집계 (자정 걸친 방송은 날짜별로 나눠 계산)
+  // 방송일 = 시작일 귀속 — 자정을 넘겨도 전체 길이를 그날 것으로 집계
   const dayStart = new Date(`${date}T00:00:00+09:00`).getTime();
-  const dayEnd = dayStart + 86400_000;
-  const overlapMs = (r: { startedAt: string; endedAt: string | null }) => {
-    const s = Math.max(new Date(r.startedAt).getTime(), dayStart);
-    const e = Math.min(r.endedAt ? new Date(r.endedAt).getTime() : Date.now(), dayEnd);
-    return Math.max(0, e - s);
-  };
-  const totalMs = rows.reduce((a, r) => a + overlapMs(r), 0);
+  const fullMs = (r: { startedAt: string; endedAt: string | null }) =>
+    (r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - new Date(r.startedAt).getTime();
+  const totalMs = rows.reduce((a, r) => a + fullMs(r), 0);
 
   return (
     <main className="wrap">
@@ -54,12 +50,10 @@ export function History() {
             {/* PC: 간트 */}
             <div className="panel pc-only">
               {rows.map((r) => {
-                const st = Math.max(0, (new Date(r.startedAt).getTime() - dayStart) / 86400_000);
-                const en = Math.min(
-                  1,
-                  ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000,
-                );
-                const ms = overlapMs(r);
+                const st = (new Date(r.startedAt).getTime() - dayStart) / 86400_000;
+                const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
+                const overflow = rawEn > 1; // 자정 넘김
+                const en = Math.min(1, rawEn);
                 return (
                   <div key={r.id} className="grow" style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}>
                     <span className="nm">
@@ -67,9 +61,12 @@ export function History() {
                       {r.name}
                     </span>
                     <span className="gt" title={r.title}>
-                      <span style={{ left: `${st * 100}%`, width: `${Math.max(0.5, (en - st) * 100)}%` }} />
+                      <span
+                        className={overflow ? 'over' : ''}
+                        style={{ left: `${st * 100}%`, width: `${Math.max(0.5, (en - st) * 100)}%` }}
+                      />
                     </span>
-                    <span className="hrs num">{(ms / 3600_000).toFixed(1)}h</span>
+                    <span className="hrs num">{(fullMs(r) / 3600_000).toFixed(1)}h</span>
                   </div>
                 );
               })}
@@ -83,19 +80,18 @@ export function History() {
             {/* 모바일: 시간 리스트 */}
             <div className="panel mb-only">
               {rows.map((r) => {
-                const startedBefore = new Date(r.startedAt).getTime() < dayStart;
+                const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
                 return (
                   <div key={r.id} className="mrow">
                     <img src={r.profileImage} alt="" loading="lazy" />
                     <span>
                       <span className="who">{r.name}</span>
                       <div className="rng num">
-                        {startedBefore ? '전날 ' : ''}
-                        {fmtTime(r.startedAt)} → {r.endedAt ? fmtTime(r.endedAt) : '방송 중'}
+                        {fmtTime(r.startedAt)} → {r.endedAt ? `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt)}` : '방송 중'}
                         {r.source === 'backfill' && ' ≈'}
                       </div>
                     </span>
-                    <span className="hrs num">{fmtDurKo(overlapMs(r))}</span>
+                    <span className="hrs num">{fmtDurKo(fullMs(r))}</span>
                   </div>
                 );
               })}

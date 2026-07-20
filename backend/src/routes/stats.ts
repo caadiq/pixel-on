@@ -10,15 +10,15 @@ export const statsRoute = new Hono();
 const durMs = (s: { startedAt: Date; endedAt: Date | null }) =>
   (s.endedAt ?? new Date()).getTime() - s.startedAt.getTime();
 
-/** 특정 KST 날짜와 겹치는 전체 세션 (간트용). ?date=YYYY-MM-DD (기본 오늘) */
+/**
+ * 특정 KST 날짜에 "시작한" 세션 (간트용). ?date=YYYY-MM-DD (기본 오늘)
+ * 방송일 = 시작일 귀속 — 어제 밤에 켜서 오늘 새벽에 끈 방송은 어제 것
+ */
 statsRoute.get('/sessions/day', async (c) => {
   const date = c.req.query('date') ?? kstDateStr(new Date());
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return c.json({ error: 'bad date' }, 400);
   const { start, end } = kstDayRange(date);
 
-  // 그 날과 겹침: started_at < end AND (ended_at IS NULL OR ended_at > start)
-  // 하한 48시간 — 이보다 긴 방송은 없다 (백필 필터와 동일 전제)
-  const floor = new Date(start.getTime() - 48 * 60 * 60 * 1000);
   const rows = await db
     .select({
       id: sessions.id,
@@ -36,14 +36,13 @@ statsRoute.get('/sessions/day', async (c) => {
     })
     .from(sessions)
     .innerJoin(streamers, eq(streamers.id, sessions.streamerId))
-    .where(and(gte(sessions.startedAt, floor), lt(sessions.startedAt, end), eq(streamers.active, true)));
+    .where(and(gte(sessions.startedAt, start), lt(sessions.startedAt, end), eq(streamers.active, true)));
 
-  const overlapping = rows.filter((r) => r.endedAt === null || r.endedAt.getTime() > start.getTime());
-  overlapping.sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime());
+  rows.sort((a, b) => a.startedAt.getTime() - b.startedAt.getTime());
 
   return c.json({
     date,
-    sessions: overlapping.map((r) => ({
+    sessions: rows.map((r) => ({
       id: r.id,
       streamerId: r.streamerId,
       name: r.name,
