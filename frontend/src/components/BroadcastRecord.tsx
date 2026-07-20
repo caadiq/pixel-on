@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useStreamerPattern, useStreamerSessions } from '../api/hooks';
+import { Fragment, useMemo, useState } from 'react';
+import { useStreamerPattern, useStreamerSessions, useStreamerVods } from '../api/hooks';
 import type { SessionItem } from '../api/types';
 import { fmtDurKo, fmtTime } from '../lib/format';
 
@@ -10,21 +10,24 @@ const kstNow = () => new Date(Date.now() + 9 * 3600_000);
 const kstKey = (d: Date) => d.toISOString().slice(0, 10);
 
 /**
- * 방송 기록 — 달력 + 선택한 날 상세 + 시간대 패턴 요약을 하나로.
- * (기존 방송 캘린더 / 요일×시간 히트맵 / 최근 방송 3개를 통합)
+ * 방송 기록 — 달력 아코디언 (시안 B)
+ * 셀에 게이지 막대, 날짜 클릭 시 그 주 아래로 상세 카드(썸네일 포함)가 펼쳐짐.
+ * 방송일 귀속: 시작일 기준.
  */
 export function BroadcastRecord({ id, color }: { id: number; color: string }) {
   const { data } = useStreamerSessions(id, 730);
   const { data: pattern } = useStreamerPattern(id);
+  const { data: vodData } = useStreamerVods(id);
 
   const now = kstNow();
   const [ym, setYm] = useState<[number, number]>([now.getUTCFullYear(), now.getUTCMonth()]);
   const [picked, setPicked] = useState<string | null>(null);
 
-  /** 날짜별 세션 묶음 */
+  /** 시작일(KST) 기준 날짜별 세션 — 시간순 오름차순 */
   const byDate = useMemo(() => {
     const m = new Map<string, SessionItem[]>();
-    for (const s of data?.sessions ?? []) {
+    const sorted = [...(data?.sessions ?? [])].sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+    for (const s of sorted) {
       const key = kstKey(new Date(new Date(s.startedAt).getTime() + 9 * 3600_000));
       const arr = m.get(key);
       if (arr) arr.push(s);
@@ -38,6 +41,12 @@ export function BroadcastRecord({ id, color }: { id: number; color: string }) {
     [data],
   );
 
+  /** vodId → { thumbnail, url } */
+  const vodMap = useMemo(
+    () => new Map((vodData?.vods ?? []).map((v) => [v.id, { thumbnail: v.thumbnail, url: v.url }])),
+    [vodData],
+  );
+
   if (!data) return null;
 
   const [year, month] = ym;
@@ -45,6 +54,7 @@ export function BroadcastRecord({ id, color }: { id: number; color: string }) {
   const leadBlanks = new Date(Date.UTC(year, month, 1)).getUTCDay();
   const todayKey = kstKey(now);
   const isCurrentMonth = year === now.getUTCFullYear() && month === now.getUTCMonth();
+  const maxHours = 14; // 게이지 만점 기준
 
   const move = (d: number) => {
     const m = new Date(Date.UTC(year, month + d, 1));
@@ -52,145 +62,215 @@ export function BroadcastRecord({ id, color }: { id: number; color: string }) {
     setPicked(null);
   };
 
-  const level = (h: number) => {
-    if (h === 0) return 'transparent';
-    const a = h < 3 ? 26 : h < 6 ? 50 : h < 9 ? 74 : 100;
-    return `color-mix(in srgb, ${color} ${a}%, #fff)`;
-  };
-
-  // 선택된 날 (없으면 이 달에서 방송한 가장 최근 날)
   const monthKeys = Array.from({ length: daysInMonth }, (_, i) =>
     `${year}-${String(month + 1).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`,
   );
+  // 기본 선택: 이 달의 마지막 방송일
   const defaultKey = [...monthKeys].reverse().find((k) => byDate.has(k)) ?? null;
   const activeKey = picked ?? defaultKey;
   const activeSessions = activeKey ? (byDate.get(activeKey) ?? []) : [];
 
-  // 시간대 패턴 (24시간 합산)
-  const hourly = pattern
-    ? Array.from({ length: 24 }, (_, h) => pattern.grid.reduce((a, row) => a + row[h], 0))
-    : null;
-  const peakHour = hourly ? hourly.indexOf(Math.max(...hourly)) : null;
-  const peakDay = pattern
-    ? pattern.grid
-        .map((row, i) => ({ i, sum: row.reduce((a, b) => a + b, 0) }))
-        .sort((a, b) => b.sum - a.sum)[0]?.i
-    : null;
+  // 셀을 주 단위로 나눔 (선택된 주 뒤에 확장 패널 삽입)
+  type Cell = { key: string | null; day: number };
+  const cells: Cell[] = [
+    ...Array.from({ length: leadBlanks }, () => ({ key: null, day: 0 })),
+    ...monthKeys.map((key, i) => ({ key, day: i + 1 })),
+  ];
+  while (cells.length % 7 !== 0) cells.push({ key: null, day: 0 });
+  const weeks: Cell[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  const activeWeek = activeKey ? weeks.findIndex((w) => w.some((c) => c.key === activeKey)) : -1;
 
   return (
     <section className="sec">
       <div className="shead">
         <h2>방송 기록</h2>
-        <span className="sub">날짜를 누르면 그날 방송을 볼 수 있어요</span>
+        <span className="sub">날짜를 누르면 그날 방송이 펼쳐져요</span>
+        <span className="calnav">
+          <button onClick={() => move(-1)} aria-label="이전 달">←</button>
+          <b className="num">{year}년 {month + 1}월</b>
+          <button onClick={() => move(1)} disabled={isCurrentMonth} aria-label="다음 달">→</button>
+        </span>
       </div>
-      <div className="rec">
-        {/* 달력 */}
-        <div className="panel">
-          <h3>
-            <span className="mark" style={{ background: color }} />
-            {year}년 {month + 1}월
-            <span className="calnav">
-              <button onClick={() => move(-1)} aria-label="이전 달">←</button>
-              <button onClick={() => move(1)} disabled={isCurrentMonth} aria-label="다음 달">→</button>
-            </span>
-          </h3>
 
-          <div className="mcal">
-            {DAY_HEADS.map((d, i) => (
-              <div key={d} className={`mh ${i === 0 ? 'sun' : ''} ${i === 6 ? 'sat' : ''}`}>
-                {d}
-              </div>
-            ))}
-            {Array.from({ length: leadBlanks }, (_, i) => (
-              <div key={`b${i}`} className="mday blank" />
-            ))}
-            {monthKeys.map((key, i) => {
-              const hours = hoursByDate.get(key) ?? 0;
-              const has = byDate.has(key);
-              const future = key > todayKey;
-              return (
-                <button
-                  key={key}
-                  className={`mday ${has ? 'has' : ''} ${key === todayKey ? 'today' : ''} ${
-                    future ? 'future' : ''
-                  } ${key === activeKey ? 'sel' : ''}`}
-                  style={{ background: level(hours) }}
-                  onClick={() => has && setPicked(key)}
-                  disabled={!has}
-                  title={hours > 0 ? `${key} · ${hours}시간` : key}
-                >
-                  <span className="dn num">{i + 1}</span>
-                  {hours > 0 && <span className="dh num">{hours >= 10 ? Math.round(hours) : hours}h</span>}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 시간대 패턴 요약 */}
-          {hourly && peakHour !== null && peakDay !== null && (
-            <div className="patline" style={{ '--c': color } as React.CSSProperties}>
-              <span className="lbl">주로 켜는 시간</span>
-              <span className="bars" title="0시부터 23시까지 방송 시간 분포">
-                {hourly.map((v, h) => (
-                  <i
-                    key={h}
-                    style={{ height: `${Math.max(4, (v / Math.max(...hourly, 1)) * 100)}%` }}
-                    title={`${h}시 · ${v.toFixed(0)}시간`}
+      <div className="panel">
+        <div className="bcal">
+          {DAY_HEADS.map((d, i) => (
+            <div key={d} className={`mh ${i === 0 ? 'sun' : ''} ${i === 6 ? 'sat' : ''}`}>{d}</div>
+          ))}
+          {weeks.map((week, wi) => (
+            <Fragment key={wi}>
+              {week.map((c, ci) =>
+                c.key === null ? (
+                  <div key={`b${wi}-${ci}`} className="bday blank" />
+                ) : (
+                  <DayCell
+                    key={c.key}
+                    dayNo={c.day}
+                    hours={hoursByDate.get(c.key) ?? 0}
+                    has={byDate.has(c.key)}
+                    today={c.key === todayKey}
+                    future={c.key > todayKey}
+                    selected={c.key === activeKey}
+                    maxHours={maxHours}
+                    color={color}
+                    onClick={() => setPicked(c.key)}
                   />
-                ))}
-              </span>
-              <span className="hint">
-                {DAY_NAMES[peakDay]}요일 {peakHour}시쯤
-              </span>
-            </div>
-          )}
+                ),
+              )}
+              {wi === activeWeek && activeKey && (
+                <DayExpand
+                  dateKey={activeKey}
+                  sessions={activeSessions}
+                  color={color}
+                  vodMap={vodMap}
+                />
+              )}
+            </Fragment>
+          ))}
         </div>
 
-        {/* 선택한 날 상세 */}
-        <div className="panel dayx" style={{ '--c': color } as React.CSSProperties}>
-          {activeKey ? (
-            <>
-              <div className="dtitle">{fmtDayTitle(activeKey)}</div>
-              <div className="dsub">
-                방송 {activeSessions.length}회 ·{' '}
-                {fmtDurKo(activeSessions.reduce((a, s) => a + durOf(s), 0))}
-              </div>
-              {activeSessions.map((s) => (
-                <div key={s.id} className="bcard">
-                  <div className="btime num">
-                    {fmtTime(s.startedAt)}
-                    <span style={{ color: 'var(--faint)' }}>→</span>
-                    {s.endedAt ? (
-                      fmtTime(s.endedAt)
-                    ) : (
-                      <span style={{ color: 'var(--live)' }}>방송 중</span>
-                    )}
-                    <span className="dur">{fmtDurKo(durOf(s))}</span>
-                  </div>
-                  <div className="btitle">{s.title || '(제목 없음)'}</div>
-                  <div className="bmeta">
-                    {s.category && <span className="cat">{s.category}</span>}
-                    {s.peakViewers > 0 && <span className="num">최고 {s.peakViewers.toLocaleString('ko-KR')}명</span>}
-                    {s.vodId && (
-                      <a
-                        className="vlink"
-                        href={vodUrl(s.vodId)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        ▶ 다시보기
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </>
-          ) : (
-            <div className="empty-day">이 달에는 방송 기록이 없어요</div>
-          )}
-        </div>
+        <PatternInsight pattern={pattern} color={color} />
       </div>
     </section>
+  );
+}
+
+function DayCell({
+  dayNo, hours, has, today, future, selected, maxHours, color, onClick,
+}: {
+  dayNo: number; hours: number; has: boolean; today: boolean; future: boolean;
+  selected: boolean; maxHours: number; color: string; onClick: () => void;
+}) {
+  return (
+    <button
+      className={`bday ${today ? 'today' : ''} ${future ? 'future' : ''} ${selected ? 'sel' : ''} ${has ? 'has' : ''}`}
+      onClick={onClick}
+      disabled={!has}
+      title={hours > 0 ? `${hours}시간 방송` : undefined}
+    >
+      <span className="dn num">{dayNo}</span>
+      {hours > 0 ? (
+        <>
+          <span className="gh num">{hours >= 10 ? Math.round(hours) : hours}h</span>
+          <span className="gauge">
+            <i style={{ width: `${Math.min(100, (hours / maxHours) * 100)}%`, background: color }} />
+          </span>
+        </>
+      ) : (
+        <span />
+      )}
+    </button>
+  );
+}
+
+function DayExpand({
+  dateKey, sessions, color, vodMap,
+}: {
+  dateKey: string;
+  sessions: SessionItem[];
+  color: string;
+  vodMap: Map<string, { thumbnail: string | null; url: string }>;
+}) {
+  const d = new Date(`${dateKey}T00:00:00+09:00`);
+  const title = d.toLocaleDateString('ko-KR', {
+    timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'short',
+  });
+  const total = sessions.reduce((a, s) => a + durOf(s), 0);
+
+  return (
+    <div className="bexp" style={{ '--c': color } as React.CSSProperties}>
+      <div className="bxh">
+        <b>{title}</b>
+        <span className="num">방송 {sessions.length}회 · {fmtDurKo(total)}</span>
+      </div>
+      {sessions.map((s) => {
+        const vod = s.vodId ? vodMap.get(s.vodId) : undefined;
+        const url = vod?.url ?? (s.vodId ? fallbackVodUrl(s.vodId) : null);
+        return (
+          <div key={s.id} className="brow">
+            {vod?.thumbnail ? (
+              <a className="bthumb" href={url!} target="_blank" rel="noreferrer">
+                <img src={vod.thumbnail} alt="" loading="lazy" />
+                <span className="bplay">▶</span>
+              </a>
+            ) : (
+              <div className="bthumb none">▶</div>
+            )}
+            <div className="binfo">
+              <div className="bt num">
+                {fmtTime(s.startedAt)}
+                <span className="ar">→</span>
+                {s.endedAt ? fmtTime(s.endedAt) : <span style={{ color: 'var(--live)' }}>방송 중</span>}
+                <span className="bd2 num">{fmtDurKo(durOf(s))}</span>
+              </div>
+              <div className="btl">{s.title || '(제목 없음)'}</div>
+              <div className="bsub">
+                {s.category && <span>{s.category}</span>}
+                {s.peakViewers > 0 && <span className="num">최고 {s.peakViewers.toLocaleString('ko-KR')}명</span>}
+              </div>
+            </div>
+            {url && (
+              <a className="bv" href={url} target="_blank" rel="noreferrer">다시보기</a>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** 주로 켜는 시간 — 시간대 히스토그램(축·피크 강조) + 요일 분포 */
+function PatternInsight({
+  pattern, color,
+}: {
+  pattern: { grid: number[][] } | undefined;
+  color: string;
+}) {
+  if (!pattern) return null;
+  const hourly = Array.from({ length: 24 }, (_, h) => pattern.grid.reduce((a, r) => a + r[h], 0));
+  const maxHour = Math.max(...hourly, 1);
+  const peakHour = hourly.indexOf(maxHour);
+  const byDay = pattern.grid.map((r) => r.reduce((a, b) => a + b, 0));
+  const maxDay = Math.max(...byDay, 1);
+  const peakDay = byDay.indexOf(maxDay);
+  if (maxHour <= 0) return null;
+
+  return (
+    <div className="insight" style={{ '--c': color } as React.CSSProperties}>
+      <div className="ins-block hours">
+        <div className="ins-head">
+          <b>주로 켜는 시간</b>
+          <span className="badge num">{DAY_NAMES[peakDay]}요일 {peakHour}시쯤</span>
+        </div>
+        <div className="hbars">
+          {hourly.map((v, h) => (
+            <div key={h} className="hcol" title={`${h}시 · ${Math.round(v)}시간`}>
+              <i
+                className={h === peakHour ? 'peak' : ''}
+                style={{ height: `${Math.max(4, (v / maxHour) * 100)}%` }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="haxis num">
+          {[0, 6, 12, 18, 24].map((h) => <span key={h}>{h}시</span>)}
+        </div>
+      </div>
+      <div className="ins-block days">
+        <div className="ins-head"><b>요일별</b></div>
+        <div className="dbars">
+          {DAY_NAMES.map((name, i) => (
+            <div key={name} className="dcol" title={`${name} · ${Math.round(byDay[i])}시간`}>
+              <div className="dtrack">
+                <i className={i === peakDay ? 'peak' : ''} style={{ height: `${Math.max(4, (byDay[i] / maxDay) * 100)}%` }} />
+              </div>
+              <span className={`dlab ${i === peakDay ? 'peak' : ''}`}>{name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -198,17 +278,7 @@ function durOf(s: SessionItem): number {
   return (s.endedAt ? new Date(s.endedAt).getTime() : Date.now()) - new Date(s.startedAt).getTime();
 }
 
-function fmtDayTitle(key: string): string {
-  const d = new Date(`${key}T00:00:00+09:00`);
-  return d.toLocaleDateString('ko-KR', {
-    timeZone: 'Asia/Seoul',
-    month: 'long',
-    day: 'numeric',
-    weekday: 'short',
-  });
-}
-
-function vodUrl(vodId: string): string {
+function fallbackVodUrl(vodId: string): string {
   const [platform, no] = vodId.split(':');
   return platform === 'soop'
     ? `https://vod.sooplive.co.kr/player/${no}`
