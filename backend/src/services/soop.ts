@@ -5,6 +5,8 @@
  * ⚠ 구 도메인(bjapi.afreecatv.com) 사용 금지 — 현행은 chapi.sooplive.co.kr
  */
 
+import { parseKst } from '../lib/time.js';
+
 const BROWSER_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
 
@@ -80,10 +82,4 @@ export async function fetchSoopStation(soopId: string): Promise<SoopStation | nu
         }
       : null,
   };
-}
-
-/** "YYYY-MM-DD HH:mm:ss" (KST) → Date */
-function parseKst(s: string | undefined): Date {
-  if (!s) return new Date();
-  return new Date(`${s.replace(' ', 'T')}+09:00`);
 }
