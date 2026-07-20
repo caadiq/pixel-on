@@ -36,6 +36,8 @@ export function History() {
   const all = data?.sessions ?? [];
   /** 그날 시작한 방송 (귀속 기준) */
   const started = all.filter((r) => new Date(r.startedAt).getTime() >= dayStart);
+  /** 전날 시작해 자정을 넘겨 이어진 방송 — 00시부터 이어짐 막대로 표시 */
+  const carried = all.filter((r) => new Date(r.startedAt).getTime() < dayStart);
   const fullMs = (r: DaySession) =>
     (r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - new Date(r.startedAt).getTime();
   const totalMs = started.reduce((a, r) => a + fullMs(r), 0);
@@ -73,6 +75,33 @@ export function History() {
           <>
             {/* PC: 간트 */}
             <div className="panel pc-only">
+              {carried.map((r) => {
+                const en = Math.min(
+                  1,
+                  ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000,
+                );
+                return (
+                  <div key={r.id} className="grow" style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}>
+                    <span className="nm">
+                      <img src={r.profileImage} alt="" loading="lazy" />
+                      {r.name}
+                    </span>
+                    <span className="gt">
+                      <span
+                        className={`cont ${r.vodId ? 'linked' : ''}`}
+                        style={{ left: 0, width: `${Math.max(0.5, en * 100)}%` }}
+                        onMouseMove={showTip(r)}
+                        onMouseLeave={() => setTip(null)}
+                        onClick={() => {
+                          const url = vodUrl(r.vodId);
+                          if (url) window.open(url, '_blank', 'noopener');
+                        }}
+                      />
+                    </span>
+                    <span className="hrs num">{(fullMs(r) / 3600_000).toFixed(1)}h</span>
+                  </div>
+                );
+              })}
               {started.map((r) => {
                 const st = (new Date(r.startedAt).getTime() - dayStart) / 86400_000;
                 const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
@@ -183,11 +212,8 @@ function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
           {fmtDurKo(endMs - startMs)}
         </span>
       </div>
-      {(s.peakViewers > 0 || s.vodId) && (
-        <div className="gtip-sub num">
-          {s.peakViewers > 0 && <>최고 {s.peakViewers.toLocaleString('ko-KR')}명 시청</>}
-          {s.vodId && <span className="gtip-go">▶ 클릭하면 다시보기</span>}
-        </div>
+      {s.peakViewers > 0 && (
+        <div className="gtip-sub num">최고 {s.peakViewers.toLocaleString('ko-KR')}명 시청</div>
       )}
     </div>
   );

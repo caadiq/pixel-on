@@ -1415,6 +1415,13 @@
 .grow .gt span.linked {
   cursor: pointer;
 }
+/* 전날 시작해 이어진 방송 — 왼쪽 페이드 */
+.grow .gt span.cont {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%);
+  mask-image: linear-gradient(90deg, transparent, #000 22%);
+}
 .grow .gt span.linked:hover {
   opacity: 1;
   box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--c) 35%, #fff);
@@ -1584,11 +1591,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-.gtip-go {
-  margin-left: auto;
-  color: #ffd426;
-  font-weight: 700;
 }
 
 .empty {
