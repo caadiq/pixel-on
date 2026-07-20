@@ -41,11 +41,37 @@ export function BroadcastRecord({ id, color }: { id: number; color: string }) {
     [data],
   );
 
-  /** vodId → { thumbnail, url } */
-  const vodMap = useMemo(
-    () => new Map((vodData?.vods ?? []).map((v) => [v.id, { thumbnail: v.thumbnail, url: v.url }])),
-    [vodData],
-  );
+  /**
+   * 세션 → 다시보기 매칭.
+   * 1순위 vodId 일치, 2순위 구간 겹침 — VOD 추정 구간(업로드시각−길이 ~ 업로드시각)이
+   * 세션 구간과 겹치면 매칭. 업로드가 수 시간 늦어도(±30분 여유) 잡히고,
+   * 리커버리로 기록돼 vodId가 없는 세션에도 썸네일이 붙는다.
+   */
+  const resolveVod = useMemo(() => {
+    const vods = vodData?.vods ?? [];
+    const byId = new Map(vods.map((v) => [v.id, v]));
+    const MARGIN = 30 * 60 * 1000;
+    return (s: SessionItem) => {
+      if (s.vodId) {
+        const hit = byId.get(s.vodId);
+        if (hit) return hit;
+      }
+      const sStart = new Date(s.startedAt).getTime();
+      const sEnd = s.endedAt ? new Date(s.endedAt).getTime() : Date.now();
+      let best: (typeof vods)[number] | null = null;
+      let bestOverlap = 0;
+      for (const v of vods) {
+        const vEnd = new Date(v.publishedAt).getTime();
+        const vStart = vEnd - v.duration * 1000;
+        const overlap = Math.min(sEnd + MARGIN, vEnd) - Math.max(sStart - MARGIN, vStart);
+        if (overlap > bestOverlap) {
+          bestOverlap = overlap;
+          best = v;
+        }
+      }
+      return best;
+    };
+  }, [vodData]);
 
   if (!data) return null;
 
@@ -123,7 +149,7 @@ export function BroadcastRecord({ id, color }: { id: number; color: string }) {
                   dateKey={activeKey}
                   sessions={activeSessions}
                   color={color}
-                  vodMap={vodMap}
+                  resolveVod={resolveVod}
                 />
               )}
             </Fragment>
@@ -165,12 +191,12 @@ function DayCell({
 }
 
 function DayExpand({
-  dateKey, sessions, color, vodMap,
+  dateKey, sessions, color, resolveVod,
 }: {
   dateKey: string;
   sessions: SessionItem[];
   color: string;
-  vodMap: Map<string, { thumbnail: string | null; url: string }>;
+  resolveVod: (s: SessionItem) => { thumbnail: string | null; url: string } | null;
 }) {
   const d = new Date(`${dateKey}T00:00:00+09:00`);
   const title = d.toLocaleDateString('ko-KR', {
@@ -185,7 +211,7 @@ function DayExpand({
         <span className="num">방송 {sessions.length}회 · {fmtDurKo(total)}</span>
       </div>
       {sessions.map((s) => {
-        const vod = s.vodId ? vodMap.get(s.vodId) : undefined;
+        const vod = resolveVod(s);
         const url = vod?.url ?? (s.vodId ? fallbackVodUrl(s.vodId) : null);
         return (
           <div key={s.id} className="brow">

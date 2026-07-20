@@ -18,12 +18,7 @@ export function Layout() {
       <header className="hdr">
         <div className="wrap">
           <NavLink to="/" className="logo">
-            <span className="sq" aria-hidden>
-              <i style={{ background: 'var(--live)' }} />
-              <i style={{ background: '#ffc94a' }} />
-              <i style={{ background: 'var(--mint)' }} />
-              <i style={{ background: '#5b8def' }} />
-            </span>
+            <img className="logoimg" src="/favicon-192.png?v=2" alt="" />
             <b>
               픽셀온<em>PIXEL ON</em>
             </b>
