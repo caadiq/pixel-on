@@ -156,7 +156,11 @@ function StreamerCard({ s }: { s: Streamer }) {
 
 function TodayPanel() {
   const { data } = useDaySessions();
-  const rows = (data?.sessions ?? []).slice(0, 8);
+  // 오늘 시작한 방송만 (전날 시작해 이어진 방송은 제외 — 시작 위치가 음수가 됨)
+  const dayStart0 = data ? new Date(`${data.date}T00:00:00+09:00`).getTime() : 0;
+  const rows = (data?.sessions ?? [])
+    .filter((r) => new Date(r.startedAt).getTime() >= dayStart0)
+    .slice(0, 8);
   return (
     <div className="panel">
       <h3>
