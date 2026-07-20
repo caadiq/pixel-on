@@ -227,11 +227,13 @@ export function History() {
                 const st = Math.max(0, (new Date(r.startedAt).getTime() - dayStart) / 86400_000);
                 const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
                 const en = Math.min(1, rawEn);
-                const w = Math.max(0.13, en - st);
+                const w = Math.max(0.18, en - st); // 최소 폭: 아바타가 막대 밖으로 안 나가게
+                // 늦은 밤 방송이 최소 폭 때문에 24시 벽을 넘지 않게 클램프
+                const dispSt = Math.min(st, 1 - w);
                 const url = linkOf(r);
                 const color = r.color ?? FALLBACK_COLOR;
                 // 막대가 좁으면 라벨을 밖으로, 끝쪽이면 왼쪽으로
-                const mode = en - st >= 0.46 ? 'in' : en > 0.6 ? 'flip' : 'out';
+                const mode = en - st >= 0.46 ? 'in' : en > 0.5 ? 'flip' : 'out';
                 const timeText = `${isCarried ? '전날 ' : ''}${fmtTime(r.startedAt)}–${
                   live ? '' : `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt!)}`
                 }`;
@@ -241,7 +243,7 @@ export function History() {
                     <s className="num">
                       {timeText}
                       {live && <i className="lv">방송 중</i>}
-                      {!live && <> · {fmtDurKo(fullMs(r))}</>}
+                      {!live && <i className="du"> · {fmtDurKo(fullMs(r))}</i>}
                     </s>
                   </>
                 );
@@ -251,7 +253,7 @@ export function History() {
                     <div className="btrack2" />
                     <div
                       className={`bseg ${isCarried ? 'carried' : ''} ${crossed ? 'crossed' : ''} ${url ? 'linked' : ''}`}
-                      style={{ left: `${st * 100}%`, width: `${w * 100}%` }}
+                      style={{ left: `${dispSt * 100}%`, width: `${w * 100}%` }}
                       onClick={open}
                       role={url ? 'link' : undefined}
                     >
@@ -263,7 +265,7 @@ export function History() {
                     {mode !== 'in' && (
                       <span
                         className={`blb-out ${mode === 'flip' ? 'flip' : ''}`}
-                        style={mode === 'flip' ? { right: `${(1 - st) * 100}%` } : { left: `${Math.max(en, st + 0.13) * 100}%` }}
+                        style={mode === 'flip' ? { right: `${(1 - dispSt) * 100}%` } : { left: `${Math.max(en, dispSt + w) * 100}%` }}
                         onClick={open}
                       >
                         {label}

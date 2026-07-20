@@ -1643,6 +1643,42 @@
   margin-right: 10px;
   text-align: right;
 }
+.bseg .blb .du,
+.blb-out .du {
+  font-style: normal;
+}
+/* 좁은 화면: 길이 표기 숨기고 타이포·여백 축소 — 라벨 넘침 방지 */
+@media (max-width: 419px) {
+  .blb-out .du,
+  .bseg .blb .du {
+    display: none;
+  }
+  .bseg .blb b,
+  .blb-out b {
+    font-size: 14px;
+  }
+  .bseg .blb s,
+  .blb-out s {
+    font-size: 12px;
+  }
+  .blb-out {
+    margin-left: 8px;
+  }
+  .blb-out.flip {
+    margin-right: 8px;
+  }
+  .brow2 {
+    height: 58px;
+  }
+  .bseg {
+    gap: 7px;
+    padding: 0 8px;
+  }
+  .bseg img {
+    width: 33px;
+    height: 33px;
+  }
+}
 /* 전날 시작(왼쪽 페이드) / 자정 넘김(오른쪽 페이드) */
 .bseg.carried {
   border-top-left-radius: 0;
