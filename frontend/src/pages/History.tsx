@@ -222,20 +222,19 @@ export function History() {
               </div>
               {started.map((r) => {
                 const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
-                const st = (new Date(r.startedAt).getTime() - dayStart) / 86400_000;
+                const st = Math.max(0, (new Date(r.startedAt).getTime() - dayStart) / 86400_000);
                 const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
                 const en = Math.min(1, rawEn);
                 const url = linkOf(r);
+                // 시간 라벨을 막대 중앙 아래에 (가장자리는 잘리지 않게 클램프)
+                const mid = Math.min(Math.max(((st + en) / 2) * 100, 15), 85);
                 return (
                   <div key={r.id} className="mrow">
-                    <img src={r.profileImage} alt="" loading="lazy" />
-                    <span>
+                    <div className="mtop">
+                      <img src={r.profileImage} alt="" loading="lazy" />
                       <span className="who">{r.name}</span>
-                      <div className="rng num">
-                        {fmtTime(r.startedAt)} → {r.endedAt ? `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt)}` : '방송 중'}
-                      </div>
-                    </span>
-                    <span className="hrs num">{fmtDurKo(fullMs(r))}</span>
+                      <span className="hrs num">{fmtDurKo(fullMs(r))}</span>
+                    </div>
                     <span
                       className="mtrack"
                       style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}
@@ -244,9 +243,14 @@ export function History() {
                     >
                       <span
                         className={rawEn > 1 ? 'over' : ''}
-                        style={{ left: `${Math.max(0, st) * 100}%`, width: `${Math.max(1.2, (en - Math.max(0, st)) * 100)}%` }}
+                        style={{ left: `${st * 100}%`, width: `${Math.max(1.2, (en - st) * 100)}%` }}
                       />
                     </span>
+                    <div className="mtimewrap">
+                      <span className="mtime num" style={{ left: `${mid}%` }}>
+                        {fmtTime(r.startedAt)} → {r.endedAt ? `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt)}` : '방송 중'}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
