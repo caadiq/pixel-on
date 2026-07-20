@@ -214,11 +214,18 @@ export function History() {
               </div>
             </div>
 
-            {/* 모바일: 시간 리스트 (그날 시작한 방송만) */}
+            {/* 모바일: 리스트 + 24시간 미니 트랙 */}
             <div className="panel mb-only">
               <Summary count={started.length} totalMs={totalMs} />
+              <div className="maxis num">
+                <span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span>
+              </div>
               {started.map((r) => {
                 const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
+                const st = (new Date(r.startedAt).getTime() - dayStart) / 86400_000;
+                const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
+                const en = Math.min(1, rawEn);
+                const url = linkOf(r);
                 return (
                   <div key={r.id} className="mrow">
                     <img src={r.profileImage} alt="" loading="lazy" />
@@ -229,6 +236,17 @@ export function History() {
                       </div>
                     </span>
                     <span className="hrs num">{fmtDurKo(fullMs(r))}</span>
+                    <span
+                      className="mtrack"
+                      style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}
+                      onClick={() => url && window.open(url, '_blank', 'noopener')}
+                      role={url ? 'link' : undefined}
+                    >
+                      <span
+                        className={rawEn > 1 ? 'over' : ''}
+                        style={{ left: `${Math.max(0, st) * 100}%`, width: `${Math.max(1.2, (en - Math.max(0, st)) * 100)}%` }}
+                      />
+                    </span>
                   </div>
                 );
               })}
