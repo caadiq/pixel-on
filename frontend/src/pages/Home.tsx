@@ -147,9 +147,7 @@ function StreamerCard({ s }: { s: Streamer }) {
       {s.live && <span className="rb">LIVE</span>}
       <img className="av" src={s.profileImage} alt="" loading="lazy" />
       <b>{s.name}</b>
-      <span className="sub">
-        {s.live ? `${s.live.viewers.toLocaleString('ko-KR')}명 시청` : fmtCompact(s.followers)}
-      </span>
+      <span className="sub">{fmtCompact(s.followers)}</span>
     </Link>
   );
 }

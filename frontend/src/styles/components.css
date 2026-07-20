@@ -129,8 +129,8 @@
   gap: 7px;
   border: 1px solid var(--line2);
   border-radius: 99px;
-  padding: 9px 17px;
-  font-size: 13px;
+  padding: 10px 18px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--ink2);
   background: #fff;
@@ -140,7 +140,7 @@
 .pill b {
   font-family: Jua;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 17px;
   color: var(--ink);
 }
 .pill.hot {
@@ -169,14 +169,14 @@
 .shead h2 {
   font-family: Jua;
   font-weight: 400;
-  font-size: 22px;
+  font-size: 23px;
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
   gap: 9px;
 }
 .shead .sub {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--faint);
   font-weight: 500;
 }
@@ -196,7 +196,7 @@
 .panel h3 {
   font-family: Jua;
   font-weight: 400;
-  font-size: 16px;
+  font-size: 17px;
   margin-bottom: 16px;
   display: flex;
   align-items: center;
@@ -216,13 +216,15 @@
   padding-bottom: 44px;
 }
 .pfbadge {
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  padding: 2px 7px;
-  border-radius: 6px;
+  padding: 0 9px;
+  border-radius: 7px;
   border: 1px solid;
-  line-height: 1.5;
   white-space: nowrap;
 }
 .pfbadge.chzzk {
@@ -270,7 +272,7 @@
 }
 .hero p {
   color: var(--soft);
-  font-size: 15px;
+  font-size: 16px;
   margin-top: 14px;
   position: relative;
 }
@@ -304,17 +306,8 @@
 }
 @media (max-width: 720px) {
   .lives {
-    display: flex;
-    overflow-x: auto;
-    margin: 0 -16px;
-    padding: 2px 16px 8px;
-    scrollbar-width: none;
-  }
-  .lives::-webkit-scrollbar {
-    display: none;
-  }
-  .lives > * {
-    flex: 0 0 172px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 .lvc {
@@ -391,8 +384,8 @@
   right: 10px;
   background: rgba(255, 255, 255, 0.96);
   border-radius: 99px;
-  padding: 4px 10px;
-  font-size: 12px;
+  padding: 5px 11px;
+  font-size: 13px;
   font-weight: 700;
   z-index: 2;
   box-shadow: var(--sh);
@@ -402,7 +395,7 @@
   padding: 13px 14px 15px;
 }
 .lvc .bd b {
-  font-size: 14.5px;
+  font-size: 15.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -418,7 +411,7 @@
   flex: none;
 }
 .lvc .bd p {
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--soft);
   line-height: 1.55;
   height: 3.1em;
@@ -427,7 +420,7 @@
 .lvc .cat {
   display: inline-block;
   margin-top: 10px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: color-mix(in srgb, var(--c) 72%, #2a2a2a);
   background: color-mix(in srgb, var(--c) 11%, #fff);
@@ -439,8 +432,8 @@
 /* ── 스트리머 그리드 ── */
 .sgrid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
 }
 @media (max-width: 1000px) {
   .sgrid {
@@ -449,16 +442,16 @@
 }
 @media (max-width: 720px) {
   .sgrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 9px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 .scard {
   background: #fff;
   border: 1px solid var(--line2);
-  border-radius: 16px;
+  border-radius: 17px;
   /* 상단 뱃지 자리 확보 — 프로필과 겹치지 않게 */
-  padding: 36px 10px 13px;
+  padding: 42px 12px 16px;
   text-align: center;
   transition: 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
   position: relative;
@@ -471,8 +464,8 @@
   border-color: color-mix(in srgb, var(--c) 42%, #fff);
 }
 .scard .av {
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   object-fit: cover;
   margin: 0 auto 10px;
@@ -489,37 +482,36 @@
   filter: saturate(0.72);
 }
 .scard b {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   display: block;
 }
 .scard .sub {
   display: block;
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--faint);
-  margin-top: 4px;
+  margin-top: 5px;
   font-weight: 500;
-}
-.scard.on .sub {
-  color: var(--live);
-  font-weight: 700;
 }
 .scard .rb {
   position: absolute;
-  top: 9px;
-  right: 9px;
-  font-size: 12px;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: 0.04em;
   background: var(--live);
   color: #fff;
-  padding: 1.5px 7px;
-  border-radius: 99px;
+  padding: 0 9px;
+  border-radius: 7px;
 }
 .scard .pfbadge {
   position: absolute;
-  top: 9px;
-  left: 9px;
+  top: 10px;
+  left: 10px;
 }
 
 /* ── 홈 하단 2단 ── */
@@ -542,7 +534,7 @@
   margin-bottom: 10px;
 }
 .trow .nm {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--ink2);
   overflow: hidden;
@@ -571,7 +563,7 @@
   mask-image: linear-gradient(90deg, #000 78%, transparent);
 }
 .trow .hrs {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--soft);
   text-align: right;
   font-weight: 600;
@@ -608,7 +600,7 @@
   margin-top: 17px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
-  font-size: 13px;
+  font-size: 14px;
 }
 .kv dt {
   color: var(--soft);
