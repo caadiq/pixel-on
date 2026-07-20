@@ -32,6 +32,8 @@ html {
 }
 
 body {
+  /* 이 이하로는 줄어들지 않고 가로 스크롤 (UI 깨짐 방지) */
+  min-width: 320px;
   background: var(--bg);
   color: var(--ink);
   font-family: Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
