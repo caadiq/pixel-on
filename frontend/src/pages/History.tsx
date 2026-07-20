@@ -132,6 +132,15 @@ export function History() {
   );
 }
 
+/** hex 색의 밝기에 따라 대비되는 글자색 */
+function contrastText(hex: string): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return 0.299 * r + 0.587 * g + 0.114 * b > 160 ? '#16181d' : '#ffffff';
+}
+
 /** 커서를 따라다니는 커스텀 툴팁 */
 function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
   const { s } = tip;
@@ -139,6 +148,7 @@ function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
   const endMs = s.endedAt ? new Date(s.endedAt).getTime() : Date.now();
   const carried = startMs < dayStart;
   const crossed = s.endedAt !== null && endMs >= dayStart + 86400_000;
+  const color = s.color ?? FALLBACK_COLOR;
 
   // 화면 밖으로 나가지 않게 위치 보정
   const x = Math.min(tip.x + 14, window.innerWidth - 280);
@@ -157,7 +167,9 @@ function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
         {fmtTime(s.startedAt)}
         <span className="ar">→</span>
         {s.endedAt ? `${crossed ? '익일 ' : ''}${fmtTime(s.endedAt)}` : '방송 중'}
-        <span className="dur">{fmtDurKo(endMs - startMs)}</span>
+        <span className="dur" style={{ background: color, color: contrastText(color) }}>
+          {fmtDurKo(endMs - startMs)}
+        </span>
       </div>
       {s.peakViewers > 0 && (
         <div className="gtip-sub num">최고 {s.peakViewers.toLocaleString('ko-KR')}명 시청</div>

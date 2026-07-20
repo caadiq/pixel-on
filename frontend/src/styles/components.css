@@ -1518,7 +1518,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 .gtip-head img {
   width: 26px;
@@ -1528,7 +1529,7 @@
   background: rgba(255, 255, 255, 0.1);
 }
 .gtip-head b {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
 }
 .gtip-head .live {
@@ -1541,10 +1542,11 @@
   padding: 2.5px 8px;
 }
 .gtip-title {
-  font-size: 14.5px;
-  color: rgba(255, 255, 255, 0.86);
+  font-size: 15px;
+  font-weight: 650;
+  color: #fff;
   line-height: 1.55;
-  margin-bottom: 9px;
+  margin: 10px 0;
   word-break: break-word;
 }
 .gtip-time {
@@ -1561,12 +1563,10 @@
 }
 .gtip-time .dur {
   margin-left: auto;
-  font-size: 12px;
-  font-weight: 700;
-  color: #16181d;
-  background: #ffd426;
+  font-size: 12.5px;
+  font-weight: 800;
   border-radius: 99px;
-  padding: 2px 9px;
+  padding: 3px 10px;
 }
 .gtip-sub {
   margin-top: 7px;
