@@ -67,7 +67,7 @@ body{background:var(--doc-bg);color:var(--doc-ink);
 .site{background:#fff;color:#16181d;font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;letter-spacing:-.005em}
 .site *{box-sizing:border-box}
 .site .jua{font-family:'Jua';font-weight:400}
-.site{--live:#ff4757;--mint:#22c99b;--acc:#ffd426;--ink:#16181d;--ink2:#454a54;
+.site{--live:#ff4757;--mint:#22c99b;--chzzk:#00c26e;--soop:#3d6aff;--acc:#ffd426;--ink:#16181d;--ink2:#454a54;
   --soft:#8b929e;--faint:#c2c8d2;--line:#ebedf0;--line2:#e2e5ea;
   --sh:0 1px 2px rgba(16,20,30,.04);--sh2:0 10px 24px -14px rgba(16,20,30,.2)}
 .site .hdr{display:flex;align-items:center;gap:14px;height:56px;padding:0 20px;border-bottom:1px solid var(--line)}
@@ -117,7 +117,8 @@ body{background:var(--doc-bg);color:var(--doc-ink);
   background:var(--live);color:#fff;padding:2px 5px;border-radius:99px}
 .site .gcard .pf{position:absolute;top:8px;left:8px;font-size:7.5px;font-weight:800;color:var(--faint);
   border:1px solid var(--line2);padding:1px 3.5px;border-radius:3px;line-height:1.4}
-.site .gcard.soop .pf{color:var(--mint);border-color:#bdf0de;background:#f2fdf9}
+.site .gcard.soop .pf{color:var(--soop);border-color:#c7d4ff;background:#f3f6ff}
+.site .gcard:not(.soop) .pf{color:var(--chzzk);border-color:#b8ecd4;background:#f0fdf7}
 .site .panel{background:#fff;border:1px solid var(--line2);border-radius:15px;padding:15px 17px;box-shadow:var(--sh)}
 .site .panel h4{font-family:'Jua';font-weight:400;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
 .site .panel h4 s{width:7px;height:7px;border-radius:2.5px;background:var(--mint);text-decoration:none}
@@ -218,8 +219,8 @@ body{background:var(--doc-bg);color:var(--doc-ink);
 .adm-tbl img{width:28px;height:28px;border-radius:50%;object-fit:cover}
 .adm-tbl .nm{font-weight:700}
 .adm-tbl .pfc{display:inline-flex;font-size:9px;font-weight:800;padding:2.5px 8px;border-radius:99px}
-.adm-tbl .pfc.cz{background:#eef4e6;color:#5a8a2a}
-.adm-tbl .pfc.sp{background:#e6f7f1;color:#1a9c74}
+.adm-tbl .pfc.cz{background:#e8faf1;color:#0a9e5c}
+.adm-tbl .pfc.sp{background:#edf1ff;color:#3d6aff}
 .adm-tbl .cid{font-family:ui-monospace,monospace;font-size:9.5px;color:var(--soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .adm-tbl .csw{display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--soft)}
 .adm-tbl .csw i{width:17px;height:17px;border-radius:5px;border:1px solid rgba(0,0,0,.08)}
@@ -264,10 +265,11 @@ body{background:var(--doc-bg);color:var(--doc-ink);
 
 <section id="tokens">
   <div class="sec-h"><h2>디자인 토큰</h2></div>
-  <p class="sec-note">제품은 <b>화이트 고정 테마</b>입니다(사용자 결정). 포인트는 라이브 레드 하나로 집중하고, 개인 대표색은 카드 단위로만 사용해 화면 전체가 산만해지지 않게 합니다.</p>
+  <p class="sec-note">제품은 <b>화이트 고정 테마</b>입니다(사용자 결정). 포인트는 라이브 레드 하나로 집중하고, 개인 대표색은 카드 단위로만 사용해 화면 전체가 산만해지지 않게 합니다. 플랫폼 뱃지는 실제 브랜드 색을 따릅니다 — 치지직 그린, 숲 블루.</p>
   <div class="tokens">
     <div class="tok"><div class="sw" style="background:#ff4757"></div><b>Live Red</b><s>#FF4757 — 방송 중 상태 전용</s></div>
-    <div class="tok"><div class="sw" style="background:#22c99b"></div><b>Soop Mint</b><s>#22C99B — 숲 플랫폼 · 긍정</s></div>
+    <div class="tok"><div class="sw" style="background:#00c26e"></div><b>Chzzk Green</b><s>#00C26E — 치지직 플랫폼</s></div>
+    <div class="tok"><div class="sw" style="background:#3d6aff"></div><b>Soop Blue</b><s>#3D6AFF — 숲 플랫폼</s></div>
     <div class="tok"><div class="sw" style="background:#ffd426"></div><b>Accent Yellow</b><s>#FFD426 — 하이라이트 마커</s></div>
     <div class="tok"><div class="sw" style="background:#16181d"></div><b>Ink</b><s>#16181D — 본문 · 활성 탭</s></div>
     <div class="tok"><div class="sw" style="background:#f1f3f6;border:1px solid #e2e5ea"></div><b>Track Grey</b><s>#F1F3F6 — 차트 트랙 · 비활성</s></div>
