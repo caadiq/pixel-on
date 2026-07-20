@@ -1449,6 +1449,40 @@
   color: var(--ink2);
 }
 
+.pager {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.pager button {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 8px;
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--soft);
+  background: #fff;
+  box-shadow: var(--sh);
+  transition: 0.15s;
+}
+.pager button:hover:not(:disabled):not(.on) {
+  border-color: var(--faint);
+  color: var(--ink);
+}
+.pager button.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .empty {
   border: 1.5px dashed var(--line2);
   border-radius: 16px;

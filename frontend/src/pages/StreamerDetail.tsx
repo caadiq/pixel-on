@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useStreamerDetail, useStreamerVods } from '../api/hooks';
 import { BroadcastRecord } from '../components/BroadcastRecord';
 import { FALLBACK_COLOR, fmtCompact, fmtDurClock, fmtMinOfDay, fmtRelDate } from '../lib/format';
@@ -74,6 +74,7 @@ function Vods({ id, color }: { id: number; color: string }) {
     <section className="sec">
       <div className="shead">
         <h2>다시보기</h2>
+        <Link to={`/vods?s=${id}`} className="more">전체보기 →</Link>
       </div>
       <div className="vgrid">
         {data.vods.slice(0, 8).map((v) => (
