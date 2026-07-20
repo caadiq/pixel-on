@@ -1268,7 +1268,7 @@
   right: 0;
   left: auto;
   z-index: 60;
-  width: 324px;
+  width: 252px;
   max-width: calc(100vw - 32px);
   background: #fff;
   border: 1px solid var(--line2);
@@ -1289,17 +1289,17 @@
   border-color: var(--ink);
 }
 .picklist {
-  max-height: 320px;
+  max-height: 380px;
   overflow-y: auto;
 }
 .pickitem {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 13px 13px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   text-align: left;
   transition: 0.12s;
@@ -1312,8 +1312,8 @@
   color: #fff;
 }
 .pickitem img {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
   background: #f4f5f7;
