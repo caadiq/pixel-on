@@ -1,0 +1,30 @@
+{
+  "name": "pixel-backend",
+  "version": "1.0.0",
+  "description": "픽셀네트워크 방송 추적 API + 폴링 워커",
+  "main": "src/server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@hono/node-server": "^2.0.10",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.31",
+    "mysql2": "^3.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  }
+}
