@@ -1329,15 +1329,15 @@
 .datebar .db {
   border: 1px solid var(--line2);
   border-radius: 11px;
-  padding: 9px 16px;
-  font-size: 13.5px;
+  padding: 11px 18px;
+  font-size: 15px;
   font-weight: 700;
   background: #fff;
   box-shadow: var(--sh);
 }
 .datebar .arr {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--line2);
   border-radius: 10px;
   display: flex;
@@ -1359,12 +1359,12 @@
 }
 .grow {
   display: grid;
-  grid-template-columns: 110px 1fr 50px;
-  gap: 11px;
+  grid-template-columns: 168px 1fr 56px;
+  gap: 13px;
   align-items: center;
-  padding: 9px 0;
+  padding: 11px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 12.5px;
+  font-size: 14px;
 }
 .grow:last-child {
   border: 0;
@@ -1377,15 +1377,15 @@
   overflow: hidden;
 }
 .grow .nm img {
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   flex: none;
   background: #f4f5f7;
 }
 .grow .gt {
-  height: 16px;
+  height: 22px;
   background: #f6f7f9;
   border-radius: 5px;
   position: relative;
@@ -1403,25 +1403,55 @@
 }
 .grow .gt span {
   position: absolute;
-  top: 2px;
-  bottom: 2px;
-  border-radius: 4px;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 5px;
   background: var(--c, var(--mint));
   opacity: 0.92;
-  min-width: 3px;
+  min-width: 4px;
+  cursor: pointer;
+}
+/* 전날부터 이어진 방송 — 왼쪽 페이드 */
+.grow .gt span.cont {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%);
+  mask-image: linear-gradient(90deg, transparent, #000 22%);
+}
+.grow .nm .contmark {
+  font-style: normal;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--faint);
+  border: 1px solid var(--line2);
+  border-radius: 5px;
+  padding: 1px 6px;
+  flex: none;
 }
 .grow .hrs {
   color: var(--soft);
   font-weight: 700;
   text-align: right;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .gaxis {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  margin: 9px 0 0 121px;
-  font-size: 12px;
+  position: relative;
+  height: 20px;
+  margin: 10px 0 0 181px;
+  margin-right: 69px;
+  font-size: 13px;
   color: var(--faint);
+  font-weight: 600;
+}
+.gaxis span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+.gaxis span:first-child {
+  transform: none;
+}
+.gaxis span:last-child {
+  transform: translateX(-100%);
 }
 .mrow {
   display: grid;
@@ -1435,23 +1465,23 @@
   border: 0;
 }
 .mrow img {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
   background: #f4f5f7;
 }
 .mrow .who {
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 700;
 }
 .mrow .rng {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--soft);
   margin-top: 2px;
 }
 .mrow .hrs {
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--ink2);
 }
@@ -1488,6 +1518,81 @@
 .pager button:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+.gtip {
+  position: fixed;
+  z-index: 200;
+  width: 264px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 13px;
+  padding: 13px 15px;
+  box-shadow: 0 16px 40px -14px rgba(10, 14, 25, 0.5);
+  pointer-events: none;
+}
+.gtip-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.gtip-head img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+}
+.gtip-head b {
+  font-size: 14px;
+  font-weight: 700;
+}
+.gtip-head .live {
+  margin-left: auto;
+  background: var(--live);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  border-radius: 99px;
+  padding: 2.5px 8px;
+}
+.gtip-title {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.5;
+  margin-bottom: 9px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.gtip-time {
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.gtip-time .ar {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+}
+.gtip-time .dur {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: #16181d;
+  background: #ffd426;
+  border-radius: 99px;
+  padding: 2px 9px;
+}
+.gtip-sub {
+  margin-top: 7px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
 }
 
 .empty {
