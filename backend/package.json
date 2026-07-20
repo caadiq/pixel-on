@@ -19,7 +19,8 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.31",
-    "mysql2": "^3.23.1"
+    "mysql2": "^3.23.1",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

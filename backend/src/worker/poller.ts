@@ -11,6 +11,7 @@ import { and, eq, gte, lte } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { sessions, snapshots, streamers, type Streamer } from '../db/schema.js';
 import { fetchChzzkChannel, fetchChzzkLiveStatus, ThrottledError } from '../services/chzzk.js';
+import { extractColorFromUrl } from '../services/palette.js';
 import { fetchSoopStation } from '../services/soop.js';
 import { backfillActive, backfillStreamer } from './backfill.js';
 import { onLive, onOffline, restoreOpenSessions, snapshotDue } from './tracker.js';
@@ -230,22 +231,24 @@ async function recoverLastBroadcast(
 async function refreshChannels(rows: Streamer[]): Promise<void> {
   for (const s of rows) {
     try {
+      let fresh: { profileImage: string; followers: number } | null = null;
       if (s.platform === 'chzzk' && s.chzzkId) {
-        const ch = await fetchChzzkChannel(s.chzzkId);
-        if (ch) {
-          await db
-            .update(streamers)
-            .set({ profileImage: ch.profileImage, followers: ch.followers, updatedAt: new Date() })
-            .where(eq(streamers.id, s.id));
-        }
+        fresh = await fetchChzzkChannel(s.chzzkId);
       } else if (s.platform === 'soop' && s.soopId) {
-        const st = await fetchSoopStation(s.soopId);
-        if (st) {
-          await db
-            .update(streamers)
-            .set({ profileImage: st.profileImage, followers: st.followers, updatedAt: new Date() })
-            .where(eq(streamers.id, s.id));
+        fresh = await fetchSoopStation(s.soopId);
+      }
+      if (fresh) {
+        const patch: Partial<typeof streamers.$inferInsert> = {
+          profileImage: fresh.profileImage,
+          followers: fresh.followers,
+          updatedAt: new Date(),
+        };
+        // 프로필이 바뀌면 대표색 재추출
+        if (fresh.profileImage && fresh.profileImage !== s.profileImage) {
+          const color = await extractColorFromUrl(fresh.profileImage);
+          if (color) patch.autoColor = color;
         }
+        await db.update(streamers).set(patch).where(eq(streamers.id, s.id));
       }
     } catch {
       /* 갱신 실패는 다음 주기에 재시도 */
