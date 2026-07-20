@@ -91,6 +91,7 @@ export interface ChzzkVideo {
   videoNo: number;
   title: string;
   category: string | null;
+  thumbnail: string | null;
   /** VOD 공개 시각 ≈ 방송 종료 직후 */
   publishDate: Date;
   /** 영상 길이 (초) */
@@ -110,6 +111,7 @@ interface VideoListRaw {
     duration: number;
     videoCategoryValue: string | null;
     livePv: number | null;
+    thumbnailImageUrl: string | null;
   }>;
 }
 
@@ -129,6 +131,7 @@ export async function fetchChzzkVideos(
         videoNo: v.videoNo,
         title: v.videoTitle,
         category: v.videoCategoryValue,
+        thumbnail: v.thumbnailImageUrl,
         publishDate: parseKst(v.publishDate),
         duration: v.duration,
         livePv: v.livePv,

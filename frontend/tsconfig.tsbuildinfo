@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/api/hooks.ts","./src/api/types.ts","./src/components/Layout.tsx","./src/lib/format.ts","./src/pages/History.tsx","./src/pages/Home.tsx","./src/pages/StreamerDetail.tsx","./src/pages/Vods.tsx","./vite.config.ts"],"version":"5.9.3"}

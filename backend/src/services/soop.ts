@@ -88,6 +88,7 @@ export interface SoopVod {
   titleNo: number;
   title: string;
   category: string | null;
+  thumbnail: string | null;
   /** 등록 시각 ≈ 방송 종료 직후 */
   regDate: Date;
   /** 영상 길이 (초) */
@@ -102,6 +103,7 @@ interface VodListRaw {
     ucc?: {
       total_file_duration?: number;
       category_tags?: string[];
+      thumb?: string;
     };
   }>;
   meta?: { last_page?: number; current_page?: number };
@@ -121,6 +123,7 @@ export async function fetchSoopVods(
       titleNo: v.title_no,
       title: v.title_name,
       category: v.ucc?.category_tags?.[0] ?? null,
+      thumbnail: v.ucc?.thumb ? (v.ucc.thumb.startsWith('//') ? 'https:' + v.ucc.thumb : v.ucc.thumb) : null,
       regDate: parseKst(v.reg_date),
       duration: normalizeDuration(v.ucc?.total_file_duration ?? 0),
     })),
