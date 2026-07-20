@@ -1543,111 +1543,122 @@
   color: var(--ink);
   font-weight: 800;
 }
-/* 모바일 이력 — 세로 타임라인 */
-.tl {
-  margin-top: 4px;
-}
-.tlrow {
-  display: grid;
-  grid-template-columns: 46px 22px 1fr;
-  gap: 0 8px;
-  align-items: center;
-}
-.tltime {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--ink2);
-  text-align: right;
-}
-.tlrail {
-  position: relative;
-  align-self: stretch;
+/* 모바일 이력 — 컬러 바 (막대가 곧 카드) */
+.bhours {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--faint);
+  font-weight: 700;
+  padding: 13px 2px 11px;
 }
-.tlrail::before {
-  content: '';
+.brow2 {
+  position: relative;
+  height: 64px;
+  margin-bottom: 10px;
+}
+.btrack2 {
+  position: absolute;
+  inset: 0;
+  background: #f4f5f7;
+  border-radius: 15px;
+}
+.bseg {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
-  width: 2px;
-  background: var(--line);
-}
-.tlrow:first-child .tlrail::before {
-  top: 50%;
-}
-.tlrow:last-child .tlrail::before {
-  bottom: 50%;
-}
-.tldot {
-  position: relative;
-  z-index: 1;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  border: 2.5px solid #fff;
-  box-shadow: 0 0 0 1.5px var(--line2);
-}
-.tldot.live {
-  background: var(--live);
-  box-shadow: 0 0 0 1.5px var(--live);
-  animation: pulse 1.6s infinite;
-}
-.tlcard {
+  border-radius: 15px;
+  background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 72%, #fff));
   display: flex;
   align-items: center;
-  gap: 11px;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--c, var(--mint));
-  border-radius: 13px;
-  padding: 11px 13px;
-  margin: 6px 0;
-  background: #fff;
-  transition: 0.15s;
+  gap: 9px;
+  padding: 0 10px;
+  box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--c) 55%, transparent);
 }
-.tlcard.linked {
+.bseg.linked {
   cursor: pointer;
 }
-.tlcard.linked:active {
-  background: #f7f8fa;
-}
-.tlcard img {
+.bseg img {
   width: 42px;
   height: 42px;
   border-radius: 50%;
   object-fit: cover;
-  background: #f4f5f7;
+  border: 2px solid rgba(255, 255, 255, 0.85);
   flex: none;
+  background: #f4f5f7;
 }
-.tlinfo {
+.bseg .blb {
+  white-space: nowrap;
+  line-height: 1.3;
   min-width: 0;
-  flex: 1;
 }
-.tlinfo b {
+.bseg .blb b {
   display: block;
   font-size: 15px;
+  font-weight: 800;
+}
+.bseg .blb s {
+  text-decoration: none;
+  font-size: 13px;
   font-weight: 700;
+  opacity: 0.82;
 }
-.tlend {
-  display: block;
-  font-size: 12.5px;
-  color: var(--soft);
-  font-weight: 600;
-  margin-top: 3px;
-}
-.tlend.live {
+.bseg .blb .lv {
+  font-style: normal;
   color: var(--live);
   font-weight: 800;
 }
-.tldur {
-  flex: none;
-  font-size: 12.5px;
-  font-weight: 800;
-  border-radius: 99px;
-  padding: 5px 12px;
+.bseg.in .blb .lv {
+  color: inherit;
+}
+/* 좁은 막대 — 라벨을 막대 밖(형제 요소)으로: 마스크에 잘리지 않음 */
+.blb-out {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
   white-space: nowrap;
+  line-height: 1.3;
+  color: var(--ink);
+  cursor: pointer;
+}
+.blb-out b {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+.blb-out s {
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--soft);
+}
+.blb-out .lv {
+  font-style: normal;
+  color: var(--live);
+  font-weight: 800;
+}
+.blb-out.flip {
+  margin-left: 0;
+  margin-right: 10px;
+  text-align: right;
+}
+/* 전날 시작(왼쪽 페이드) / 자정 넘김(오른쪽 페이드) */
+.bseg.carried {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%);
+  mask-image: linear-gradient(90deg, transparent, #000 18%);
+}
+.bseg.crossed {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, #000 82%, transparent);
+}
+.bseg.carried.crossed {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
 }
 
 .empty {

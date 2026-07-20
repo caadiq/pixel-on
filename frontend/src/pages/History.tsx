@@ -214,42 +214,64 @@ export function History() {
               </div>
             </div>
 
-            {/* 모바일: 세로 타임라인 — 위에서 아래로 하루의 흐름 */}
+            {/* 모바일: 컬러 바 — 막대가 곧 카드, 글씨는 크게 */}
             <div className="panel mb-only">
               <Summary count={started.length} totalMs={totalMs} />
-              <div className="tl">
-                {started.map((r) => {
-                  const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
-                  const url = linkOf(r);
-                  const color = r.color ?? FALLBACK_COLOR;
-                  const live = r.endedAt === null;
-                  return (
-                    <div key={r.id} className="tlrow">
-                      <span className="tltime num">{fmtTime(r.startedAt)}</span>
-                      <span className="tlrail">
-                        <i className={`tldot ${live ? 'live' : ''}`} style={{ background: live ? undefined : color }} />
-                      </span>
-                      <div
-                        className={`tlcard ${url ? 'linked' : ''}`}
-                        style={{ '--c': color } as React.CSSProperties}
-                        onClick={() => url && window.open(url, '_blank', 'noopener')}
-                        role={url ? 'link' : undefined}
-                      >
-                        <img src={r.profileImage} alt="" loading="lazy" />
-                        <div className="tlinfo">
-                          <b>{r.name}</b>
-                          <span className={`tlend num ${live ? 'live' : ''}`}>
-                            {live ? '방송 중' : `→ ${crossed ? '익일 ' : ''}${fmtTime(r.endedAt!)}`}
-                          </span>
-                        </div>
-                        <span className="tldur num" style={{ background: color, color: contrastText(color) }}>
-                          {fmtDurKo(fullMs(r))}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="bhours num">
+                <span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span>
               </div>
+              {[...carried, ...started].map((r) => {
+                const isCarried = new Date(r.startedAt).getTime() < dayStart;
+                const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
+                const live = r.endedAt === null;
+                const st = Math.max(0, (new Date(r.startedAt).getTime() - dayStart) / 86400_000);
+                const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
+                const en = Math.min(1, rawEn);
+                const w = Math.max(0.13, en - st);
+                const url = linkOf(r);
+                const color = r.color ?? FALLBACK_COLOR;
+                // 막대가 좁으면 라벨을 밖으로, 끝쪽이면 왼쪽으로
+                const mode = en - st >= 0.46 ? 'in' : en > 0.6 ? 'flip' : 'out';
+                const timeText = `${isCarried ? '전날 ' : ''}${fmtTime(r.startedAt)}–${
+                  live ? '' : `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt!)}`
+                }`;
+                const label = (
+                  <>
+                    <b>{r.name}</b>
+                    <s className="num">
+                      {timeText}
+                      {live && <i className="lv">방송 중</i>}
+                      {!live && <> · {fmtDurKo(fullMs(r))}</>}
+                    </s>
+                  </>
+                );
+                const open = () => url && window.open(url, '_blank', 'noopener');
+                return (
+                  <div key={r.id} className="brow2" style={{ '--c': color } as React.CSSProperties}>
+                    <div className="btrack2" />
+                    <div
+                      className={`bseg ${isCarried ? 'carried' : ''} ${crossed ? 'crossed' : ''} ${url ? 'linked' : ''}`}
+                      style={{ left: `${st * 100}%`, width: `${w * 100}%` }}
+                      onClick={open}
+                      role={url ? 'link' : undefined}
+                    >
+                      <img src={r.profileImage} alt="" loading="lazy" />
+                      {mode === 'in' && (
+                        <span className="blb" style={{ color: contrastText(color) }}>{label}</span>
+                      )}
+                    </div>
+                    {mode !== 'in' && (
+                      <span
+                        className={`blb-out ${mode === 'flip' ? 'flip' : ''}`}
+                        style={mode === 'flip' ? { right: `${(1 - st) * 100}%` } : { left: `${Math.max(en, st + 0.13) * 100}%` }}
+                        onClick={open}
+                      >
+                        {label}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
