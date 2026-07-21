@@ -244,18 +244,27 @@ function EditPanel({
         />
       </div>
 
-      {/* 대표색 */}
+      {/* 대표색 — 수동 지정 / 자동 추출 */}
       <div className="epsec">
-        <label>대표색</label>
+        <label>대표색 {s.color ? '(수동 지정 중)' : '(자동 추출 사용 중)'}</label>
         <div className="cprow">
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="cpick-big" />
           <span className="num hx">{color.toUpperCase()}</span>
-          <span className="cplbl">{s.color ? '수동 지정' : '자동 추출'}</span>
-          <div className="cpbtns">
-            <button className="minibtn" onClick={() => patch.mutate({ color })}>적용</button>
-            {s.color && <button className="minibtn ghost" onClick={() => patch.mutate({ color: null })}>자동으로</button>}
-          </div>
+          <button className="minibtn" style={{ marginLeft: 'auto' }} onClick={() => patch.mutate({ color })}>
+            수동 적용
+          </button>
         </div>
+        {s.autoColor && (
+          <div className="autorow">
+            <i className="autoswatch" style={{ background: s.autoColor }} />
+            <span className="num">자동 추출값 {s.autoColor}</span>
+            {s.color ? (
+              <button className="minibtn ghost" onClick={() => patch.mutate({ color: null })}>이 값 사용</button>
+            ) : (
+              <span className="usingtag">사용 중</span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 플랫폼 */}
