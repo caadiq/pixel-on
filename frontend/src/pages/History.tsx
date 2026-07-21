@@ -214,8 +214,8 @@ export function History() {
             ))}
             <div className="gaxis num">
               {Array.from({ length: 9 }, (_, i) => (
-                <span key={i} style={{ left: `${(i / 8) * 100}%` }}>
-                  {String(i * 3).padStart(2, '0')}
+                <span key={i} className={i % 2 === 1 ? 'odd' : ''} style={{ left: `${(i / 8) * 100}%` }}>
+                  {i * 3}
                 </span>
               ))}
             </div>

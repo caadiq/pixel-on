@@ -1561,8 +1561,11 @@
   }
   .gaxis {
     margin: 9px 0 0 101px;
-    margin-right: 52px;
-    font-size: 11.5px;
+    margin-right: 44px;
+    font-size: 11px;
+  }
+  .gaxis span.odd {
+    display: none;
   }
 }
 .psum {
