@@ -8,7 +8,8 @@ export function Home() {
   useTitle();
   const { data: streamers, isLoading } = useStreamers();
 
-  if (isLoading || !streamers) return <div className="loading">불러오는 중…</div>;
+  // 로딩 문구가 잠깐 떴다 사라지면 깜빡이는 느낌 — 빈 화면 뒤 진입 애니메이션으로 자연스럽게
+  if (isLoading || !streamers) return <main />;
 
   const live = streamers
     .filter((s) => s.live)
