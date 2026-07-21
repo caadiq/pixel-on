@@ -329,6 +329,9 @@
     color: var(--ink);
     line-height: 1.35;
     margin: 0;
+    -webkit-line-clamp: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .lives .lvc .who {
     order: 2;
