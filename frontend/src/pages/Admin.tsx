@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FALLBACK_COLOR, fmtCompact } from '../lib/format';
 import { useTitle } from '../lib/useTitle';
@@ -118,10 +118,16 @@ function Login({ onOk }: { onOk: (token: string) => void }) {
 
 function AdminMain({ token, onLogout }: { token: string; onLogout: () => void }) {
   const qc = useQueryClient();
-  const { data: rows } = useQuery({
+  const { data: rows, isError } = useQuery({
     queryKey: ['admin-streamers'],
     queryFn: () => adminFetch<AdminStreamer[]>(token, '/api/admin/streamers'),
+    retry: false,
   });
+  // 토큰 만료·무효(401 등) → 로그인 화면으로
+  useEffect(() => {
+    if (isError) onLogout();
+  }, [isError, onLogout]);
+
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: ['admin-streamers'] });
     void qc.invalidateQueries({ queryKey: ['streamers'] });
@@ -130,6 +136,7 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
 
+  if (isError) return null;
   if (!rows) return <div className="loading">불러오는 중…</div>;
   const selected = rows.find((r) => r.id === selectedId) ?? null;
 
