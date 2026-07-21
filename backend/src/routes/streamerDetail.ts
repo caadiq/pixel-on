@@ -56,7 +56,15 @@ streamerDetailRoute.get('/', async (c) => {
     profileImage: s.profileImage,
     followers: s.followers,
     color: s.color ?? s.autoColor ?? null,
-    live: liveNow.get(s.id) ?? null,
+    live: liveNow.has(s.id)
+      ? {
+          ...liveNow.get(s.id)!,
+          url:
+            s.platform === 'soop'
+              ? `https://play.sooplive.co.kr/${s.soopId}`
+              : `https://chzzk.naver.com/live/${s.chzzkId}`,
+        }
+      : null,
     stats: {
       monthCount: recent.length,
       monthHours: Math.round(totalMs / 3_600_000),

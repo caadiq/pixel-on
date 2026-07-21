@@ -23,8 +23,16 @@ streamersRoute.get('/', async (c) => {
       followers: s.followers,
       /** 수동 지정 우선, 없으면 자동 추출값 */
       color: s.color ?? s.autoColor ?? null,
-      /** 폴링 워커의 메모리 상태 — DB 조회 없음 */
-      live: liveNow.get(s.id) ?? null,
+      /** 폴링 워커의 메모리 상태 — DB 조회 없음. url = 라이브 페이지 링크 */
+      live: liveNow.has(s.id)
+        ? {
+            ...liveNow.get(s.id)!,
+            url:
+              s.platform === 'soop'
+                ? `https://play.sooplive.co.kr/${s.soopId}`
+                : `https://chzzk.naver.com/live/${s.chzzkId}`,
+          }
+        : null,
     })),
   );
 });

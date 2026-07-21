@@ -61,7 +61,7 @@ export function StreamerDetail() {
           </div>
         </div>
 
-        <BroadcastRecord id={id} color={c} liveThumbnail={s.live?.thumbnail ?? null} />
+        <BroadcastRecord id={id} color={c} liveThumbnail={s.live?.thumbnail ?? null} liveUrl={s.live?.url ?? null} />
         <Vods id={id} color={c} />
       </div>
     </main>
@@ -79,14 +79,14 @@ function Vods({ id, color }: { id: number; color: string }) {
         <Link to={`/vods?s=${id}`} className="more">전체보기 →</Link>
       </div>
       <div className="vgrid">
-        {data.vods.slice(0, 8).map((v) => (
+        {data.vods.slice(0, 8).map((v, i) => (
           <a
             key={v.id}
             className="vod"
             href={v.url}
             target="_blank"
             rel="noreferrer"
-            style={{ '--c': color } as React.CSSProperties}
+            style={{ '--c': color, animationDelay: `${i * 0.04}s` } as React.CSSProperties}
           >
             <div className="th">
               {v.thumbnail && <img src={v.thumbnail} alt="" loading="lazy" />}

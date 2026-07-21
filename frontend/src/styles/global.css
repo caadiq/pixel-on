@@ -142,3 +142,14 @@ select {
   --os-size: 10px;
   --os-handle-border-radius: 99px;
 }
+
+/* 모션 최소화 설정 존중 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

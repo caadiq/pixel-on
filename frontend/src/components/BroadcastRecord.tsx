@@ -18,10 +18,12 @@ export function BroadcastRecord({
   id,
   color,
   liveThumbnail,
+  liveUrl,
 }: {
   id: number;
   color: string;
   liveThumbnail?: string | null;
+  liveUrl?: string | null;
 }) {
   const now = kstNow();
   const [ym, setYm] = useState<[number, number]>([now.getUTCFullYear(), now.getUTCMonth()]);
@@ -162,6 +164,7 @@ export function BroadcastRecord({
             color={color}
             resolveVod={resolveVod}
             liveThumbnail={liveThumbnail ?? null}
+            liveUrl={liveUrl ?? null}
           />
         )}
 
@@ -200,13 +203,14 @@ function DayCell({
 }
 
 function DayExpand({
-  dateKey, sessions, color, resolveVod, liveThumbnail,
+  dateKey, sessions, color, resolveVod, liveThumbnail, liveUrl,
 }: {
   dateKey: string;
   sessions: SessionItem[];
   color: string;
   resolveVod: (s: SessionItem) => { thumbnail: string | null; url: string } | null;
   liveThumbnail: string | null;
+  liveUrl: string | null;
 }) {
   const d = new Date(`${dateKey}T00:00:00+09:00`);
   const title = d.toLocaleDateString('ko-KR', {
@@ -222,7 +226,9 @@ function DayExpand({
       </div>
       {sessions.map((s) => {
         const vod = resolveVod(s);
-        const url = vod?.url ?? (s.vodId ? fallbackVodUrl(s.vodId) : null);
+        const isLive = s.endedAt === null;
+        // 방송 중이면 라이브 페이지, 아니면 다시보기
+        const url = isLive ? liveUrl : (vod?.url ?? (s.vodId ? fallbackVodUrl(s.vodId) : null));
         // DB 저장 썸네일 → VOD 매칭 → (방송 중이면) 라이브 썸네일
         const thumb = s.thumbnail ?? vod?.thumbnail ?? (s.endedAt === null ? liveThumbnail : null);
         return (
@@ -256,7 +262,9 @@ function DayExpand({
               )}
             </div>
             {url && (
-              <a className="bv" href={url} target="_blank" rel="noreferrer">다시보기</a>
+              <a className={`bv ${isLive ? 'live' : ''}`} href={url} target="_blank" rel="noreferrer">
+                {isLive ? '방송 보기' : '다시보기'}
+              </a>
             )}
           </div>
         );

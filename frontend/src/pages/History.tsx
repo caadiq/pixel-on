@@ -208,8 +208,12 @@ export function History() {
             <div className="mb-only">
               <Summary count={startedAll.length} totalMs={totalMs} />
             </div>
-            {groups.map((g) => (
-              <div key={g.rep.streamerId} className="grow" style={{ '--c': g.rep.color ?? FALLBACK_COLOR } as React.CSSProperties}>
+            {groups.map((g, gi) => (
+              <div
+                key={`${date}-${g.rep.streamerId}`} /* 날짜 전환 시 행 전체 리마운트 → 일관된 페이드 */
+                className="grow"
+                style={{ '--c': g.rep.color ?? FALLBACK_COLOR, animationDelay: `${Math.min(gi * 0.045, 0.5)}s` } as React.CSSProperties}
+              >
                 <span className="nm">
                   <img src={g.rep.profileImage} alt="" loading="lazy" />
                   {g.rep.name}

@@ -363,7 +363,7 @@
   overflow: hidden;
   box-shadow: var(--sh);
   transition: 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
-  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
 }
 .lvc:hover {
   transform: translateY(-5px);
@@ -1025,6 +1025,17 @@
   padding: 17px 19px 8px; /* 마지막 행 자체 패딩이 있어 아래는 얇게 */
   margin: 7px 0 3px;
   color: #fff;
+  animation: dropin 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+@keyframes dropin {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .bexp .bxh {
   display: flex;
@@ -1153,6 +1164,12 @@
   padding: 8px 15px;
   white-space: nowrap;
   transition: 0.15s;
+}
+.bexp .bv.live {
+  background: var(--live);
+}
+.bexp .bv.live:hover {
+  filter: brightness(1.12);
 }
 .bexp .bv:hover {
   background: rgba(255, 255, 255, 0.26);
@@ -1672,7 +1689,8 @@
   opacity: 0.92;
   min-width: 4px;
   cursor: default;
-  transition: 0.15s;
+  /* left/width에 transition이 걸리면 날짜 전환 시 바가 옆으로 미끄러짐 */
+  transition: box-shadow 0.15s, opacity 0.15s;
 }
 .grow .gt span.linked {
   cursor: pointer;
@@ -1875,6 +1893,41 @@
   font-size: 13.5px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── 다시보기 페이징 ── */
+.pager {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.pager button {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 8px;
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--soft);
+  background: #fff;
+  box-shadow: var(--sh);
+  transition: 0.15s;
+}
+.pager button:hover:not(:disabled):not(.on) {
+  border-color: var(--faint);
+  color: var(--ink);
+}
+.pager button.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .empty {
@@ -2698,4 +2751,34 @@
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   cursor: pointer;
+}
+
+/* ── 진입 애니메이션 — 섹션·카드가 순차적으로 떠오름.
+   fill은 backwards만: both로 두면 애니메이션이 끝나도 stacking context가 남아
+   달력·드롭다운 팝업이 뒤 섹션에 가려짐 ── */
+.sec {
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+.sec:nth-of-type(2) {
+  animation-delay: 0.07s;
+}
+.sec:nth-of-type(3) {
+  animation-delay: 0.14s;
+}
+.scard,
+.vod,
+.grow {
+  animation: rise 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  /* 지연은 인라인 animationDelay(인덱스 기반)로 */
+}
+.two > .panel:nth-child(2) {
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  animation-delay: 0.08s;
+}
+.dhead {
+  animation: rise 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+.dstats {
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  animation-delay: 0.08s;
 }

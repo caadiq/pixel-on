@@ -74,7 +74,7 @@ export function Vods() {
           <div className="empty">다시보기가 없어요</div>
         ) : (
           <div className="vgrid">
-            {vods.map((v) => {
+            {vods.map((v, i) => {
               const s = byId.get(v.streamerId);
               return (
                 <a
@@ -83,7 +83,7 @@ export function Vods() {
                   href={v.url}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ '--c': s?.color ?? FALLBACK_COLOR } as React.CSSProperties}
+                  style={{ '--c': s?.color ?? FALLBACK_COLOR, animationDelay: `${Math.min(i * 0.04, 0.45)}s` } as React.CSSProperties}
                 >
                   <div className="th">
                     <img src={v.thumbnail} alt="" loading="lazy" />

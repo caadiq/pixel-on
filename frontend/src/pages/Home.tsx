@@ -73,8 +73,8 @@ export function Home() {
             <span className="sub">{streamers.length}명 · 가나다순</span>
           </div>
           <div className="sgrid">
-            {streamers.map((s) => (
-              <StreamerCard key={s.id} s={s} />
+            {streamers.map((s, i) => (
+              <StreamerCard key={s.id} s={s} index={i} />
             ))}
           </div>
         </div>
@@ -113,8 +113,10 @@ function LiveCard({ s, index }: { s: Streamer; index: number }) {
   const c = s.color ?? FALLBACK_COLOR;
   const thumb = s.live?.thumbnail ?? null;
   return (
-    <Link
-      to={`/streamer/${s.id}`}
+    <a
+      href={s.live!.url}
+      target="_blank"
+      rel="noreferrer"
       className="lvc"
       style={{ '--c': c, animationDelay: `${index * 0.06}s` } as React.CSSProperties}
     >
@@ -138,17 +140,17 @@ function LiveCard({ s, index }: { s: Streamer; index: number }) {
         <p>{s.live!.title}</p>
         {s.live!.category && <span className="cat">{s.live!.category}</span>}
       </div>
-    </Link>
+    </a>
   );
 }
 
-function StreamerCard({ s }: { s: Streamer }) {
+function StreamerCard({ s, index }: { s: Streamer; index: number }) {
   const c = s.color ?? FALLBACK_COLOR;
   return (
     <Link
       to={`/streamer/${s.id}`}
       className={`scard ${s.live ? 'on' : ''}`}
-      style={{ '--c': c } as React.CSSProperties}
+      style={{ '--c': c, animationDelay: `${Math.min(index * 0.035, 0.5)}s` } as React.CSSProperties}
     >
       {s.live && (
         <span className="onair">

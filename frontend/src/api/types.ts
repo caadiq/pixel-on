@@ -4,6 +4,8 @@ export interface LiveNow {
   viewers: number;
   startedAt: string;
   thumbnail: string | null;
+  /** 라이브 페이지 링크 (치지직/숲) */
+  url: string;
 }
 
 export interface Streamer {
