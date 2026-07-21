@@ -2951,3 +2951,82 @@
 @keyframes tipin {
   from { opacity: 0; }
 }
+
+/* ── 다시보기 모바일: 무한 스크롤 + 플로팅 필터 ── */
+.vrow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.vrow .vod {
+  animation: none; /* 가상화로 재마운트될 때마다 떠오르면 산만함 */
+}
+.infsentinel {
+  min-height: 22px;
+  padding: 16px 0 4px;
+  text-align: center;
+  color: var(--faint);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.fab {
+  position: fixed;
+  right: 16px;
+  bottom: 18px;
+  z-index: 150;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 28px -8px rgba(10, 14, 25, 0.45);
+  transition: transform 0.15s;
+}
+.fab:active {
+  transform: scale(0.93);
+}
+.fab.has {
+  background: #fff;
+  border: 2.5px solid var(--ink);
+}
+.fab img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.fsheet {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 200;
+  max-width: 480px;
+  margin-inline: auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 15px 13px 11px;
+  box-shadow: 0 24px 60px -18px rgba(10, 14, 25, 0.5);
+  animation: sheetup 0.24s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+.fsheet.closing {
+  animation: sheetdown 0.2s ease both;
+}
+.fsheet-t {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 0 5px 10px;
+}
+.fsheet-list {
+  max-height: 55vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
