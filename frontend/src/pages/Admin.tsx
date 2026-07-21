@@ -86,9 +86,8 @@ function Login({ onOk }: { onOk: (token: string) => void }) {
   };
 
   return (
-    <main className="wrap" style={{ maxWidth: 380 }}>
-      <section className="sec">
-        <div className="panel loginbox">
+    <main className="wrap loginwrap">
+      <div className="panel loginbox">
           <h3 className="jua">관리자 로그인</h3>
           <label>아이디</label>
           <input
@@ -110,8 +109,7 @@ function Login({ onOk }: { onOk: (token: string) => void }) {
           <button className="abtn" onClick={() => void submit()} disabled={busy}>
             {busy ? '확인 중…' : '로그인'}
           </button>
-        </div>
-      </section>
+      </div>
     </main>
   );
 }
@@ -136,8 +134,13 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
 
-  if (isError) return null;
-  if (!rows) return <div className="loading">불러오는 중…</div>;
+  if (isError) return <main className="wrap" />;
+  if (!rows)
+    return (
+      <main className="wrap">
+        <div className="loading">불러오는 중…</div>
+      </main>
+    );
   const selected = rows.find((r) => r.id === selectedId) ?? null;
 
   return (

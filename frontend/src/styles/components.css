@@ -1781,9 +1781,18 @@
 }
 
 /* ── 관리자 (개편) ── */
+.loginwrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
 .loginbox {
+  width: 100%;
+  max-width: 360px;
   text-align: center;
-  padding: 30px 26px;
+  padding: 32px 28px;
 }
 .loginbox h3 {
   justify-content: center;
