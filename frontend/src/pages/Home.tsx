@@ -156,7 +156,6 @@ function StreamerCard({ s }: { s: Streamer }) {
           LIVE
         </span>
       )}
-      <span className={`pfbadge ${s.platform}`}>{s.platform === 'soop' ? '숲' : '치지직'}</span>
       <img className="av" src={s.profileImage} alt="" loading="lazy" />
       <b>{s.name}</b>
       <span className="vw num">❤ {fmtCompact(s.followers)}</span>
