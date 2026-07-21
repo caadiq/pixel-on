@@ -266,8 +266,8 @@
 /* ── 라이브 카드 ── */
 .lives {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
 }
 @media (max-width: 1000px) {
   .lives {
@@ -374,19 +374,22 @@
   background: #f4f5f7;
 }
 .lvc .who b {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 700;
 }
 .lvc .bd p {
-  font-size: 13px;
-  color: var(--soft);
-  line-height: 1.5;
-  height: 3em;
+  font-size: 14.5px;
+  color: var(--ink2);
+  line-height: 1.45;
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .lvc .cat {
   display: inline-block;
-  margin-top: 10px;
+  margin-top: 9px;
   font-size: 13px;
   font-weight: 600;
   color: color-mix(in srgb, var(--c) 72%, #2a2a2a);
