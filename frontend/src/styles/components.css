@@ -1522,7 +1522,9 @@
 }
 .gaxis {
   position: relative;
-  height: 20px;
+  /* 텍스트 높이에 맞춤 — 숫자 아래 빈 여백 제거 */
+  height: 1em;
+  line-height: 1;
   margin: 10px 0 0 185px;
   margin-right: 71px;
   font-size: 13px;
@@ -1531,6 +1533,7 @@
 }
 .gaxis span {
   position: absolute;
+  top: 0;
   transform: translateX(-50%);
 }
 .gaxis span:first-child {
@@ -1566,13 +1569,6 @@
   }
   .gaxis span.odd {
     display: none;
-  }
-  /* 마지막 스트리머 행의 하단 보더 여백이 축과 겹쳐 과하게 벌어지던 것 축소 */
-  .panel .grow:last-of-type {
-    padding-bottom: 6px;
-  }
-  .panel:has(.gaxis) {
-    padding-bottom: 14px;
   }
 }
 .psum {
