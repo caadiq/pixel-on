@@ -275,7 +275,14 @@
   }
 }
 @media (max-width: 720px) {
-  /* 치지직 앱 스타일 — 썸네일 좌 · 내용 우 가로 리스트 */
+  /* 태블릿: PC 카드 그대로 2열 */
+  .lives {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+@media (max-width: 480px) {
+  /* 치지직 앱 스타일 — 썸네일 좌 · 내용 우 가로 리스트 (좁은 모바일 전용) */
   .lives {
     display: flex;
     flex-direction: column;
@@ -284,7 +291,7 @@
   .lives .lvc {
     display: flex;
     flex-direction: row; /* 기본(.lvc)이 column이라 명시 필요 — 가로 리스트 */
-    align-items: center;
+    align-items: stretch; /* 내용이 썸네일 높이를 채워 제목은 위, 태그는 아래로 */
     gap: 12px;
     padding: 9px;
     border-radius: 14px;
@@ -330,9 +337,8 @@
     color: var(--ink);
     line-height: 1.35;
     margin: 0;
-    -webkit-line-clamp: 1;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    /* 두 줄 … 생략 (base의 -webkit-box clamp 유지, 줄수만 2) */
+    -webkit-line-clamp: 2;
   }
   .lives .lvc .who {
     order: 2;
@@ -351,7 +357,7 @@
   }
   .lives .lvc .cat {
     order: 3;
-    margin-top: 1px;
+    margin-top: auto; /* 항상 카드 하단 */
     align-self: flex-start;
     font-size: 11.5px;
     padding: 2.5px 8px;
@@ -536,8 +542,23 @@
 }
 @media (max-width: 720px) {
   .sgrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
+  }
+}
+@media (max-width: 480px) {
+  .sgrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* 좁은 화면에선 제목 한 줄 … 생략.
+     bd가 align-items:flex-start column flex라 p가 텍스트 길이만큼 넓어짐 → 폭 고정 필수 */
+  .lives .lvc .bd p {
+    display: block;
+    align-self: stretch;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 /* 방송 중 카드의 상단 영역만 쓰는 형태 — 그라데이션+프로필+이름, 코너 뱃지 */
