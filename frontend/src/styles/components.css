@@ -304,6 +304,7 @@
     width: 44%;
     flex: none;
     border-radius: 9px;
+    margin-bottom: 0;
   }
   .lives .lvc .lbdg {
     top: 6px;
@@ -389,6 +390,8 @@
   overflow: hidden;
   background: #16181d;
   transform: translateZ(0); /* 클리핑을 자체 레이어에서 — 호버 이동 중 경계 틈 방지 */
+  /* 합성 레이어 반올림으로 경계가 1~2px 흔들리는 환경 대비 — 본문 위로 2px 겹쳐 덮음 */
+  margin-bottom: -2px;
 }
 .lvc .thumbimg {
   position: absolute;
@@ -1402,6 +1405,7 @@
   aspect-ratio: 16 / 9;
   position: relative;
   transform: translateZ(0);
+  margin-bottom: -2px; /* .lvc .thumb과 동일 — 경계 흔들림 커버 */
   background: linear-gradient(
     150deg,
     color-mix(in srgb, var(--c, #888) 55%, #666),
@@ -3057,6 +3061,7 @@
     flex: none;
     border-radius: 9px;
     overflow: hidden;
+    margin-bottom: 0;
   }
   .vod .th .dur {
     bottom: 5px;
