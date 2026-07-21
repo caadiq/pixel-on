@@ -413,93 +413,69 @@
     gap: 10px;
   }
 }
+/* 방송 중 카드의 상단 영역만 쓰는 형태 — 그라데이션+프로필+이름, 코너 뱃지 */
 .scard {
-  background: #fff;
-  border: 1px solid var(--line2);
+  position: relative;
   border-radius: 17px;
   overflow: hidden;
-  text-align: center;
+  aspect-ratio: 1 / 1;
   transition: 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
   box-shadow: var(--sh);
-  display: block;
-  padding-bottom: 15px;
+  border: 1px solid var(--line2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px;
+  background:
+    radial-gradient(circle at 1.5px 1.5px, rgba(255, 255, 255, 0.6) 1.2px, transparent 0) 0 0 / 12px 12px,
+    linear-gradient(155deg, color-mix(in srgb, var(--c) 30%, #fff), color-mix(in srgb, var(--c) 10%, #fff));
 }
 .scard:hover {
   transform: translateY(-4px);
   box-shadow: var(--sh2);
-  border-color: color-mix(in srgb, var(--c) 42%, #fff);
-}
-/* 대표색 그라데이션 헤더 — 프로필이 아래로 걸침 */
-.scard .scap {
-  position: relative;
-  height: 58px;
-  margin-bottom: 40px;
-  background:
-    radial-gradient(circle at 1.5px 1.5px, rgba(255, 255, 255, 0.55) 1.2px, transparent 0) 0 0 / 12px 12px,
-    linear-gradient(155deg, color-mix(in srgb, var(--c) 34%, #fff), color-mix(in srgb, var(--c) 12%, #fff));
-}
-.scard.on .scap {
-  background:
-    radial-gradient(circle at 1.5px 1.5px, rgba(255, 255, 255, 0.55) 1.2px, transparent 0) 0 0 / 12px 12px,
-    linear-gradient(155deg, color-mix(in srgb, var(--c) 40%, #fff), color-mix(in srgb, var(--c) 16%, #fff));
 }
 .scard .av {
-  width: 68px;
-  height: 68px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
   object-fit: cover;
-  position: absolute;
-  left: 50%;
-  bottom: -34px;
-  transform: translateX(-50%);
   border: 3px solid #fff;
   box-shadow: 0 4px 12px rgba(16, 20, 30, 0.14);
-  transition: 0.24s;
   background: #f4f5f7;
 }
 .scard.on .av {
   border-color: var(--live);
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(255, 71, 87, 0.3), 0 4px 12px rgba(16, 20, 30, 0.14);
-}
-.scard:not(.on) .av {
-  filter: saturate(0.82);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(255, 71, 87, 0.32), 0 4px 12px rgba(16, 20, 30, 0.14);
 }
 .scard b {
   font-size: 15px;
   font-weight: 700;
-  display: block;
+  color: var(--ink);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
 }
-.scard .sub {
-  display: block;
-  font-size: 13px;
-  color: var(--faint);
-  margin-top: 5px;
-  font-weight: 500;
-}
-.scard.on .sub {
-  color: var(--live);
-  font-weight: 700;
-}
-.scard .rb {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  display: inline-flex;
-  align-items: center;
-  height: 23px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  background: var(--live);
-  color: #fff;
-  padding: 0 8px;
-  border-radius: 7px;
-  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.32);
-}
+/* LIVE 좌상단(공용 .onair) / 플랫폼 우상단 / 팔로워·시청자 우하단(공용 .vw) */
 .scard .pfbadge {
   position: absolute;
   top: 9px;
+  right: 9px;
+}
+.scard .onair {
+  top: 9px;
   left: 9px;
+}
+.scard .vw {
+  position: absolute;
+  bottom: 9px;
+  right: 9px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 99px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink2);
+  box-shadow: var(--sh);
 }
 
 /* ── 홈 하단 2단 ── */

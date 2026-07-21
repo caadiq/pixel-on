@@ -150,15 +150,16 @@ function StreamerCard({ s }: { s: Streamer }) {
       className={`scard ${s.live ? 'on' : ''}`}
       style={{ '--c': c } as React.CSSProperties}
     >
-      <div className="scap">
-        <span className={`pfbadge ${s.platform}`}>{s.platform === 'soop' ? '숲' : '치지직'}</span>
-        {s.live && <span className="rb">LIVE</span>}
-        <img className="av" src={s.profileImage} alt="" loading="lazy" />
-      </div>
+      {s.live && (
+        <span className="onair">
+          <i />
+          LIVE
+        </span>
+      )}
+      <span className={`pfbadge ${s.platform}`}>{s.platform === 'soop' ? '숲' : '치지직'}</span>
+      <img className="av" src={s.profileImage} alt="" loading="lazy" />
       <b>{s.name}</b>
-      <span className="sub">
-        {s.live ? `${s.live.viewers.toLocaleString('ko-KR')}명 시청` : fmtCompact(s.followers)}
-      </span>
+      <span className="vw num">❤ {fmtCompact(s.followers)}</span>
     </Link>
   );
 }
