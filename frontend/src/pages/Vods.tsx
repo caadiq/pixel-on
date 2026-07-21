@@ -170,7 +170,7 @@ function VodCard({ v, s, delay = 0 }: { v: DbVod; s: Streamer | undefined; delay
   );
 }
 
-const COLS = 2;
+const COLS = 1; // 모바일은 가로 리스트 1열
 
 /** 모바일 무한 스크롤 그리드 — 화면에 보이는 행만 렌더 (창 가상화) */
 function VirtualVodGrid({ vods, byId }: { vods: DbVod[]; byId: Map<number, Streamer> }) {
@@ -178,7 +178,7 @@ function VirtualVodGrid({ vods, byId }: { vods: DbVod[]; byId: Map<number, Strea
   const rowCount = Math.ceil(vods.length / COLS);
   const virtualizer = useWindowVirtualizer({
     count: rowCount,
-    estimateSize: () => 240,
+    estimateSize: () => 120,
     overscan: 5,
     scrollMargin: listRef.current?.offsetTop ?? 0,
   });

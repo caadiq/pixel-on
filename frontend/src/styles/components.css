@@ -2954,10 +2954,7 @@
 
 /* ── 다시보기 모바일: 무한 스크롤 + 플로팅 필터 ── */
 .vrow {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
 }
 .vrow .vod {
   animation: none; /* 가상화로 재마운트될 때마다 떠오르면 산만함 */
@@ -2973,7 +2970,7 @@
 .fab {
   position: fixed;
   right: 16px;
-  bottom: 18px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   z-index: 150;
   width: 52px;
   height: 52px;
@@ -3029,4 +3026,62 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/* 모바일: VOD 카드를 썸네일 좌·내용 우 리스트로 */
+@media (max-width: 480px) {
+  .vgrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .vod {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+  .vod .th {
+    width: 44%;
+    flex: none;
+    border-radius: 9px;
+    overflow: hidden;
+  }
+  .vod .th .dur {
+    bottom: 5px;
+    right: 5px;
+    font-size: 11px;
+    padding: 1.5px 6px;
+  }
+  .vod .bd {
+    flex: 1;
+    min-width: 0;
+    padding: 2px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .vod .bd b {
+    font-size: 14.5px;
+    line-height: 1.35;
+    height: auto;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .vod .bd .sub {
+    margin-top: auto; /* 이름·날짜는 하단 */
+    padding-top: 6px;
+    font-size: 12px;
+    gap: 6px;
+  }
+  .vod .bd .sub .pav {
+    width: 20px;
+    height: 20px;
+  }
+  .vod .bd .sub .vcat {
+    max-width: 55%;
+    font-size: 11px;
+    padding: 2px 8px;
+  }
 }
