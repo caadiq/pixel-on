@@ -28,11 +28,31 @@ export function Layout() {
       <Outlet />
 
       <footer className="ftr">
-        <p>
-          비공식 팬 제작 사이트입니다 · 픽셀네트워크 및 소속 스트리머와 무관합니다
-          <br />
-          방송 정보는 치지직 · 숲(SOOP)에서 가져옵니다
-        </p>
+        <div className="wrap">
+          <div className="ftr-main">
+            <div className="ftr-brand">
+              <span className="logo">
+                <img className="logoimg" src="/favicon-192.png?v=2" alt="" />
+                <b>PIXEL ON</b>
+              </span>
+              <p>픽셀네트워크 스트리머들의 방송을 기록하는 비공식 팬사이트</p>
+            </div>
+            <div className="ftr-links">
+              <div className="ftr-col">
+                <span className="ftr-h">데이터</span>
+                <span>치지직 · 숲(SOOP)</span>
+              </div>
+              <div className="ftr-col">
+                <span className="ftr-h">문의</span>
+                <a href="mailto:caadiq@gmail.com">caadiq@gmail.com</a>
+              </div>
+            </div>
+          </div>
+          <div className="ftr-bottom">
+            <span>픽셀네트워크 및 소속 스트리머와 무관한 비공식 팬 제작 사이트입니다.</span>
+            <span>© 2026 PIXEL ON</span>
+          </div>
+        </div>
       </footer>
 
     </>
