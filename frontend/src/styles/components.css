@@ -283,16 +283,16 @@
   }
   .lvc {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px;
+    align-items: stretch;
+    gap: 11px;
+    padding: 9px;
     border-radius: 15px;
   }
   .lvc .thumb {
-    width: 44%;
-    max-width: 180px;
+    width: 48%;
     flex: none;
     border-radius: 10px;
+    align-self: flex-start;
   }
   .lvc .thumb .onair {
     top: 7px;
@@ -309,27 +309,32 @@
   .lvc .bd {
     flex: 1;
     min-width: 0;
-    padding: 0;
+    padding: 2px 2px 2px 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    gap: 7px;
   }
   .lvc .bd p {
     order: 1;
     font-size: 15px;
-    line-height: 1.35;
+    line-height: 1.4;
     margin: 0;
   }
   .lvc .who {
     order: 2;
-    margin: 9px 0 0;
+    margin: 0;
   }
   .lvc .who b {
     font-size: 14px;
   }
+  .lvc .wpf {
+    width: 24px;
+    height: 24px;
+  }
   .lvc .cat {
     order: 3;
-    margin-top: 9px;
+    margin-top: 1px;
     align-self: flex-start;
     font-size: 12.5px;
   }
