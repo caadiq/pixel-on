@@ -115,16 +115,47 @@ export function History() {
 
   const dayStart = new Date(`${date}T00:00:00+09:00`).getTime();
   const all = data?.sessions ?? [];
-  /** 그날 시작한 방송 (귀속 기준) */
-  const started = all.filter((r) => new Date(r.startedAt).getTime() >= dayStart);
-  /** 전날 시작해 자정을 넘겨 이어진 방송 — 00시부터 이어짐 막대로 표시 */
-  const carried = all.filter((r) => new Date(r.startedAt).getTime() < dayStart);
   const fullMs = (r: DaySession) =>
     (r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - new Date(r.startedAt).getTime();
-  const totalMs = started.reduce((a, r) => a + fullMs(r), 0);
+
+  /** 스트리머 단위로 묶기 — 하루에 여러 번 방송해도 한 줄에 여러 조각으로 */
+  const groupMap = new Map<number, DaySession[]>();
+  for (const r of all) {
+    const arr = groupMap.get(r.streamerId);
+    if (arr) arr.push(r);
+    else groupMap.set(r.streamerId, [r]);
+  }
+  const groups = [...groupMap.values()]
+    .map((sessions) => {
+      sessions.sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+      const rep = sessions[0];
+      // 그날 '시작한' 방송의 총 시간 (전날 이어진 것은 제외 = 시작일 귀속)
+      const ownMs = sessions
+        .filter((s) => new Date(s.startedAt).getTime() >= dayStart)
+        .reduce((a, s) => a + fullMs(s), 0);
+      return { rep, sessions, ownMs, firstStart: new Date(rep.startedAt).getTime() };
+    })
+    .sort((a, b) => a.firstStart - b.firstStart);
+
+  // 상단 요약: 그날 시작한 방송 건수·총시간
+  const startedAll = all.filter((r) => new Date(r.startedAt).getTime() >= dayStart);
+  const totalMs = startedAll.reduce((a, r) => a + fullMs(r), 0);
 
   const showTip = (s: DaySession) => (e: React.MouseEvent) => {
     setTip({ x: e.clientX, y: e.clientY, s });
+  };
+
+  /** 한 세션의 트랙 내 위치·상태 계산 */
+  const segOf = (s: DaySession) => {
+    const st = Math.max(0, (new Date(s.startedAt).getTime() - dayStart) / 86400_000);
+    const rawEn = ((s.endedAt ? new Date(s.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
+    return {
+      st,
+      en: Math.min(1, rawEn),
+      carried: new Date(s.startedAt).getTime() < dayStart,
+      over: rawEn > 1,
+      url: linkOf(s),
+    };
   };
 
   return (
@@ -138,6 +169,12 @@ export function History() {
           <button className="arr" onClick={() => setDate(shiftDate(date, 1))} disabled={isToday} aria-label="다음 날">
             →
           </button>
+          {startedAll.length > 0 && (
+            <span className="pill datesum" style={{ marginLeft: 'auto' }}>
+              방송 <b className="num">{startedAll.length}</b>건 · 총{' '}
+              <b className="num">{Math.round(totalMs / 3600_000)}</b>시간
+            </span>
+          )}
         </div>
       </section>
 
@@ -147,135 +184,42 @@ export function History() {
         ) : all.length === 0 ? (
           <div className="empty">이 날은 방송 기록이 없어요</div>
         ) : (
-          <>
-            {/* PC: 간트 */}
-            <div className="panel pc-only">
-              <Summary count={started.length} totalMs={totalMs} />
-              {carried.map((r) => {
-                const en = Math.min(
-                  1,
-                  ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000,
-                );
-                return (
-                  <div key={r.id} className="grow" style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}>
-                    <span className="nm">
-                      <img src={r.profileImage} alt="" loading="lazy" />
-                      {r.name}
-                    </span>
-                    <span className="gt">
-                      <span
-                        className={`cont ${linkOf(r) ? 'linked' : ''}`}
-                        style={{ left: 0, width: `${Math.max(0.5, en * 100)}%` }}
-                        onMouseMove={showTip(r)}
-                        onMouseLeave={() => setTip(null)}
-                        onClick={() => {
-                          const url = linkOf(r);
-                          if (url) window.open(url, '_blank', 'noopener');
-                        }}
-                      />
-                    </span>
-                    <span className="hrs num">{(fullMs(r) / 3600_000).toFixed(1)}h</span>
-                  </div>
-                );
-              })}
-              {started.map((r) => {
-                const st = (new Date(r.startedAt).getTime() - dayStart) / 86400_000;
-                const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
-                const overflow = rawEn > 1;
-                const en = Math.min(1, rawEn);
-                return (
-                  <div key={r.id} className="grow" style={{ '--c': r.color ?? FALLBACK_COLOR } as React.CSSProperties}>
-                    <span className="nm">
-                      <img src={r.profileImage} alt="" loading="lazy" />
-                      {r.name}
-                    </span>
-                    <span className="gt">
-                      <span
-                        className={`${overflow ? 'over' : ''} ${linkOf(r) ? 'linked' : ''}`}
-                        style={{ left: `${st * 100}%`, width: `${Math.max(0.5, (en - st) * 100)}%` }}
-                        onMouseMove={showTip(r)}
-                        onMouseLeave={() => setTip(null)}
-                        onClick={() => {
-                          const url = linkOf(r);
-                          if (url) window.open(url, '_blank', 'noopener');
-                        }}
-                      />
-                    </span>
-                    <span className="hrs num">{(fullMs(r) / 3600_000).toFixed(1)}h</span>
-                  </div>
-                );
-              })}
-              <div className="gaxis num">
-                {Array.from({ length: 9 }, (_, i) => (
-                  <span key={i} style={{ left: `${(i / 8) * 100}%` }}>
-                    {String(i * 3).padStart(2, '0')}
-                  </span>
-                ))}
-              </div>
+          <div className="panel">
+            <div className="mb-only">
+              <Summary count={startedAll.length} totalMs={totalMs} />
             </div>
-
-            {/* 모바일: 컬러 바 — 막대가 곧 카드, 글씨는 크게 */}
-            <div className="panel mb-only">
-              <Summary count={started.length} totalMs={totalMs} />
-              <div className="bhours num">
-                <span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span>
-              </div>
-              {[...carried, ...started].map((r) => {
-                const isCarried = new Date(r.startedAt).getTime() < dayStart;
-                const crossed = r.endedAt !== null && new Date(r.endedAt).getTime() >= dayStart + 86400_000;
-                const live = r.endedAt === null;
-                const st = Math.max(0, (new Date(r.startedAt).getTime() - dayStart) / 86400_000);
-                const rawEn = ((r.endedAt ? new Date(r.endedAt).getTime() : Date.now()) - dayStart) / 86400_000;
-                const en = Math.min(1, rawEn);
-                const w = Math.max(0.18, en - st); // 최소 폭: 아바타가 막대 밖으로 안 나가게
-                // 늦은 밤 방송이 최소 폭 때문에 24시 벽을 넘지 않게 클램프
-                const dispSt = Math.min(st, 1 - w);
-                const url = linkOf(r);
-                const color = r.color ?? FALLBACK_COLOR;
-                // 막대가 좁으면 라벨을 밖으로, 끝쪽이면 왼쪽으로
-                const mode = en - st >= 0.46 ? 'in' : en > 0.5 ? 'flip' : 'out';
-                const timeText = `${isCarried ? '전날 ' : ''}${fmtTime(r.startedAt)}–${
-                  live ? '' : `${crossed ? '익일 ' : ''}${fmtTime(r.endedAt!)}`
-                }`;
-                const label = (
-                  <>
-                    <b>{r.name}</b>
-                    <s className="num">
-                      {timeText}
-                      {live && <i className="lv">방송 중</i>}
-                      {!live && <i className="du"> · {fmtDurKo(fullMs(r))}</i>}
-                    </s>
-                  </>
-                );
-                const open = () => url && window.open(url, '_blank', 'noopener');
-                return (
-                  <div key={r.id} className="brow2" style={{ '--c': color } as React.CSSProperties}>
-                    <div className="btrack2" />
-                    <div
-                      className={`bseg ${isCarried ? 'carried' : ''} ${crossed ? 'crossed' : ''} ${url ? 'linked' : ''}`}
-                      style={{ left: `${dispSt * 100}%`, width: `${w * 100}%` }}
-                      onClick={open}
-                      role={url ? 'link' : undefined}
-                    >
-                      <img src={r.profileImage} alt="" loading="lazy" />
-                      {mode === 'in' && (
-                        <span className="blb" style={{ color: contrastText(color) }}>{label}</span>
-                      )}
-                    </div>
-                    {mode !== 'in' && (
+            {groups.map((g) => (
+              <div key={g.rep.streamerId} className="grow" style={{ '--c': g.rep.color ?? FALLBACK_COLOR } as React.CSSProperties}>
+                <span className="nm">
+                  <img src={g.rep.profileImage} alt="" loading="lazy" />
+                  {g.rep.name}
+                </span>
+                <span className="gt">
+                  {g.sessions.map((s) => {
+                    const seg = segOf(s);
+                    return (
                       <span
-                        className={`blb-out ${mode === 'flip' ? 'flip' : ''}`}
-                        style={mode === 'flip' ? { right: `${(1 - dispSt) * 100}%` } : { left: `${Math.max(en, dispSt + w) * 100}%` }}
-                        onClick={open}
-                      >
-                        {label}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+                        key={s.id}
+                        className={`${seg.carried ? 'cont' : ''} ${seg.over ? 'over' : ''} ${seg.url ? 'linked' : ''}`}
+                        style={{ left: `${seg.st * 100}%`, width: `${Math.max(0.5, (seg.en - seg.st) * 100)}%` }}
+                        onMouseMove={showTip(s)}
+                        onMouseLeave={() => setTip(null)}
+                        onClick={() => seg.url && window.open(seg.url, '_blank', 'noopener')}
+                      />
+                    );
+                  })}
+                </span>
+                <span className="hrs num">{g.ownMs > 0 ? `${(g.ownMs / 3600_000).toFixed(1)}h` : '—'}</span>
+              </div>
+            ))}
+            <div className="gaxis num">
+              {Array.from({ length: 9 }, (_, i) => (
+                <span key={i} style={{ left: `${(i / 8) * 100}%` }}>
+                  {String(i * 3).padStart(2, '0')}
+                </span>
+              ))}
             </div>
-          </>
+          </div>
         )}
       </section>
 
