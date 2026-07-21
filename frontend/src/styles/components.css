@@ -296,22 +296,19 @@
   .lives .lvc .lbdg {
     top: 6px;
     left: 6px;
-    gap: 4px;
   }
+  /* 모바일: LIVE 텍스트 대신 시청자수 앞 빨간 점 */
   .lives .lvc .thumb .onair {
-    font-size: 10px;
-    padding: 2px 7px;
-    gap: 4px;
-    border-radius: 4px;
-  }
-  .lives .lvc .thumb .onair i {
-    width: 4px;
-    height: 4px;
+    display: none;
   }
   .lives .lvc .thumb .vw {
-    padding: 2px 6px;
+    padding: 2.5px 7px;
     font-size: 10.5px;
     border-radius: 4px;
+    gap: 4px;
+  }
+  .lives .lvc .vw .vdot {
+    display: inline-block;
   }
   .lives .lvc .bd {
     flex: 1;
@@ -363,6 +360,9 @@
   box-shadow: var(--sh);
   transition: 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
   animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  /* 제목이 한 줄이어도 태그가 카드 하단에 붙도록 */
+  display: flex;
+  flex-direction: column;
 }
 .lvc:hover {
   transform: translateY(-5px);
@@ -385,6 +385,25 @@
 }
 .lvc:hover .thumbimg {
   transform: scale(1.04);
+}
+/* 호버 시 방송 업타임 (썸네일 우하단) */
+.lvc .uptime {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.18s;
+  pointer-events: none;
+}
+.lvc:hover .uptime {
+  opacity: 1;
 }
 .lvc .thumbfallback {
   position: absolute;
@@ -431,6 +450,15 @@
   position: static;
   border-radius: 5px;
 }
+.lvc .vw .vdot {
+  display: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--live);
+  animation: pulse 1.4s infinite;
+  flex: none;
+}
 .lvc .vw {
   background: rgba(0, 0, 0, 0.62);
   border-radius: 5px;
@@ -443,6 +471,10 @@
 }
 .lvc .bd {
   padding: 12px 13px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
 }
 .lvc .who {
   display: flex;
@@ -472,10 +504,11 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin-bottom: 9px;
 }
 .lvc .cat {
   display: inline-block;
-  margin-top: 9px;
+  margin-top: auto; /* 카드 하단 고정 (bd가 flex column) */
   font-size: 13px;
   font-weight: 600;
   color: color-mix(in srgb, var(--c) 72%, #2a2a2a);

@@ -133,8 +133,12 @@ function LiveCard({ s, index }: { s: Streamer; index: number }) {
             <i />
             LIVE
           </span>
-          <span className="vw num">{s.live!.viewers.toLocaleString('ko-KR')}명</span>
+          <span className="vw num">
+            <i className="vdot" />
+            {s.live!.viewers.toLocaleString('ko-KR')}명
+          </span>
         </span>
+        <span className="uptime num">{fmtDurKo(Date.now() - new Date(s.live!.startedAt).getTime())} 방송 중</span>
       </div>
       <div className="bd">
         <div className="who">
