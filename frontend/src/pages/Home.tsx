@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { avatar } from '../lib/avatar';
 import { useTitle } from '../lib/useTitle';
 import { useDaySessions, useStreamers, useWeeklyStats } from '../api/hooks';
 import type { Streamer } from '../api/types';
@@ -123,7 +124,7 @@ function LiveCard({ s, index }: { s: Streamer; index: number }) {
     >
       <div className="thumb">
         {thumb ? (
-          <img className="thumbimg" src={thumb} alt="" loading="lazy" />
+          <img className="thumbimg" src={thumb} alt="" loading="lazy" decoding="async" />
         ) : (
           <div className="thumbfallback" />
         )}
@@ -135,7 +136,7 @@ function LiveCard({ s, index }: { s: Streamer; index: number }) {
       </div>
       <div className="bd">
         <div className="who">
-          <img className="wpf" src={s.profileImage} alt="" loading="lazy" />
+          <img className="wpf" src={avatar(s.profileImage)} alt="" loading="lazy" decoding="async" />
           <b>{s.name}</b>
         </div>
         <p>{s.live!.title}</p>
@@ -159,7 +160,8 @@ function StreamerCard({ s, index }: { s: Streamer; index: number }) {
           LIVE
         </span>
       )}
-      <img className="av" src={s.profileImage} alt="" loading="lazy" />
+      {/* lazy면 3줄째부터 등장 애니메이션 중에 디코딩돼 프레임 드랍 — 즉시 로드 + 비동기 디코딩 */}
+      <img className="av" src={avatar(s.profileImage, 240)} alt="" decoding="async" />
       <b>{s.name}</b>
       <span className="vw num">❤ {fmtCompact(s.followers)}</span>
     </Link>

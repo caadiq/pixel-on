@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { avatar } from '../lib/avatar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
 import { useDismiss } from '../lib/useDismiss';
@@ -179,7 +180,7 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
                   onClick={() => { setSelectedId(s.id); setAdding(false); }}
                 >
                   {!s.active && <span className="offbadge">비활성</span>}
-                  <img className="av" src={s.profileImage} alt="" loading="lazy" />
+                  <img className="av" src={avatar(s.profileImage)} alt="" loading="lazy" />
                   <b>{s.name}</b>
                   <span className="sub num">{fmtCompact(s.followers)}</span>
                 </button>
@@ -238,7 +239,7 @@ function EditPanel({
   return (
     <div className="panel editpanel" style={{ '--c': color } as React.CSSProperties}>
       <div className="ephead">
-        <img src={s.profileImage} alt="" />
+        <img src={avatar(s.profileImage)} alt="" />
         <div>
           <b>{s.name}</b>
           <span className="num">팔로워 {fmtCompact(s.followers)}</span>
@@ -406,7 +407,7 @@ function AddPanel({ token, onDone }: { token: string; onDone: (id: number) => vo
         <div style={{ marginTop: 10 }}>
           {results.chzzk.map((r) => (
             <button key={r.channelId} className="ares" onClick={() => void add({ platform: 'chzzk', chzzkId: r.channelId })}>
-              <img src={r.profileImage} alt="" />
+              <img src={avatar(r.profileImage)} alt="" />
               <b>{r.name}</b>
               <span className="pfbadge chzzk">치지직</span>
               <s className="num">{fmtCompact(r.followers)}</s>
@@ -414,7 +415,7 @@ function AddPanel({ token, onDone }: { token: string; onDone: (id: number) => vo
           ))}
           {results.soop.map((r) => (
             <button key={r.soopId} className="ares" onClick={() => void add({ platform: 'soop', soopId: r.soopId })}>
-              <img src={r.profileImage} alt="" />
+              <img src={avatar(r.profileImage)} alt="" />
               <b>{r.name}</b>
               <span className="pfbadge soop">숲</span>
               <s className="num">{fmtCompact(r.followers)}</s>

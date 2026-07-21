@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { avatar } from '../lib/avatar';
 import { useDismiss } from '../lib/useDismiss';
 import { useDaySessions } from '../api/hooks';
 import type { DaySession } from '../api/types';
@@ -217,7 +218,7 @@ export function History() {
                 style={{ '--c': g.rep.color ?? FALLBACK_COLOR, animationDelay: `${Math.min(gi * 0.045, 0.5)}s` } as React.CSSProperties}
               >
                 <span className="nm">
-                  <img src={g.rep.profileImage} alt="" loading="lazy" />
+                  <img src={avatar(g.rep.profileImage)} alt="" loading="lazy" />
                   {g.rep.name}
                 </span>
                 <span className="gt">
@@ -308,7 +309,7 @@ function GanttTip({
   const body = (
     <>
       <div className="gtip-head">
-        <img src={s.profileImage} alt="" />
+        <img src={avatar(s.profileImage)} alt="" />
         <b>{s.name}</b>
         {live && <span className="live">LIVE</span>}
       </div>

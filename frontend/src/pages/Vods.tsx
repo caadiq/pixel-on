@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { avatar } from '../lib/avatar';
 import { useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useStreamers } from '../api/hooks';
@@ -92,7 +93,7 @@ export function Vods() {
                   <div className="bd">
                     <b>{v.title || '(제목 없음)'}</b>
                     <span className="sub">
-                      {s && <img className="pav" src={s.profileImage} alt="" loading="lazy" />}
+                      {s && <img className="pav" src={avatar(s.profileImage)} alt="" loading="lazy" />}
                       <span className="who">{s?.name ?? ''}</span>
                       <span className="when">{fmtRelDate(v.startedAt)}</span>
                     </span>

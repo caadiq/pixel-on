@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
+import { avatar } from '../lib/avatar';
 import { useStreamerDetail, useStreamerVods } from '../api/hooks';
 import { BroadcastRecord } from '../components/BroadcastRecord';
 import { FALLBACK_COLOR, fmtCompact, fmtDurClock, fmtMinOfDay, fmtRelDate } from '../lib/format';
@@ -18,7 +19,7 @@ export function StreamerDetail() {
     <main style={{ '--c': c } as React.CSSProperties}>
       <div className="dhead">
         <div className="wrap">
-          <img src={s.profileImage} alt={s.name} />
+          <img src={avatar(s.profileImage, 240)} alt={s.name} />
           <div>
             <h1 className="jua">
               {s.name}

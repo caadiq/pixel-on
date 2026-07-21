@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { avatar } from '../lib/avatar';
 import type { Streamer } from '../api/types';
 import { useDismiss } from '../lib/useDismiss';
 
@@ -42,7 +43,7 @@ export function StreamerPicker({
       <button className="pickbtn" onClick={() => (open ? dismiss() : setOpen(true))} aria-expanded={open}>
         {selected ? (
           <>
-            <img src={selected.profileImage} alt="" />
+            <img src={avatar(selected.profileImage)} alt="" />
             {selected.name}
           </>
         ) : (
@@ -72,7 +73,7 @@ export function StreamerPicker({
                   className={`pickitem ${value === s.id ? 'on' : ''}`}
                   onClick={() => pick(s.id)}
                 >
-                  <img src={s.profileImage} alt="" />
+                  <img src={avatar(s.profileImage)} alt="" />
                   {s.name}
                 </button>
               ))}
