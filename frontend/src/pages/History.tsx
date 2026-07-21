@@ -111,6 +111,17 @@ export function History() {
   const [tip, setTip] = useState<Tip | null>(null);
   const isToday = date === kstToday();
 
+  // 모바일: 트랙 탭 → 툴팁(이동 버튼 포함) / PC: 호버 툴팁 + 클릭 즉시 이동
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 720px)').matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 720px)');
+    const h = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
+
   useEffect(() => setTip(null), [date]);
 
   const dayStart = new Date(`${date}T00:00:00+09:00`).getTime();
@@ -200,11 +211,14 @@ export function History() {
                     return (
                       <span
                         key={s.id}
-                        className={`${seg.carried ? 'cont' : ''} ${seg.over ? 'over' : ''} ${seg.url ? 'linked' : ''}`}
+                        className={`${seg.carried ? 'cont' : ''} ${seg.over ? 'over' : ''} ${seg.url || isMobile ? 'linked' : ''}`}
                         style={{ left: `${seg.st * 100}%`, width: `${Math.max(0.5, (seg.en - seg.st) * 100)}%` }}
-                        onMouseMove={showTip(s)}
-                        onMouseLeave={() => setTip(null)}
-                        onClick={() => seg.url && window.open(seg.url, '_blank', 'noopener')}
+                        onMouseMove={isMobile ? undefined : showTip(s)}
+                        onMouseLeave={isMobile ? undefined : () => setTip(null)}
+                        onClick={(e) => {
+                          if (isMobile) setTip({ x: e.clientX, y: e.clientY, s });
+                          else if (seg.url) window.open(seg.url, '_blank', 'noopener');
+                        }}
                       />
                     );
                   })}
@@ -223,7 +237,7 @@ export function History() {
         )}
       </section>
 
-      {tip && <GanttTip tip={tip} dayStart={dayStart} />}
+      {tip && <GanttTip tip={tip} dayStart={dayStart} mobile={isMobile} onClose={() => setTip(null)} />}
 
       <style>{`
         .mb-only { display: none; }
@@ -254,25 +268,33 @@ function contrastText(hex: string): string {
   return 0.299 * r + 0.587 * g + 0.114 * b > 160 ? '#16181d' : '#ffffff';
 }
 
-/** 커서를 따라다니는 커스텀 툴팁 */
-function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
+/** PC: 커서를 따라다니는 툴팁 / 모바일: 하단 시트 + 이동 버튼 */
+function GanttTip({
+  tip,
+  dayStart,
+  mobile,
+  onClose,
+}: {
+  tip: Tip;
+  dayStart: number;
+  mobile: boolean;
+  onClose: () => void;
+}) {
   const { s } = tip;
   const startMs = new Date(s.startedAt).getTime();
   const endMs = s.endedAt ? new Date(s.endedAt).getTime() : Date.now();
   const carried = startMs < dayStart;
   const crossed = s.endedAt !== null && endMs >= dayStart + 86400_000;
   const color = s.color ?? FALLBACK_COLOR;
+  const url = linkOf(s);
+  const live = s.endedAt === null;
 
-  // 화면 밖으로 나가지 않게 위치 보정
-  const x = Math.min(tip.x + 14, window.innerWidth - 280);
-  const y = Math.max(tip.y - 12, 12);
-
-  return (
-    <div className="gtip" style={{ left: x, top: y }}>
+  const body = (
+    <>
       <div className="gtip-head">
         <img src={s.profileImage} alt="" />
         <b>{s.name}</b>
-        {s.endedAt === null && <span className="live">LIVE</span>}
+        {live && <span className="live">LIVE</span>}
       </div>
       <div className="gtip-title">{s.title || '(제목 없음)'}</div>
       <div className="gtip-time num">
@@ -284,6 +306,34 @@ function GanttTip({ tip, dayStart }: { tip: Tip; dayStart: number }) {
           {fmtDurKo(endMs - startMs)}
         </span>
       </div>
+    </>
+  );
+
+  if (mobile) {
+    return (
+      <>
+        <div className="gtip-scrim" onClick={onClose} />
+        <div className="gtip mobile">
+          {body}
+          {url && (
+            <button
+              className="gtip-go"
+              onClick={() => window.open(url, '_blank', 'noopener')}
+            >
+              ▶ {live ? '방송으로 이동' : '다시보기로 이동'}
+            </button>
+          )}
+        </div>
+      </>
+    );
+  }
+
+  // PC — 화면 밖으로 나가지 않게 위치 보정
+  const x = Math.min(tip.x + 14, window.innerWidth - 280);
+  const y = Math.max(tip.y - 12, 12);
+  return (
+    <div className="gtip" style={{ left: x, top: y }}>
+      {body}
     </div>
   );
 }

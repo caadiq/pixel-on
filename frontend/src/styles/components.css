@@ -1720,6 +1720,48 @@
   border-radius: 99px;
   padding: 3px 10px;
 }
+/* 모바일: 하단 시트 툴팁 + 이동 버튼 */
+.gtip-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  background: rgba(10, 14, 25, 0.28);
+  animation: rise 0.2s ease both;
+}
+.gtip.mobile {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  top: auto;
+  width: auto;
+  pointer-events: auto;
+  padding: 16px 16px 15px;
+  animation: sheetup 0.24s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes sheetup {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.gtip.mobile .gtip-title {
+  font-size: 16px;
+}
+.gtip.mobile .gtip-time {
+  font-size: 15px;
+}
+.gtip-go {
+  margin-top: 14px;
+  width: 100%;
+  background: #fff;
+  color: #16181d;
+  border-radius: 11px;
+  padding: 12px;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+.gtip-go:active {
+  opacity: 0.85;
+}
 
 .empty {
   border: 1.5px dashed var(--line2);
