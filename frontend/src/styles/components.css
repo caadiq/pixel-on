@@ -688,7 +688,6 @@
   font-size: 13px;
   color: var(--soft);
   margin-top: 10px;
-  max-width: 34ch;
   line-height: 1.6;
 }
 .ftr-links {
@@ -1785,6 +1784,9 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  /* 제목과 붙어 보이지 않게 — 헤더 구분선과 대칭 */
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 11px;
 }
 .gtip-time .ar {
   color: rgba(255, 255, 255, 0.4);
@@ -1838,6 +1840,16 @@
 }
 .gtip-go:active {
   opacity: 0.85;
+}
+.gtip-novod {
+  margin-top: 14px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 11px;
+  padding: 12px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .empty {

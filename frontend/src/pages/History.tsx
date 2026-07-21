@@ -124,6 +124,15 @@ export function History() {
 
   useEffect(() => setTip(null), [date]);
 
+  // PC: 호버 툴팁이 열린 채 스크롤하면 커서가 바를 벗어나도 남아있음 → 스크롤 시 닫기
+  const tipOpen = tip !== null;
+  useEffect(() => {
+    if (!tipOpen || isMobile) return;
+    const close = () => setTip(null);
+    window.addEventListener('scroll', close, { passive: true });
+    return () => window.removeEventListener('scroll', close);
+  }, [tipOpen, isMobile]);
+
   const dayStart = new Date(`${date}T00:00:00+09:00`).getTime();
   const all = data?.sessions ?? [];
   const fullMs = (r: DaySession) =>
@@ -315,13 +324,15 @@ function GanttTip({
         <div className="gtip-scrim" onClick={onClose} />
         <div className="gtip mobile">
           {body}
-          {url && (
+          {url ? (
             <button
               className="gtip-go"
               onClick={() => window.open(url, '_blank', 'noopener')}
             >
               ▶ {live ? '방송으로 이동' : '다시보기로 이동'}
             </button>
+          ) : (
+            <div className="gtip-novod">다시보기가 없는 방송이에요</div>
           )}
         </div>
       </>
