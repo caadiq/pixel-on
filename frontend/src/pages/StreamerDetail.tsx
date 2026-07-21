@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { avatar } from '../lib/avatar';
+import { avatar, vodThumb } from '../lib/avatar';
 import { useStreamerDetail, useStreamerVods } from '../api/hooks';
 import { BroadcastRecord } from '../components/BroadcastRecord';
 import { FALLBACK_COLOR, fmtCompact, fmtDurClock, fmtMinOfDay, fmtRelDate } from '../lib/format';
@@ -90,7 +90,7 @@ function Vods({ id, color }: { id: number; color: string }) {
             style={{ '--c': color, animationDelay: `${i * 0.04}s` } as React.CSSProperties}
           >
             <div className="th">
-              {v.thumbnail && <img src={v.thumbnail} alt="" loading="lazy" />}
+              {v.thumbnail && <img src={vodThumb(v.thumbnail)} alt="" loading="lazy" decoding="async" />}
               <span className="dur num">{fmtDurClock(v.duration)}</span>
             </div>
             <div className="bd">

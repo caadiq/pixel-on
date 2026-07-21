@@ -8,3 +8,9 @@ export function avatar(url: string, size: 120 | 240 = 120): string {
   if (!url.includes('pstatic.net') || url.includes('?')) return url;
   return `${url}?type=f${size}_${size}_na`;
 }
+
+/** VOD 썸네일 축소본 — video-phinf만 type 파라미터 지원 (livecloud는 원본이 이미 작음) */
+export function vodThumb(url: string): string {
+  if (!url.includes('video-phinf.pstatic.net') || url.includes('?')) return url;
+  return `${url}?type=f640_360`;
+}

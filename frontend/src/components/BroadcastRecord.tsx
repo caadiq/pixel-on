@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from 'react';
+import { vodThumb } from '../lib/avatar';
 import { useStreamerMonthSessions, useStreamerPattern, useStreamerVods } from '../api/hooks';
 import type { SessionItem } from '../api/types';
 import { fmtDurKo, fmtTime } from '../lib/format';
@@ -230,7 +231,8 @@ function DayExpand({
         // 방송 중이면 라이브 페이지, 아니면 다시보기
         const url = isLive ? liveUrl : (vod?.url ?? (s.vodId ? fallbackVodUrl(s.vodId) : null));
         // DB 저장 썸네일 → VOD 매칭 → (방송 중이면) 라이브 썸네일
-        const thumb = s.thumbnail ?? vod?.thumbnail ?? (s.endedAt === null ? liveThumbnail : null);
+        const raw = s.thumbnail ?? vod?.thumbnail ?? (s.endedAt === null ? liveThumbnail : null);
+        const thumb = raw ? vodThumb(raw) : null;
         return (
           <div key={s.id} className="brow">
             {thumb ? (

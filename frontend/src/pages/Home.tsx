@@ -128,11 +128,13 @@ function LiveCard({ s, index }: { s: Streamer; index: number }) {
         ) : (
           <div className="thumbfallback" />
         )}
-        <span className="onair">
-          <i />
-          LIVE
+        <span className="lbdg">
+          <span className="onair">
+            <i />
+            LIVE
+          </span>
+          <span className="vw num">{s.live!.viewers.toLocaleString('ko-KR')}명</span>
         </span>
-        <span className="vw num">👁 {s.live!.viewers.toLocaleString('ko-KR')}</span>
       </div>
       <div className="bd">
         <div className="who">

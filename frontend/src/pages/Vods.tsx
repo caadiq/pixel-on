@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { avatar } from '../lib/avatar';
+import { avatar, vodThumb } from '../lib/avatar';
 import { useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useStreamers } from '../api/hooks';
@@ -87,7 +87,7 @@ export function Vods() {
                   style={{ '--c': s?.color ?? FALLBACK_COLOR, animationDelay: `${Math.min(i * 0.04, 0.45)}s` } as React.CSSProperties}
                 >
                   <div className="th">
-                    <img src={v.thumbnail} alt="" loading="lazy" />
+                    <img src={vodThumb(v.thumbnail)} alt="" loading="lazy" decoding="async" />
                     <span className="dur num">{fmtDurClock(v.duration)}</span>
                   </div>
                   <div className="bd">
