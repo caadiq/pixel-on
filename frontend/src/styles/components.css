@@ -281,62 +281,76 @@
     flex-direction: column;
     gap: 12px;
   }
-  .lvc {
+  .lives .lvc {
     display: flex;
-    align-items: stretch;
-    gap: 11px;
+    align-items: center;
+    gap: 12px;
     padding: 9px;
-    border-radius: 15px;
+    border-radius: 14px;
   }
-  .lvc .thumb {
-    width: 48%;
+  .lives .lvc .thumb {
+    width: 44%;
     flex: none;
-    border-radius: 10px;
-    align-self: flex-start;
+    border-radius: 9px;
   }
-  .lvc .thumb .onair {
-    top: 7px;
-    left: 7px;
+  .lives .lvc .thumb .onair {
+    top: 6px;
+    left: 6px;
+    font-size: 10px;
+    padding: 2px 7px;
+    gap: 4px;
+  }
+  .lives .lvc .thumb .onair i {
+    width: 4px;
+    height: 4px;
+  }
+  .lives .lvc .thumb .vw {
+    bottom: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.66);
+    color: #fff;
+    padding: 2px 7px;
     font-size: 11px;
-    padding: 2.5px 8px;
+    border-radius: 6px;
+    box-shadow: none;
   }
-  .lvc .vw {
-    bottom: 7px;
-    right: 7px;
-    padding: 3px 8px;
-    font-size: 11.5px;
-  }
-  .lvc .bd {
+  .lives .lvc .bd {
     flex: 1;
     min-width: 0;
-    padding: 2px 2px 2px 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 7px;
+    gap: 6px;
   }
-  .lvc .bd p {
+  .lives .lvc .bd p {
     order: 1;
-    font-size: 15px;
-    line-height: 1.4;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.35;
     margin: 0;
   }
-  .lvc .who {
+  .lives .lvc .who {
     order: 2;
     margin: 0;
+    gap: 6px;
   }
-  .lvc .who b {
-    font-size: 14px;
+  .lives .lvc .who b {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink2);
   }
-  .lvc .wpf {
-    width: 24px;
-    height: 24px;
+  .lives .lvc .wpf {
+    width: 19px;
+    height: 19px;
+    border-width: 1.5px;
   }
-  .lvc .cat {
+  .lives .lvc .cat {
     order: 3;
     margin-top: 1px;
     align-self: flex-start;
-    font-size: 12.5px;
+    font-size: 11.5px;
+    padding: 2.5px 8px;
   }
 }
 .lvc {
