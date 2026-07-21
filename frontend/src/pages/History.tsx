@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useDismiss } from '../lib/useDismiss';
 import { useDaySessions } from '../api/hooks';
 import type { DaySession } from '../api/types';
 import { FALLBACK_COLOR, fmtDateFull, fmtDurKo, fmtTime } from '../lib/format';
@@ -31,6 +32,7 @@ const DP_HEADS = ['일', '월', '화', '수', '목', '금', '토'];
 /** 커스텀 데이트픽커 — 날짜 버튼 클릭 시 미니 달력 */
 function DatePicker({ value, onChange }: { value: string; onChange: (d: string) => void }) {
   const [open, setOpen] = useState(false);
+  const { closing, dismiss } = useDismiss(() => setOpen(false), 130);
   const [ym, setYm] = useState<[number, number]>(() => [
     Number(value.slice(0, 4)),
     Number(value.slice(5, 7)) - 1,
@@ -43,7 +45,7 @@ function DatePicker({ value, onChange }: { value: string; onChange: (d: string) 
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && dismiss();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
@@ -61,13 +63,13 @@ function DatePicker({ value, onChange }: { value: string; onChange: (d: string) 
 
   return (
     <span className="dpwrap">
-      <button className="db num" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+      <button className="db num" onClick={() => (open ? dismiss() : setOpen(true))} aria-expanded={open}>
         {fmtDateFull(value)}
       </button>
       {open && (
         <>
-          <span className="pickscrim" onClick={() => setOpen(false)} />
-          <div className="dpick">
+          <span className="pickscrim" onClick={dismiss} />
+          <div className={`dpick ${closing ? 'closing' : ''}`}>
             <div className="dp-head">
               <button onClick={() => move(-1)} aria-label="이전 달">←</button>
               <b className="num">{year}년 {month + 1}월</b>
@@ -89,7 +91,7 @@ function DatePicker({ value, onChange }: { value: string; onChange: (d: string) 
                     disabled={key > todayKey}
                     onClick={() => {
                       onChange(key);
-                      setOpen(false);
+                      dismiss();
                     }}
                   >
                     {i + 1}
@@ -294,6 +296,7 @@ function GanttTip({
   onClose: () => void;
 }) {
   const { s } = tip;
+  const { closing, dismiss } = useDismiss(onClose);
   const startMs = new Date(s.startedAt).getTime();
   const endMs = s.endedAt ? new Date(s.endedAt).getTime() : Date.now();
   const carried = startMs < dayStart;
@@ -325,8 +328,8 @@ function GanttTip({
   if (mobile) {
     return (
       <>
-        <div className="gtip-scrim" onClick={onClose} />
-        <div className="gtip mobile">
+        <div className={`gtip-scrim ${closing ? 'closing' : ''}`} onClick={dismiss} />
+        <div className={`gtip mobile ${closing ? 'closing' : ''}`}>
           {body}
           {url ? (
             <button

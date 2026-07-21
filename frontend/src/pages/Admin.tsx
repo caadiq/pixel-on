@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { HexColorInput, HexColorPicker } from 'react-colorful';
+import { useDismiss } from '../lib/useDismiss';
 import { FALLBACK_COLOR, fmtCompact } from '../lib/format';
 import { useTitle } from '../lib/useTitle';
 
@@ -140,6 +141,7 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const close = () => { setSelectedId(null); setAdding(false); };
+  const { closing: panelClosing, dismiss: dismissPanel } = useDismiss(close, 170);
 
   if (isError) return <main className="wrap" />;
   if (!rows)
@@ -185,9 +187,9 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
             })}
           </div>
 
-          {panelOpen && <div className="admscrim" onClick={close} />}
-          <div className={`admside2 ${panelOpen ? 'open' : ''}`}>
-            {panelOpen && <button className="admclose" onClick={close} aria-label="닫기">✕</button>}
+          {panelOpen && <div className={`admscrim ${panelClosing ? 'closing' : ''}`} onClick={dismissPanel} />}
+          <div className={`admside2 ${panelOpen ? 'open' : ''} ${panelClosing ? 'closing' : ''}`}>
+            {panelOpen && <button className="admclose" onClick={dismissPanel} aria-label="닫기">✕</button>}
             {adding ? (
               <AddPanel token={token} onDone={(id) => { setAdding(false); setSelectedId(id); invalidate(); }} />
             ) : selected ? (
@@ -212,11 +214,13 @@ function EditPanel({
 }) {
   const [color, setColor] = useState(s.color ?? s.autoColor ?? '#888888');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const { closing: pickerClosing, dismiss: dismissPicker } = useDismiss(() => setPickerOpen(false), 130);
   const [platform, setPlatform] = useState(s.platform);
   const [chzzkId, setChzzkId] = useState(s.chzzkId ?? '');
   const [soopId, setSoopId] = useState(s.soopId ?? '');
   const [msg, setMsg] = useState('');
   const [confirmDel, setConfirmDel] = useState(false);
+  const { closing: delClosing, dismiss: dismissDel } = useDismiss(() => setConfirmDel(false), 160);
 
   const patch = useMutation({
     mutationFn: (body: object) =>
@@ -262,13 +266,13 @@ function EditPanel({
             <button
               className="colorswatch"
               style={{ background: color }}
-              onClick={() => setPickerOpen((v) => !v)}
+              onClick={() => (pickerOpen ? dismissPicker() : setPickerOpen(true))}
               aria-label="색 선택"
             />
             {pickerOpen && (
               <>
-                <div className="pickscrim" onClick={() => setPickerOpen(false)} />
-                <div className="colorpop">
+                <div className="pickscrim" onClick={dismissPicker} />
+                <div className={`colorpop ${pickerClosing ? 'closing' : ''}`}>
                   <HexColorPicker color={color} onChange={setColor} />
                   <div className="hexrow">
                     <span>#</span>
@@ -333,12 +337,12 @@ function EditPanel({
       </div>
 
       {confirmDel && (
-        <div className="dlg-scrim" onClick={() => setConfirmDel(false)}>
+        <div className={`dlg-scrim ${delClosing ? 'closing' : ''}`} onClick={dismissDel}>
           <div className="dlg" onClick={(e) => e.stopPropagation()}>
             <b>{s.name} 삭제</b>
             <p>이 스트리머와 <strong>모든 방송 기록</strong>이 영구 삭제됩니다.<br />되돌릴 수 없어요.</p>
             <div className="dlg-btns">
-              <button className="minibtn ghost" onClick={() => setConfirmDel(false)}>취소</button>
+              <button className="minibtn ghost" onClick={dismissDel}>취소</button>
               <button className="minibtn del" onClick={() => del.mutate()} disabled={del.isPending}>
                 {del.isPending ? '삭제 중…' : '삭제'}
               </button>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Streamer } from '../api/types';
+import { useDismiss } from '../lib/useDismiss';
 
 /** 스트리머 필터 드롭다운 — 검색 가능, 바깥 클릭/ESC로 닫힘 */
 export function StreamerPicker({
@@ -12,6 +13,7 @@ export function StreamerPicker({
   onChange: (id: number | null) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { closing, dismiss } = useDismiss(() => setOpen(false), 130);
   const [q, setQ] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -22,7 +24,7 @@ export function StreamerPicker({
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && dismiss();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
@@ -32,12 +34,12 @@ export function StreamerPicker({
 
   const pick = (id: number | null) => {
     onChange(id);
-    setOpen(false);
+    dismiss();
   };
 
   return (
     <div className="pickwrap">
-      <button className="pickbtn" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+      <button className="pickbtn" onClick={() => (open ? dismiss() : setOpen(true))} aria-expanded={open}>
         {selected ? (
           <>
             <img src={selected.profileImage} alt="" />
@@ -51,8 +53,8 @@ export function StreamerPicker({
 
       {open && (
         <>
-          <div className="pickscrim" onClick={() => setOpen(false)} />
-          <div className="pickmenu">
+          <div className="pickscrim" onClick={dismiss} />
+          <div className={`pickmenu ${closing ? 'closing' : ''}`}>
             <input
               ref={inputRef}
               className="psearch"

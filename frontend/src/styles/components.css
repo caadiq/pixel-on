@@ -1848,7 +1848,11 @@
   inset: 0;
   z-index: 199;
   background: rgba(10, 14, 25, 0.28);
-  animation: rise 0.2s ease both;
+  /* 시트와 같이 떠오르면 어색 — 배경은 페이드만 */
+  animation: fadein 0.2s ease both;
+}
+.gtip-scrim.closing {
+  animation: fadeout 0.18s ease both;
 }
 .gtip.mobile {
   position: fixed;
@@ -1864,6 +1868,13 @@
 @keyframes sheetup {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: none; opacity: 1; }
+}
+.gtip.mobile.closing {
+  animation: sheetdown 0.2s ease both;
+}
+@keyframes sheetdown {
+  from { transform: none; opacity: 1; }
+  to { transform: translateY(24px); opacity: 0; }
 }
 .gtip.mobile .gtip-title {
   font-size: 16px;
@@ -2165,9 +2176,16 @@
     display: block;
     animation: modalin 0.24s cubic-bezier(0.2, 0.8, 0.3, 1) both;
   }
+  .admside2.open.closing {
+    animation: modalout 0.18s ease both;
+  }
   @keyframes modalin {
     from { transform: translate(-50%, -46%); opacity: 0; }
     to { transform: translate(-50%, -50%); opacity: 1; }
+  }
+  @keyframes modalout {
+    from { transform: translate(-50%, -50%); opacity: 1; }
+    to { transform: translate(-50%, -47%); opacity: 0; }
   }
   .admside2 .emptyside {
     display: none;
@@ -2178,7 +2196,10 @@
     inset: 0;
     z-index: 200;
     background: rgba(10, 14, 25, 0.42);
-    animation: rise 0.18s ease both;
+    animation: fadein 0.18s ease both;
+  }
+  .admscrim.closing {
+    animation: fadeout 0.16s ease both;
   }
   .admclose {
     display: flex;
@@ -2548,7 +2569,10 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: rise 0.18s ease both;
+  animation: fadein 0.18s ease both;
+}
+.dlg-scrim.closing {
+  animation: fadeout 0.16s ease both;
 }
 .dlg {
   background: #fff;
@@ -2557,6 +2581,16 @@
   width: 320px;
   max-width: 100%;
   box-shadow: 0 20px 50px -16px rgba(10, 14, 25, 0.4);
+  animation: dlgin 0.2s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+.dlg-scrim.closing .dlg {
+  animation: dlgout 0.16s ease both;
+}
+@keyframes dlgin {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+}
+@keyframes dlgout {
+  to { opacity: 0; transform: translateY(8px) scale(0.97); }
 }
 .dlg b {
   font-size: 16px;
@@ -2771,14 +2805,37 @@
   animation: rise 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
   /* 지연은 인라인 animationDelay(인덱스 기반)로 */
 }
-.two > .panel:nth-child(2) {
-  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
-  animation-delay: 0.08s;
-}
 .dhead {
   animation: rise 0.4s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
 }
 .dstats {
   animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
   animation-delay: 0.08s;
+}
+
+/* ── 오버레이 공통 등장/퇴장 ── */
+@keyframes fadein {
+  from { opacity: 0; }
+}
+@keyframes fadeout {
+  to { opacity: 0; }
+}
+/* 팝오버 — transform을 건드리면 translateX(-50%) 배치가 깨져 opacity만 */
+.dpick,
+.pickmenu,
+.colorpop {
+  animation: fadein 0.15s ease both;
+}
+.dpick.closing,
+.pickmenu.closing,
+.colorpop.closing {
+  animation: fadeout 0.13s ease both;
+}
+
+/* 홈 히어로 + 방송 이력 섹션 진입 */
+.hero {
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+.sec:nth-of-type(4) {
+  animation-delay: 0.21s;
 }
