@@ -1,9 +1,11 @@
-/** 관리자 라우트 — 로그인으로 발급받은 토큰(=ADMIN_KEY)을 X-Admin-Key 헤더로 */
+/** 관리자 라우트 — 로그인 시 발급되는 JWT를 Authorization: Bearer 로 검증 */
 import { Hono } from 'hono';
 import { asc, eq } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
+import { sign, verify } from 'hono/jwt';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { sessions, snapshots, streamers } from '../db/schema.js';
+import { adminUsers, sessions, snapshots, streamers } from '../db/schema.js';
 import { fetchChzzkChannel, searchChzzkChannels } from '../services/chzzk.js';
 import { extractColorFromUrl } from '../services/palette.js';
 import { fetchSoopStation, searchSoopChannels } from '../services/soop.js';
@@ -11,17 +13,32 @@ import { backfillStreamer } from '../worker/backfill.js';
 
 export const adminRoute = new Hono();
 
-/** 로그인 — 아이디/비밀번호 검증 후 토큰(ADMIN_KEY) 발급. 인증 미들웨어 이전(공개) */
+const TOKEN_TTL = 60 * 60 * 24 * 7; // 7일
+
+/** 로그인 — DB의 bcrypt 해시와 대조 후 JWT 발급. 인증 미들웨어 이전(공개) */
 adminRoute.post('/login', async (c) => {
   const { user, password } = await c.req.json<{ user?: string; password?: string }>();
-  if (!config.adminPassword || user !== config.adminUser || password !== config.adminPassword) {
-    return c.json({ error: '아이디 또는 비밀번호가 올바르지 않아요' }, 401);
-  }
-  return c.json({ token: config.adminKey });
+  if (!user || !password) return c.json({ error: '아이디와 비밀번호를 입력하세요' }, 400);
+
+  const [row] = await db.select().from(adminUsers).where(eq(adminUsers.username, user));
+  const ok = row ? await bcrypt.compare(password, row.passwordHash) : false;
+  if (!ok) return c.json({ error: '아이디 또는 비밀번호가 올바르지 않아요' }, 401);
+
+  const token = await sign(
+    { sub: row!.username, exp: Math.floor(Date.now() / 1000) + TOKEN_TTL },
+    config.jwtSecret,
+    'HS256',
+  );
+  return c.json({ token });
 });
 
 adminRoute.use('*', async (c, next) => {
-  if (!config.adminKey || c.req.header('X-Admin-Key') !== config.adminKey) {
+  const auth = c.req.header('Authorization');
+  const token = auth?.startsWith('Bearer ') ? auth.slice(7) : undefined;
+  if (!token || !config.jwtSecret) return c.json({ error: 'unauthorized' }, 401);
+  try {
+    await verify(token, config.jwtSecret, "HS256");
+  } catch {
     return c.json({ error: 'unauthorized' }, 401);
   }
   await next();

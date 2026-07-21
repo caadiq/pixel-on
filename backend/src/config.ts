@@ -15,7 +15,6 @@ export const config = {
     user: required('DB_USER'),
     password: required('DB_PASSWORD'),
   },
-  adminKey: process.env.ADMIN_KEY ?? '',
-  adminUser: process.env.ADMIN_USER ?? 'admin',
-  adminPassword: process.env.ADMIN_PASSWORD ?? '',
+  /** JWT 서명 시크릿 */
+  jwtSecret: process.env.JWT_SECRET ?? '',
 } as const;

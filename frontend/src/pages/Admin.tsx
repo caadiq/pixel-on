@@ -26,7 +26,7 @@ const TOKEN_STORAGE = 'pixel-admin-token';
 async function adminFetch<T>(token: string, url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...init,
-    headers: { ...init?.headers, 'X-Admin-Key': token, 'Content-Type': 'application/json' },
+    headers: { ...init?.headers, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<T>;

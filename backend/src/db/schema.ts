@@ -71,6 +71,14 @@ export const snapshots = mysqlTable(
   (t) => [index('idx_snapshots_session').on(t.sessionId)],
 );
 
+/** 관리자 계정 (bcrypt 해시 저장) */
+export const adminUsers = mysqlTable('admin_users', {
+  id: int('id').autoincrement().primaryKey(),
+  username: varchar('username', { length: 50 }).notNull().unique(),
+  passwordHash: varchar('password_hash', { length: 100 }).notNull(),
+  createdAt: datetime('created_at').notNull(),
+});
+
 export type Streamer = typeof streamers.$inferSelect;
 export type NewStreamer = typeof streamers.$inferInsert;
 export type Session = typeof sessions.$inferSelect;

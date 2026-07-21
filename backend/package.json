@@ -16,6 +16,7 @@
   "type": "module",
   "dependencies": {
     "@hono/node-server": "^2.0.10",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.31",
@@ -23,6 +24,7 @@
     "sharp": "^0.35.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^26.1.1",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.23.1",
