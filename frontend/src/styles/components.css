@@ -304,7 +304,6 @@
     width: 44%;
     flex: none;
     border-radius: 9px;
-    margin-bottom: 0;
   }
   .lives .lvc .lbdg {
     top: 6px;
@@ -372,15 +371,12 @@
   box-shadow: var(--sh);
   transition: 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
   animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
-  /* 호버 순간 레이어 승격되며 소수점 높이가 재반올림돼 썸네일 경계가 1px 움직임
-     → 레이어를 상시 유지해 휴지/호버 래스터를 동일하게 */
-  will-change: transform;
   /* 제목이 한 줄이어도 태그가 카드 하단에 붙도록 */
   display: flex;
   flex-direction: column;
 }
+/* 호버: 카드는 그대로, 썸네일 줌 + 그림자·보더만 (카드 이동은 환경별 1px 경계 흔들림 유발) */
 .lvc:hover {
-  transform: translateY(-5px);
   box-shadow: var(--sh2);
   border-color: color-mix(in srgb, var(--c) 40%, #fff);
 }
@@ -389,9 +385,6 @@
   position: relative;
   overflow: hidden;
   background: #16181d;
-  transform: translateZ(0); /* 클리핑을 자체 레이어에서 — 호버 이동 중 경계 틈 방지 */
-  /* 합성 레이어 반올림으로 경계가 1~2px 흔들리는 환경 대비 — 본문 위로 2px 겹쳐 덮음 */
-  margin-bottom: -2px;
 }
 .lvc .thumbimg {
   position: absolute;
@@ -1395,17 +1388,18 @@
   box-shadow: var(--sh);
   display: block;
   transition: 0.22s;
-  will-change: transform; /* .lvc와 동일 — 호버 레이어 승격 시 경계 이동 방지 */
 }
 .vod:hover {
-  transform: translateY(-3px);
   box-shadow: var(--sh2);
+  border-color: var(--faint);
+}
+.vod:hover .th img {
+  transform: scale(1.05);
 }
 .vod .th {
   aspect-ratio: 16 / 9;
   position: relative;
-  transform: translateZ(0);
-  margin-bottom: -2px; /* .lvc .thumb과 동일 — 경계 흔들림 커버 */
+  overflow: hidden;
   background: linear-gradient(
     150deg,
     color-mix(in srgb, var(--c, #888) 55%, #666),
@@ -1418,6 +1412,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
+  transform: scale(1.012); /* 줌 시 가장자리 실틈 방지 블리드 */
+  will-change: transform;
 }
 .vod .th .dur {
   position: absolute;
@@ -3061,7 +3058,6 @@
     flex: none;
     border-radius: 9px;
     overflow: hidden;
-    margin-bottom: 0;
   }
   .vod .th .dur {
     bottom: 5px;
