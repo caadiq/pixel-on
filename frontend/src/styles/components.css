@@ -2029,10 +2029,6 @@
     font-size: 13px;
     font-weight: 700;
   }
-  /* X 버튼 자리 확보 — 활성 토글이 겹치지 않게 */
-  .admside2 .editpanel .ephead {
-    padding-right: 36px;
-  }
 }
 .emptyside {
   text-align: center;
@@ -2100,6 +2096,55 @@
 }
 .epsec {
   margin-top: 16px;
+}
+.actsec {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.actlbl {
+  min-width: 0;
+}
+.actlbl b {
+  font-size: 14px;
+  font-weight: 700;
+}
+.actlbl span {
+  display: block;
+  font-size: 12px;
+  color: var(--soft);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.actsec .tg {
+  margin-left: auto;
+  flex: none;
+  width: 44px;
+  height: 25px;
+  border-radius: 99px;
+  background: var(--faint);
+  position: relative;
+  transition: 0.18s;
+}
+.actsec .tg::after {
+  content: '';
+  position: absolute;
+  top: 2.5px;
+  left: 2.5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: 0.18s;
+}
+.actsec .tg.on {
+  background: var(--mint);
+}
+.actsec .tg.on::after {
+  left: 21.5px;
 }
 .epsec > label {
   display: block;

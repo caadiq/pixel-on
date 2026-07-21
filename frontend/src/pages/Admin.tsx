@@ -239,9 +239,17 @@ function EditPanel({
           <b>{s.name}</b>
           <span className="num">팔로워 {fmtCompact(s.followers)}</span>
         </div>
+      </div>
+
+      {/* 활성 상태 */}
+      <div className="epsec actsec">
+        <div className="actlbl">
+          <b>활성</b>
+          <span>{s.active ? '사이트에 노출 · 방송 추적 중' : '숨김 (방송 기록은 보존)'}</span>
+        </div>
         <button
           className={`tg ${s.active ? 'on' : ''}`}
-          title={s.active ? '활성 (클릭 시 비활성)' : '비활성 (클릭 시 활성)'}
+          aria-label={s.active ? '비활성으로' : '활성으로'}
           onClick={() => patch.mutate({ active: !s.active })}
         />
       </div>
