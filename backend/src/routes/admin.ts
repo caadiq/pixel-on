@@ -1,15 +1,24 @@
-/** 관리자 라우트 — X-Admin-Key 헤더 필수 */
+/** 관리자 라우트 — 로그인으로 발급받은 토큰(=ADMIN_KEY)을 X-Admin-Key 헤더로 */
 import { Hono } from 'hono';
 import { asc, eq } from 'drizzle-orm';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { streamers } from '../db/schema.js';
+import { sessions, snapshots, streamers } from '../db/schema.js';
 import { fetchChzzkChannel, searchChzzkChannels } from '../services/chzzk.js';
 import { extractColorFromUrl } from '../services/palette.js';
 import { fetchSoopStation, searchSoopChannels } from '../services/soop.js';
 import { backfillStreamer } from '../worker/backfill.js';
 
 export const adminRoute = new Hono();
+
+/** 로그인 — 아이디/비밀번호 검증 후 토큰(ADMIN_KEY) 발급. 인증 미들웨어 이전(공개) */
+adminRoute.post('/login', async (c) => {
+  const { user, password } = await c.req.json<{ user?: string; password?: string }>();
+  if (!config.adminPassword || user !== config.adminUser || password !== config.adminPassword) {
+    return c.json({ error: '아이디 또는 비밀번호가 올바르지 않아요' }, 401);
+  }
+  return c.json({ token: config.adminKey });
+});
 
 adminRoute.use('*', async (c, next) => {
   if (!config.adminKey || c.req.header('X-Admin-Key') !== config.adminKey) {
@@ -95,10 +104,18 @@ adminRoute.post('/streamers', async (c) => {
   return c.json({ id: row.id, name }, 201);
 });
 
-/** 수정 — 대표색 오버라이드(null이면 자동값 사용), 활성 토글, 이름 */
+/** 수정 — 대표색, 활성, 이름, 플랫폼 전환(chzzk/soop + 각 ID) */
 adminRoute.patch('/streamers/:id', async (c) => {
   const id = Number(c.req.param('id'));
-  const body = await c.req.json<{ color?: string | null; active?: boolean; name?: string; sortName?: string }>();
+  const body = await c.req.json<{
+    color?: string | null;
+    active?: boolean;
+    name?: string;
+    sortName?: string;
+    platform?: 'chzzk' | 'soop';
+    chzzkId?: string | null;
+    soopId?: string | null;
+  }>();
 
   const patch: Partial<typeof streamers.$inferInsert> = { updatedAt: new Date() };
   if ('color' in body) {
@@ -110,8 +127,41 @@ adminRoute.patch('/streamers/:id', async (c) => {
   if (body.active !== undefined) patch.active = body.active;
   if (body.name) patch.name = body.name;
   if (body.sortName) patch.sortName = body.sortName;
+  if (body.platform) patch.platform = body.platform;
+  if ('chzzkId' in body) patch.chzzkId = body.chzzkId || null;
+  if ('soopId' in body) patch.soopId = body.soopId || null;
+
+  // 주 플랫폼으로 전환 시 해당 플랫폼 채널 정보로 프로필·팔로워 갱신
+  if (body.platform) {
+    const chId = body.chzzkId ?? undefined;
+    const spId = body.soopId ?? undefined;
+    const fresh =
+      body.platform === 'chzzk'
+        ? chId
+          ? await fetchChzzkChannel(chId).catch(() => null)
+          : null
+        : spId
+          ? await fetchSoopStation(spId).catch(() => null)
+          : null;
+    if (fresh) {
+      patch.profileImage = fresh.profileImage;
+      patch.followers = fresh.followers;
+    }
+  }
 
   await db.update(streamers).set(patch).where(eq(streamers.id, id));
+  return c.json({ ok: true });
+});
+
+/** 삭제 — 스트리머와 그 방송 기록·스냅샷 완전 제거 */
+adminRoute.delete('/streamers/:id', async (c) => {
+  const id = Number(c.req.param('id'));
+  const sess = await db.select({ id: sessions.id }).from(sessions).where(eq(sessions.streamerId, id));
+  for (const s of sess) {
+    await db.delete(snapshots).where(eq(snapshots.sessionId, s.id));
+  }
+  await db.delete(sessions).where(eq(sessions.streamerId, id));
+  await db.delete(streamers).where(eq(streamers.id, id));
   return c.json({ ok: true });
 });
 

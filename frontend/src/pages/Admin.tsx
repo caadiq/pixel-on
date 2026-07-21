@@ -21,12 +21,12 @@ interface SearchResult {
   soop: { soopId: string; name: string; profileImage: string; followers: number }[];
 }
 
-const KEY_STORAGE = 'pixel-admin-key';
+const TOKEN_STORAGE = 'pixel-admin-token';
 
-async function adminFetch<T>(key: string, url: string, init?: RequestInit): Promise<T> {
+async function adminFetch<T>(token: string, url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...init,
-    headers: { ...init?.headers, 'X-Admin-Key': key, 'Content-Type': 'application/json' },
+    headers: { ...init?.headers, 'X-Admin-Key': token, 'Content-Type': 'application/json' },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<T>;
@@ -34,73 +34,104 @@ async function adminFetch<T>(key: string, url: string, init?: RequestInit): Prom
 
 export function Admin() {
   useTitle('관리자');
-  const [key, setKey] = useState(() => localStorage.getItem(KEY_STORAGE) ?? '');
-  const [authed, setAuthed] = useState(false);
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE) ?? '');
+  const [authed, setAuthed] = useState(!!token);
 
-  if (!authed) return <Login savedKey={key} onOk={(k) => { setKey(k); setAuthed(true); }} />;
-  return <AdminMain adminKey={key} />;
+  if (!authed) {
+    return (
+      <Login
+        onOk={(t) => {
+          localStorage.setItem(TOKEN_STORAGE, t);
+          setToken(t);
+          setAuthed(true);
+        }}
+      />
+    );
+  }
+  return (
+    <AdminMain
+      token={token}
+      onLogout={() => {
+        localStorage.removeItem(TOKEN_STORAGE);
+        setToken('');
+        setAuthed(false);
+      }}
+    />
+  );
 }
 
-function Login({ savedKey, onOk }: { savedKey: string; onOk: (k: string) => void }) {
-  const [input, setInput] = useState(savedKey);
+function Login({ onOk }: { onOk: (token: string) => void }) {
+  const [user, setUser] = useState('');
+  const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const tryLogin = async (k: string) => {
+  const submit = async () => {
+    setBusy(true);
+    setErr('');
     try {
-      await adminFetch(k, '/api/admin/ping');
-      localStorage.setItem(KEY_STORAGE, k);
-      onOk(k);
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user, password }),
+      });
+      if (!res.ok) throw new Error();
+      const { token } = (await res.json()) as { token: string };
+      onOk(token);
     } catch {
-      setErr('키가 맞지 않아요');
+      setErr('아이디 또는 비밀번호가 올바르지 않아요');
+    } finally {
+      setBusy(false);
     }
   };
 
-  // 저장된 키가 있으면 자동 시도
-  useState(() => {
-    if (savedKey) void tryLogin(savedKey);
-  });
-
   return (
-    <main className="wrap" style={{ maxWidth: 420 }}>
+    <main className="wrap" style={{ maxWidth: 380 }}>
       <section className="sec">
-        <div className="panel" style={{ textAlign: 'center', padding: 32 }}>
-          <h3 className="jua" style={{ justifyContent: 'center', fontSize: 19 }}>관리자</h3>
+        <div className="panel loginbox">
+          <h3 className="jua">관리자 로그인</h3>
+          <label>아이디</label>
+          <input
+            className="ainp"
+            value={user}
+            autoComplete="username"
+            onChange={(e) => setUser(e.target.value)}
+          />
+          <label>비밀번호</label>
           <input
             className="ainp"
             type="password"
-            placeholder="관리자 키"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && void tryLogin(input)}
+            value={password}
+            autoComplete="current-password"
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && void submit()}
           />
-          {err && <div style={{ color: 'var(--live)', fontSize: 12, marginTop: 8, fontWeight: 600 }}>{err}</div>}
-          <button className="abtn" onClick={() => void tryLogin(input)}>들어가기</button>
+          {err && <div className="lerr">{err}</div>}
+          <button className="abtn" onClick={() => void submit()} disabled={busy}>
+            {busy ? '확인 중…' : '로그인'}
+          </button>
         </div>
       </section>
     </main>
   );
 }
 
-function AdminMain({ adminKey }: { adminKey: string }) {
+function AdminMain({ token, onLogout }: { token: string; onLogout: () => void }) {
   const qc = useQueryClient();
   const { data: rows } = useQuery({
     queryKey: ['admin-streamers'],
-    queryFn: () => adminFetch<AdminStreamer[]>(adminKey, '/api/admin/streamers'),
+    queryFn: () => adminFetch<AdminStreamer[]>(token, '/api/admin/streamers'),
   });
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: ['admin-streamers'] });
     void qc.invalidateQueries({ queryKey: ['streamers'] });
   };
 
-  const patch = useMutation({
-    mutationFn: ({ id, body }: { id: number; body: object }) =>
-      adminFetch(adminKey, `/api/admin/streamers/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
-    onSuccess: invalidate,
-  });
-
-  const [selected, setSelected] = useState<AdminStreamer | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [adding, setAdding] = useState(false);
 
   if (!rows) return <div className="loading">불러오는 중…</div>;
+  const selected = rows.find((r) => r.id === selectedId) ?? null;
 
   return (
     <main className="wrap">
@@ -110,40 +141,40 @@ function AdminMain({ adminKey }: { adminKey: string }) {
           <span className="sub">
             {rows.length}명 · 비활성 {rows.filter((r) => !r.active).length}명
           </span>
+          <button className="admlogout" onClick={onLogout}>로그아웃</button>
         </div>
-        <div className="admgrid">
-          <div className="panel" style={{ padding: '8px 16px' }}>
-            {rows.map((s) => (
-              <div key={s.id} className={`admrow ${s.active ? '' : 'off'}`}>
-                <img src={s.profileImage} alt="" />
-                <b>{s.name}</b>
-                <span className={`pfbadge ${s.platform}`}>{s.platform === 'soop' ? '숲' : '치지직'}</span>
-                <span className="num" style={{ fontSize: 11, color: 'var(--soft)' }}>{fmtCompact(s.followers)}</span>
+
+        <div className="admlayout">
+          <div className="admgrid2">
+            <button className="addcard" onClick={() => { setAdding(true); setSelectedId(null); }}>
+              <span className="plus">+</span>
+              스트리머 추가
+            </button>
+            {rows.map((s) => {
+              const c = s.color ?? s.autoColor ?? FALLBACK_COLOR;
+              return (
                 <button
-                  className="csw"
-                  title={s.color ? `수동 ${s.color}` : s.autoColor ? `자동 ${s.autoColor}` : '색 없음'}
-                  onClick={() => setSelected(s)}
+                  key={s.id}
+                  className={`acard ${s.id === selectedId ? 'sel' : ''} ${s.active ? '' : 'off'}`}
+                  style={{ '--c': c } as React.CSSProperties}
+                  onClick={() => { setSelectedId(s.id); setAdding(false); }}
                 >
-                  <i style={{ background: s.color ?? s.autoColor ?? FALLBACK_COLOR }} className={s.color ? 'man' : ''} />
-                  <span>{s.color ? '수동' : s.autoColor ? '자동' : '없음'}</span>
+                  {!s.active && <span className="offbadge">비활성</span>}
+                  <img className="av" src={s.profileImage} alt="" loading="lazy" />
+                  <b>{s.name}</b>
+                  <span className="sub num">{fmtCompact(s.followers)}</span>
                 </button>
-                <button
-                  className={`tg ${s.active ? 'on' : ''}`}
-                  title={s.active ? '활성 (클릭 시 비활성)' : '비활성'}
-                  onClick={() => patch.mutate({ id: s.id, body: { active: !s.active } })}
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
-          <div className="admside">
-            <AddPanel adminKey={adminKey} onAdded={invalidate} />
-            {selected && (
-              <ColorPanel
-                key={selected.id}
-                s={rows.find((r) => r.id === selected.id) ?? selected}
-                onSave={(color) => patch.mutate({ id: selected.id, body: { color } })}
-                adminKey={adminKey}
-              />
+
+          <div className="admside2">
+            {adding ? (
+              <AddPanel token={token} onDone={(id) => { setAdding(false); setSelectedId(id); invalidate(); }} />
+            ) : selected ? (
+              <EditPanel key={selected.id} token={token} s={selected} onChanged={invalidate} onDeleted={() => { setSelectedId(null); invalidate(); }} />
+            ) : (
+              <div className="panel emptyside">스트리머를 선택하면<br />설정이 여기 나와요</div>
             )}
           </div>
         </div>
@@ -152,7 +183,118 @@ function AdminMain({ adminKey }: { adminKey: string }) {
   );
 }
 
-function AddPanel({ adminKey, onAdded }: { adminKey: string; onAdded: () => void }) {
+function EditPanel({
+  token, s, onChanged, onDeleted,
+}: {
+  token: string;
+  s: AdminStreamer;
+  onChanged: () => void;
+  onDeleted: () => void;
+}) {
+  const [color, setColor] = useState(s.color ?? s.autoColor ?? '#888888');
+  const [platform, setPlatform] = useState(s.platform);
+  const [chzzkId, setChzzkId] = useState(s.chzzkId ?? '');
+  const [soopId, setSoopId] = useState(s.soopId ?? '');
+  const [msg, setMsg] = useState('');
+  const [confirmDel, setConfirmDel] = useState(false);
+
+  const patch = useMutation({
+    mutationFn: (body: object) =>
+      adminFetch(token, `/api/admin/streamers/${s.id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    onSuccess: () => { onChanged(); setMsg('저장됐어요'); setTimeout(() => setMsg(''), 1500); },
+  });
+
+  const del = useMutation({
+    mutationFn: () => adminFetch(token, `/api/admin/streamers/${s.id}`, { method: 'DELETE' }),
+    onSuccess: onDeleted,
+  });
+
+  const platformChanged = platform !== s.platform || chzzkId !== (s.chzzkId ?? '') || soopId !== (s.soopId ?? '');
+
+  return (
+    <div className="panel editpanel" style={{ '--c': color } as React.CSSProperties}>
+      <div className="ephead">
+        <img src={s.profileImage} alt="" />
+        <div>
+          <b>{s.name}</b>
+          <span className="num">팔로워 {fmtCompact(s.followers)}</span>
+        </div>
+        <button
+          className={`tg ${s.active ? 'on' : ''}`}
+          title={s.active ? '활성 (클릭 시 비활성)' : '비활성 (클릭 시 활성)'}
+          onClick={() => patch.mutate({ active: !s.active })}
+        />
+      </div>
+
+      {/* 대표색 */}
+      <div className="epsec">
+        <label>대표색</label>
+        <div className="cprow">
+          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="cpick-big" />
+          <span className="num hx">{color.toUpperCase()}</span>
+          <span className="cplbl">{s.color ? '수동 지정' : '자동 추출'}</span>
+          <div className="cpbtns">
+            <button className="minibtn" onClick={() => patch.mutate({ color })}>적용</button>
+            {s.color && <button className="minibtn ghost" onClick={() => patch.mutate({ color: null })}>자동으로</button>}
+          </div>
+        </div>
+      </div>
+
+      {/* 플랫폼 */}
+      <div className="epsec">
+        <label>플랫폼</label>
+        <div className="pfseg">
+          <button className={platform === 'chzzk' ? 'on chzzk' : ''} onClick={() => setPlatform('chzzk')}>치지직</button>
+          <button className={platform === 'soop' ? 'on soop' : ''} onClick={() => setPlatform('soop')}>숲</button>
+        </div>
+        <div className="idrow">
+          <span>치지직 ID</span>
+          <input className="ainp2" value={chzzkId} placeholder="치지직 채널 ID" onChange={(e) => setChzzkId(e.target.value)} />
+        </div>
+        <div className="idrow">
+          <span>숲 ID</span>
+          <input className="ainp2" value={soopId} placeholder="숲 아이디" onChange={(e) => setSoopId(e.target.value)} />
+        </div>
+        {platformChanged && (
+          <button className="abtn" onClick={() => patch.mutate({ platform, chzzkId: chzzkId || null, soopId: soopId || null })}>
+            플랫폼 변경 저장
+          </button>
+        )}
+      </div>
+
+      {/* 백필 */}
+      <div className="epsec">
+        <button className="abtn ghost" onClick={() => { void adminFetch(token, `/api/admin/streamers/${s.id}/backfill`, { method: 'POST' }); setMsg('백필 시작됨 — 잠시 후 반영'); }}>
+          다시보기 백필 실행
+        </button>
+      </div>
+
+      {msg && <div className="epmsg">{msg}</div>}
+
+      {/* 삭제 */}
+      <div className="epsec danger">
+        <button className="delbtn" onClick={() => setConfirmDel(true)}>스트리머 삭제</button>
+      </div>
+
+      {confirmDel && (
+        <div className="dlg-scrim" onClick={() => setConfirmDel(false)}>
+          <div className="dlg" onClick={(e) => e.stopPropagation()}>
+            <b>{s.name} 삭제</b>
+            <p>이 스트리머와 <strong>모든 방송 기록</strong>이 영구 삭제됩니다.<br />되돌릴 수 없어요.</p>
+            <div className="dlg-btns">
+              <button className="minibtn ghost" onClick={() => setConfirmDel(false)}>취소</button>
+              <button className="minibtn del" onClick={() => del.mutate()} disabled={del.isPending}>
+                {del.isPending ? '삭제 중…' : '삭제'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AddPanel({ token, onDone }: { token: string; onDone: (id: number) => void }) {
   const [q, setQ] = useState('');
   const [results, setResults] = useState<SearchResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -162,7 +304,7 @@ function AddPanel({ adminKey, onAdded }: { adminKey: string; onAdded: () => void
     if (!q.trim()) return;
     setBusy(true);
     try {
-      setResults(await adminFetch<SearchResult>(adminKey, `/api/admin/search?q=${encodeURIComponent(q)}`));
+      setResults(await adminFetch<SearchResult>(token, `/api/admin/search?q=${encodeURIComponent(q)}`));
     } finally {
       setBusy(false);
     }
@@ -172,14 +314,11 @@ function AddPanel({ adminKey, onAdded }: { adminKey: string; onAdded: () => void
     setBusy(true);
     setMsg('');
     try {
-      const r = await adminFetch<{ name: string }>(adminKey, '/api/admin/streamers', {
+      const r = await adminFetch<{ id: number; name: string }>(token, '/api/admin/streamers', {
         method: 'POST',
         body: JSON.stringify(body),
       });
-      setMsg(`✓ ${r.name} 추가됨`);
-      setResults(null);
-      setQ('');
-      onAdded();
+      onDone(r.id);
     } catch {
       setMsg('추가에 실패했어요');
     } finally {
@@ -222,62 +361,11 @@ function AddPanel({ adminKey, onAdded }: { adminKey: string; onAdded: () => void
             </button>
           ))}
           {results.chzzk.length === 0 && results.soop.length === 0 && (
-            <div style={{ fontSize: 12, color: 'var(--faint)', textAlign: 'center', padding: 10 }}>검색 결과가 없어요</div>
+            <div style={{ fontSize: 12.5, color: 'var(--faint)', textAlign: 'center', padding: 12 }}>검색 결과가 없어요</div>
           )}
         </div>
       )}
-      {msg && <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--mint)', marginTop: 10 }}>{msg}</div>}
-    </div>
-  );
-}
-
-function ColorPanel({
-  s,
-  onSave,
-  adminKey,
-}: {
-  s: AdminStreamer;
-  onSave: (color: string | null) => void;
-  adminKey: string;
-}) {
-  const [val, setVal] = useState(s.color ?? s.autoColor ?? '#888888');
-  const [backfillMsg, setBackfillMsg] = useState('');
-
-  return (
-    <div className="panel">
-      <h3>
-        <span className="mark" style={{ background: s.color ?? s.autoColor ?? FALLBACK_COLOR }} />
-        대표색 — {s.name}
-      </h3>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <input type="color" value={val} onChange={(e) => setVal(e.target.value)} className="cpick-big" />
-        <div>
-          <div className="num" style={{ fontFamily: 'ui-monospace', fontSize: 13, fontWeight: 700 }}>{val.toUpperCase()}</div>
-          <div style={{ fontSize: 10.5, color: 'var(--soft)', fontWeight: 600, marginTop: 2 }}>
-            {s.color ? '수동 지정됨' : '자동 추출값'}
-          </div>
-        </div>
-      </div>
-      {s.autoColor && (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--soft)', marginBottom: 6 }}>자동 추출값</div>
-          <button className="cswatch" style={{ background: s.autoColor }} onClick={() => setVal(s.autoColor!)} title={s.autoColor} />
-        </div>
-      )}
-      <button className="abtn" onClick={() => onSave(val)}>이 색으로 저장</button>
-      {s.color && (
-        <button className="abtn ghost" onClick={() => onSave(null)}>자동값으로 되돌리기</button>
-      )}
-      <button
-        className="abtn ghost"
-        onClick={() => {
-          void adminFetch(adminKey, `/api/admin/streamers/${s.id}/backfill`, { method: 'POST' });
-          setBackfillMsg('백필 시작됨 — 잠시 후 반영돼요');
-        }}
-      >
-        다시보기 백필 실행
-      </button>
-      {backfillMsg && <div style={{ fontSize: 11.5, color: 'var(--mint)', fontWeight: 700, marginTop: 8 }}>{backfillMsg}</div>}
+      {msg && <div className="epmsg">{msg}</div>}
     </div>
   );
 }

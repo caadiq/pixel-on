@@ -16,4 +16,6 @@ export const config = {
     password: required('DB_PASSWORD'),
   },
   adminKey: process.env.ADMIN_KEY ?? '',
+  adminUser: process.env.ADMIN_USER ?? 'admin',
+  adminPassword: process.env.ADMIN_PASSWORD ?? '',
 } as const;

@@ -298,10 +298,10 @@ function GanttTip({
       </div>
       <div className="gtip-title">{s.title || '(제목 없음)'}</div>
       <div className="gtip-time num">
-        {carried ? '전날 ' : ''}
+        {carried ? '어제 ' : ''}
         {fmtTime(s.startedAt)}
         <span className="ar">→</span>
-        {s.endedAt ? `${crossed ? '익일 ' : ''}${fmtTime(s.endedAt)}` : '방송 중'}
+        {s.endedAt ? `${crossed ? '내일 ' : ''}${fmtTime(s.endedAt)}` : '방송 중'}
         <span className="dur" style={{ background: color, color: contrastText(color) }}>
           {fmtDurKo(endMs - startMs)}
         </span>
