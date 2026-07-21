@@ -15,8 +15,9 @@ export function App() {
           <Route path="/streamer/:id" element={<StreamerDetail />} />
           <Route path="/history" element={<History />} />
           <Route path="/vods" element={<Vods />} />
-          <Route path="/admin" element={<Admin />} />
         </Route>
+        {/* 관리자는 자체 헤더(로그아웃)를 쓰므로 공용 Layout 밖 */}
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );

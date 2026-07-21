@@ -35,28 +35,33 @@ async function adminFetch<T>(token: string, url: string, init?: RequestInit): Pr
 export function Admin() {
   useTitle('관리자');
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE) ?? '');
-  const [authed, setAuthed] = useState(!!token);
+  const authed = !!token;
 
-  if (!authed) {
-    return (
-      <Login
-        onOk={(t) => {
-          localStorage.setItem(TOKEN_STORAGE, t);
-          setToken(t);
-          setAuthed(true);
-        }}
-      />
-    );
-  }
+  const logout = () => {
+    localStorage.removeItem(TOKEN_STORAGE);
+    setToken('');
+  };
+  const login = (t: string) => {
+    localStorage.setItem(TOKEN_STORAGE, t);
+    setToken(t);
+  };
+
   return (
-    <AdminMain
-      token={token}
-      onLogout={() => {
-        localStorage.removeItem(TOKEN_STORAGE);
-        setToken('');
-        setAuthed(false);
-      }}
-    />
+    <>
+      <header className="admhdr">
+        <div className="wrap">
+          <span className="logo">
+            <img className="logoimg" src="/favicon-192.png?v=2" alt="" />
+            <b>PIXEL ON</b>
+            <span className="adbadge">ADMIN</span>
+          </span>
+          {authed && (
+            <button className="admlogout" onClick={logout}>로그아웃</button>
+          )}
+        </div>
+      </header>
+      {authed ? <AdminMain token={token} onLogout={logout} /> : <Login onOk={login} />}
+    </>
   );
 }
 
@@ -133,6 +138,7 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
+  const close = () => { setSelectedId(null); setAdding(false); };
 
   if (isError) return <main className="wrap" />;
   if (!rows)
@@ -142,6 +148,7 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
       </main>
     );
   const selected = rows.find((r) => r.id === selectedId) ?? null;
+  const panelOpen = adding || !!selected;
 
   return (
     <main className="wrap">
@@ -151,7 +158,6 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
           <span className="sub">
             {rows.length}명 · 비활성 {rows.filter((r) => !r.active).length}명
           </span>
-          <button className="admlogout" onClick={onLogout}>로그아웃</button>
         </div>
 
         <div className="admlayout">
@@ -178,7 +184,9 @@ function AdminMain({ token, onLogout }: { token: string; onLogout: () => void })
             })}
           </div>
 
-          <div className="admside2">
+          {panelOpen && <div className="admscrim" onClick={close} />}
+          <div className={`admside2 ${panelOpen ? 'open' : ''}`}>
+            {panelOpen && <button className="admclose" onClick={close} aria-label="닫기">✕</button>}
             {adding ? (
               <AddPanel token={token} onDone={(id) => { setAdding(false); setSelectedId(id); invalidate(); }} />
             ) : selected ? (
