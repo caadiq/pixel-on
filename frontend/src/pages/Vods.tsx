@@ -113,9 +113,12 @@ export function Vods() {
         <div className="shead">
           <h2>다시보기</h2>
           <span className="sub num">{total.toLocaleString('ko-KR')}개 · 최신순</span>
-          <span style={{ marginLeft: 'auto' }}>
-            <StreamerPicker streamers={streamers} value={filter} onChange={setFilter} />
-          </span>
+          {/* 모바일은 플로팅 필터가 있어 드롭다운 생략 */}
+          {!narrow && (
+            <span style={{ marginLeft: 'auto' }}>
+              <StreamerPicker streamers={streamers} value={filter} onChange={setFilter} />
+            </span>
+          )}
         </div>
 
         {vods.length === 0 ? (
