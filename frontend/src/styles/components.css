@@ -1930,6 +1930,8 @@
   bottom: 12px;
   top: auto;
   width: auto;
+  max-width: 480px; /* 태블릿에서 화면 전체로 늘어지지 않게 */
+  margin-inline: auto;
   pointer-events: auto;
   padding: 16px 16px 15px;
   animation: sheetup 0.24s cubic-bezier(0.2, 0.8, 0.3, 1) both;

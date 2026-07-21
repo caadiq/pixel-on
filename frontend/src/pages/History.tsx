@@ -298,6 +298,16 @@ function GanttTip({
 }) {
   const { s } = tip;
   const { closing, dismiss } = useDismiss(onClose);
+
+  // 모바일 시트가 떠 있는 동안 배경 스크롤 잠금
+  useEffect(() => {
+    if (!mobile) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobile]);
   const startMs = new Date(s.startedAt).getTime();
   const endMs = s.endedAt ? new Date(s.endedAt).getTime() : Date.now();
   const carried = startMs < dayStart;
