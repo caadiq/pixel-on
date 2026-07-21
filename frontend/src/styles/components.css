@@ -2849,3 +2849,44 @@
 .sec:nth-of-type(4) {
   animation-delay: 0.21s;
 }
+
+/* ── 커스텀 미니 툴팁 (기본 title 대체) — data-tip 속성에 내용 ── */
+[data-tip] {
+  position: relative;
+}
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: Pretendard, sans-serif;
+  letter-spacing: 0;
+  padding: 4px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+  z-index: 120;
+  pointer-events: none;
+  box-shadow: 0 8px 20px -8px rgba(10, 14, 25, 0.4);
+  animation: tipin 0.12s ease both;
+}
+[data-tip]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+  border-bottom: 0;
+  z-index: 120;
+  pointer-events: none;
+  animation: tipin 0.12s ease both;
+}
+@keyframes tipin {
+  from { opacity: 0; }
+}

@@ -186,7 +186,7 @@ function DayCell({
       className={`bday ${today ? 'today' : ''} ${future ? 'future' : ''} ${selected ? 'sel' : ''} ${has ? 'has' : ''}`}
       onClick={onClick}
       disabled={!has}
-      title={hours > 0 ? `${hours}시간 방송` : undefined}
+      data-tip={hours > 0 ? `${hours}시간 방송` : undefined}
     >
       <span className="dn num">{dayNo}</span>
       {hours > 0 ? (
@@ -302,7 +302,7 @@ function PatternInsight({
         </div>
         <div className="hbars">
           {hourly.map((v, h) => (
-            <div key={h} className="hcol" title={`${h}시 · ${Math.round(v)}시간`}>
+            <div key={h} className="hcol" data-tip={`${h}시 · ${Math.round(v)}시간`}>
               <i
                 className={h === peakHour ? 'peak' : ''}
                 style={{ height: `${Math.max(4, (v / maxHour) * 100)}%` }}
@@ -318,7 +318,7 @@ function PatternInsight({
         <div className="ins-head"><b>요일별</b></div>
         <div className="dbars">
           {DAY_NAMES.map((name, i) => (
-            <div key={name} className="dcol" title={`${name} · ${Math.round(byDay[i])}시간`}>
+            <div key={name} className="dcol" data-tip={`${name} · ${Math.round(byDay[i])}시간`}>
               <div className="dtrack">
                 <i className={i === peakDay ? 'peak' : ''} style={{ height: `${Math.max(4, (byDay[i] / maxDay) * 100)}%` }} />
               </div>

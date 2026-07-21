@@ -249,7 +249,7 @@ function WeekPanel() {
           </div>
         ))}
         {days.map((d, i) => (
-          <div key={`c${i}`} className="d" style={{ background: level(d.hours) }} title={`${d.hours}시간`} />
+          <div key={`c${i}`} className="d" data-tip={`${d.hours}시간`} style={{ background: level(d.hours) }} />
         ))}
       </div>
       <dl className="kv">
