@@ -111,25 +111,30 @@ function WeeklyChip() {
 
 function LiveCard({ s, index }: { s: Streamer; index: number }) {
   const c = s.color ?? FALLBACK_COLOR;
+  const thumb = s.live?.thumbnail ?? null;
   return (
     <Link
       to={`/streamer/${s.id}`}
       className="lvc"
       style={{ '--c': c, animationDelay: `${index * 0.06}s` } as React.CSSProperties}
     >
-      <div className="top">
+      <div className="thumb">
+        {thumb ? (
+          <img className="thumbimg" src={thumb} alt="" loading="lazy" />
+        ) : (
+          <div className="thumbfallback" />
+        )}
         <span className="onair">
           <i />
           LIVE
         </span>
-        <img src={s.profileImage} alt={s.name} loading="lazy" />
         <span className="vw num">👁 {s.live!.viewers.toLocaleString('ko-KR')}</span>
       </div>
       <div className="bd">
-        <b>
-          <s />
-          {s.name}
-        </b>
+        <div className="who">
+          <img className="wpf" src={s.profileImage} alt="" loading="lazy" />
+          <b>{s.name}</b>
+        </div>
         <p>{s.live!.title}</p>
         {s.live!.category && <span className="cat">{s.live!.category}</span>}
       </div>
@@ -145,11 +150,15 @@ function StreamerCard({ s }: { s: Streamer }) {
       className={`scard ${s.live ? 'on' : ''}`}
       style={{ '--c': c } as React.CSSProperties}
     >
-      <span className={`pfbadge ${s.platform}`}>{s.platform === 'soop' ? '숲' : '치지직'}</span>
-      {s.live && <span className="rb">LIVE</span>}
-      <img className="av" src={s.profileImage} alt="" loading="lazy" />
+      <div className="scap">
+        <span className={`pfbadge ${s.platform}`}>{s.platform === 'soop' ? '숲' : '치지직'}</span>
+        {s.live && <span className="rb">LIVE</span>}
+        <img className="av" src={s.profileImage} alt="" loading="lazy" />
+      </div>
       <b>{s.name}</b>
-      <span className="sub">{fmtCompact(s.followers)}</span>
+      <span className="sub">
+        {s.live ? `${s.live.viewers.toLocaleString('ko-KR')}명 시청` : fmtCompact(s.followers)}
+      </span>
     </Link>
   );
 }
