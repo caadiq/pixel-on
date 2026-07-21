@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { HexColorInput, HexColorPicker } from 'react-colorful';
 import { FALLBACK_COLOR, fmtCompact } from '../lib/format';
 import { useTitle } from '../lib/useTitle';
 
@@ -210,6 +211,7 @@ function EditPanel({
   onDeleted: () => void;
 }) {
   const [color, setColor] = useState(s.color ?? s.autoColor ?? '#888888');
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [platform, setPlatform] = useState(s.platform);
   const [chzzkId, setChzzkId] = useState(s.chzzkId ?? '');
   const [soopId, setSoopId] = useState(s.soopId ?? '');
@@ -248,7 +250,26 @@ function EditPanel({
       <div className="epsec">
         <label>대표색 {s.color ? '(수동 지정 중)' : '(자동 추출 사용 중)'}</label>
         <div className="cprow">
-          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="cpick-big" />
+          <div className="swatchwrap">
+            <button
+              className="colorswatch"
+              style={{ background: color }}
+              onClick={() => setPickerOpen((v) => !v)}
+              aria-label="색 선택"
+            />
+            {pickerOpen && (
+              <>
+                <div className="pickscrim" onClick={() => setPickerOpen(false)} />
+                <div className="colorpop">
+                  <HexColorPicker color={color} onChange={setColor} />
+                  <div className="hexrow">
+                    <span>#</span>
+                    <HexColorInput color={color} onChange={setColor} />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
           <span className="num hx">{color.toUpperCase()}</span>
           <button className="minibtn" style={{ marginLeft: 'auto' }} onClick={() => patch.mutate({ color })}>
             수동 적용
