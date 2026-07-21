@@ -249,10 +249,11 @@ function DayExpand({
                 <span className="bd2 num">{fmtDurKo(durOf(s))}</span>
               </div>
               <div className="btl">{s.title || '(제목 없음)'}</div>
-              <div className="bsub">
-                {s.category && <span className="bcat">{s.category}</span>}
-                {s.peakViewers > 0 && <span className="num">최고 {s.peakViewers.toLocaleString('ko-KR')}명</span>}
-              </div>
+              {s.category && (
+                <div className="bsub">
+                  <span className="bcat">{s.category}</span>
+                </div>
+              )}
             </div>
             {url && (
               <a className="bv" href={url} target="_blank" rel="noreferrer">다시보기</a>
@@ -264,7 +265,7 @@ function DayExpand({
   );
 }
 
-/** 주로 켜는 시간 — 시간대 히스토그램(축·피크 강조) + 요일 분포 */
+/** 방송 시간대 — 시간대 히스토그램(축·피크 강조) + 요일 분포 */
 function PatternInsight({
   pattern, color,
 }: {
@@ -284,8 +285,10 @@ function PatternInsight({
     <div className="insight" style={{ '--c': color } as React.CSSProperties}>
       <div className="ins-block hours">
         <div className="ins-head">
-          <b>주로 켜는 시간</b>
-          <span className="badge num">{DAY_NAMES[peakDay]}요일 {peakHour}시쯤</span>
+          <b>방송 시간대</b>
+          <span className="badge num">
+            {peakHour < 12 ? '오전' : '오후'} {peakHour % 12 === 0 ? 12 : peakHour % 12}시쯤
+          </span>
         </div>
         <div className="hbars">
           {hourly.map((v, h) => (

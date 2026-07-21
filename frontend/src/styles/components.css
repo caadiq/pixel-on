@@ -653,6 +653,18 @@
   text-align: right;
   color: var(--ink);
 }
+/* 값 앞의 스트리머 이름 — 칩으로 분리해 값과 구분 */
+.kv .kwho {
+  display: inline-block;
+  background: #eef0f4;
+  color: var(--ink2);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 2.5px 9px;
+  margin-right: 7px;
+  vertical-align: 1px;
+}
 
 /* ── 푸터 (항상 화면 아래) ── */
 .ftr {
@@ -1010,7 +1022,7 @@
   margin-top: 14px;
   background: var(--ink);
   border-radius: 15px;
-  padding: 17px 19px;
+  padding: 17px 19px 8px; /* 마지막 행 자체 패딩이 있어 아래는 얇게 */
   margin: 7px 0 3px;
   color: #fff;
 }
@@ -1147,7 +1159,7 @@
 }
 @media (max-width: 720px) {
   .bexp {
-    padding: 14px 14px;
+    padding: 14px 14px 6px;
   }
   .bexp .brow {
     grid-template-columns: 96px 1fr;
@@ -1352,6 +1364,19 @@
 }
 .vod .bd .sub .when {
   margin-left: auto;
+}
+/* 상세 페이지 다시보기 — 카테고리 태그(배경) + 날짜는 오른쪽 아래 */
+.vod .bd .sub .vcat {
+  background: color-mix(in srgb, var(--c, #888) 14%, #fff);
+  color: color-mix(in srgb, var(--c, #666) 72%, #000);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── 스트리머 선택 드롭다운 ── */

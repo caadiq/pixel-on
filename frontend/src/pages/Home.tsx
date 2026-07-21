@@ -252,7 +252,8 @@ function WeekPanel() {
           <>
             <dt>가장 길게</dt>
             <dd>
-              {data.longest.name} {fmtDurKo(data.longest.hours * 3600_000)}
+              <span className="kwho">{data.longest.name}</span>
+              {fmtDurKo(data.longest.hours * 3600_000)}
             </dd>
           </>
         )}
@@ -260,7 +261,8 @@ function WeekPanel() {
           <>
             <dt>최다 시청</dt>
             <dd className="num">
-              {data.bestPeak.name} {data.bestPeak.peak.toLocaleString('ko-KR')}
+              <span className="kwho">{data.bestPeak.name}</span>
+              {data.bestPeak.peak.toLocaleString('ko-KR')}명
             </dd>
           </>
         )}

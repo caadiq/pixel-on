@@ -46,9 +46,14 @@ export function fmtDurKo(ms: number): string {
   return m > 0 ? `${h}시간 ${m}분` : `${h}시간`;
 }
 
-/** 분(0~1439) → "20:47" */
-export const fmtMinOfDay = (min: number) =>
-  `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+/** 분(0~1439) → "오후 8시 47분" */
+export function fmtMinOfDay(min: number): string {
+  const h24 = Math.floor(min / 60);
+  const m = min % 60;
+  const ampm = h24 < 12 ? '오전' : '오후';
+  const h = h24 % 12 === 0 ? 12 : h24 % 12;
+  return m > 0 ? `${ampm} ${h}시 ${m}분` : `${ampm} ${h}시`;
+}
 
 /** 145000 → "14.5만" */
 export function fmtCompact(n: number): string {

@@ -95,8 +95,8 @@ function Vods({ id, color }: { id: number; color: string }) {
             <div className="bd">
               <b>{v.title}</b>
               <span className="sub">
-                <span>{fmtRelDate(v.publishedAt)}</span>
-                {v.category && <span>{v.category}</span>}
+                {v.category && <span className="vcat">{v.category}</span>}
+                <span className="when">{fmtRelDate(v.publishedAt)}</span>
               </span>
             </div>
           </a>
