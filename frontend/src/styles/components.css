@@ -371,6 +371,9 @@
   box-shadow: var(--sh);
   transition: 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
   animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  /* 호버 순간 레이어 승격되며 소수점 높이가 재반올림돼 썸네일 경계가 1px 움직임
+     → 레이어를 상시 유지해 휴지/호버 래스터를 동일하게 */
+  will-change: transform;
   /* 제목이 한 줄이어도 태그가 카드 하단에 붙도록 */
   display: flex;
   flex-direction: column;
@@ -573,6 +576,7 @@
   overflow: hidden;
   aspect-ratio: 1 / 1;
   transition: 0.24s cubic-bezier(0.2, 0.8, 0.3, 1);
+  will-change: transform; /* 호버 리프트 시 내부 요소 1px 흔들림 방지 */
   box-shadow: var(--sh);
   border: 1px solid var(--line2);
   display: flex;
@@ -1388,6 +1392,7 @@
   box-shadow: var(--sh);
   display: block;
   transition: 0.22s;
+  will-change: transform; /* .lvc와 동일 — 호버 레이어 승격 시 경계 이동 방지 */
 }
 .vod:hover {
   transform: translateY(-3px);
