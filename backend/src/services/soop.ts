@@ -28,6 +28,45 @@ async function get(url: string): Promise<unknown | null> {
   return null;
 }
 
+/* ── 카테고리 번호 → 이름 사전 (sch.sooplive.co.kr, 6시간 캐시) ──
+   station API의 broad_cate_no는 숫자만 줘서 그대로 노출하면 "40019"처럼 보임 */
+interface CategoryListResponse {
+  data?: { is_more?: boolean; list?: { category_no?: string; category_name?: string }[] };
+}
+
+let cateMap = new Map<number, string>();
+let cateLoadedAt = 0;
+let cateLoading: Promise<void> | null = null;
+
+async function loadCategories(): Promise<void> {
+  const map = new Map<number, string>();
+  for (let page = 1; page <= 10; page++) {
+    const j = (await get(
+      `https://sch.sooplive.co.kr/api.php?m=categoryList&szKeyword=&nPageNo=${page}&nListCnt=300`,
+    )) as CategoryListResponse | null;
+    const list = j?.data?.list ?? [];
+    for (const c of list) {
+      if (c.category_no && c.category_name) map.set(Number(c.category_no), c.category_name);
+    }
+    if (!j?.data?.is_more) break;
+  }
+  if (map.size > 0) {
+    cateMap = map;
+    cateLoadedAt = Date.now();
+  }
+}
+
+/** 카테고리 번호 → 이름. 사전에 없으면 null (호출부에서 번호 그대로 쓸지 결정) */
+export async function soopCategoryName(no: number): Promise<string | null> {
+  if (Date.now() - cateLoadedAt > 6 * 3600_000 || cateMap.size === 0) {
+    cateLoading ??= loadCategories().finally(() => {
+      cateLoading = null;
+    });
+    await cateLoading;
+  }
+  return cateMap.get(no) ?? null;
+}
+
 export interface SoopStation {
   nickname: string;
   profileImage: string;
@@ -80,7 +119,10 @@ export async function fetchSoopStation(soopId: string): Promise<SoopStation | nu
           viewers: broad.current_sum_viewer ?? 0,
           // 정확한 시작 시각은 station.broad_start (KST 문자열)
           startedAt: parseKst(j.station.broad_start),
-          category: broad.broad_cate_no != null ? String(broad.broad_cate_no) : null,
+          category:
+            broad.broad_cate_no != null
+              ? ((await soopCategoryName(broad.broad_cate_no)) ?? String(broad.broad_cate_no))
+              : null,
           thumbnail: `https://liveimg.sooplive.com/m/${broad.broad_no ?? 0}`,
         }
       : null,
