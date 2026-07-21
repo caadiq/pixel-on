@@ -283,10 +283,15 @@
   }
   .lives .lvc {
     display: flex;
+    flex-direction: row; /* 기본(.lvc)이 column이라 명시 필요 — 가로 리스트 */
     align-items: center;
     gap: 12px;
     padding: 9px;
     border-radius: 14px;
+  }
+  /* 모바일은 탭 시 :hover가 걸려 업타임이 떠버림 — 숨김 */
+  .lives .lvc .uptime {
+    display: none;
   }
   .lives .lvc .thumb {
     width: 44%;
