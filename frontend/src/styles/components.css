@@ -275,9 +275,63 @@
   }
 }
 @media (max-width: 720px) {
+  /* 치지직 앱 스타일 — 썸네일 좌 · 내용 우 가로 리스트 */
   .lives {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lvc {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 15px;
+  }
+  .lvc .thumb {
+    width: 44%;
+    max-width: 180px;
+    flex: none;
+    border-radius: 10px;
+  }
+  .lvc .thumb .onair {
+    top: 7px;
+    left: 7px;
+    font-size: 11px;
+    padding: 2.5px 8px;
+  }
+  .lvc .vw {
+    bottom: 7px;
+    right: 7px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+  }
+  .lvc .bd {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .lvc .bd p {
+    order: 1;
+    font-size: 15px;
+    line-height: 1.35;
+    margin: 0;
+  }
+  .lvc .who {
+    order: 2;
+    margin: 9px 0 0;
+  }
+  .lvc .who b {
+    font-size: 14px;
+  }
+  .lvc .cat {
+    order: 3;
+    margin-top: 9px;
+    align-self: flex-start;
+    font-size: 12.5px;
   }
 }
 .lvc {
