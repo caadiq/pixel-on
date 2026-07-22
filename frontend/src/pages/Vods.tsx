@@ -168,6 +168,11 @@ function VodCard({ v, s, delay = 0 }: { v: DbVod; s: Streamer | undefined; delay
           <span className="who">{s?.name ?? ''}</span>
           <span className="when">{fmtRelDate(v.startedAt)}</span>
         </span>
+        {v.category && (
+          <span className="vtags">
+            <i className="vtag">{v.category}</i>
+          </span>
+        )}
       </div>
     </a>
   );

@@ -3097,3 +3097,34 @@
     padding: 2px 8px;
   }
 }
+
+/* ── 다시보기 카드 태그 줄 (치지직 스타일 칩) ── */
+.vod .bd .vtags {
+  display: flex;
+  gap: 6px;
+  margin-top: 9px;
+  min-width: 0;
+}
+.vod .bd .vtags .vtag {
+  font-style: normal;
+  background: color-mix(in srgb, var(--c, #888) 12%, #fff);
+  color: color-mix(in srgb, var(--c, #666) 72%, #000);
+  border-radius: 7px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  /* 모바일 리스트: 이름·날짜가 하단, 태그는 그 아래 마지막 줄 */
+  .vod .bd .vtags {
+    margin-top: 7px;
+  }
+  .vod .bd .vtags .vtag {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+}
