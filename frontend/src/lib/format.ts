@@ -5,8 +5,11 @@ const KST = 'Asia/Seoul';
 export const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString('ko-KR', { timeZone: KST, hour: '2-digit', minute: '2-digit', hour12: false });
 
-export const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('ko-KR', { timeZone: KST, month: 'numeric', day: 'numeric' });
+/** "07.01" — 0채움으로 길이 통일 */
+export const fmtDate = (iso: string) => {
+  const d = new Date(new Date(iso).getTime() + 9 * 3600_000);
+  return `${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')}`;
+};
 
 export const fmtDateFull = (dateStr: string) => {
   const d = new Date(`${dateStr}T00:00:00+09:00`);
