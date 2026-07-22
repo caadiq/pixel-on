@@ -166,13 +166,11 @@ function VodCard({ v, s, delay = 0 }: { v: DbVod; s: Streamer | undefined; delay
         <span className="sub">
           {s && <img className="pav" src={avatar(s.profileImage)} alt="" loading="lazy" />}
           <span className="who">{s?.name ?? ''}</span>
-          <span className="when">{fmtRelDate(v.startedAt)}</span>
         </span>
-        {v.category && (
-          <span className="vtags">
-            <i className="vtag">{v.category}</i>
-          </span>
-        )}
+        <span className="vtags">
+          {v.category && <i className="vtag">{v.category}</i>}
+          <span className="when num">{fmtRelDate(v.startedAt)}</span>
+        </span>
       </div>
     </a>
   );

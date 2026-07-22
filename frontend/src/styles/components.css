@@ -3101,9 +3101,16 @@
 /* ── 다시보기 카드 태그 줄 (치지직 스타일 칩) ── */
 .vod .bd .vtags {
   display: flex;
+  align-items: center;
   gap: 6px;
   margin-top: 9px;
   min-width: 0;
+}
+.vod .bd .vtags .when {
+  margin-left: auto; /* 날짜는 오른쪽 아래 */
+  font-size: 13px;
+  color: var(--faint);
+  font-weight: 500;
 }
 .vod .bd .vtags .vtag {
   font-style: normal;
