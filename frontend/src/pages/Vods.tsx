@@ -249,8 +249,10 @@ function FilterFab({
         {selected ? (
           <img src={avatar(selected.profileImage)} alt="" />
         ) : (
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 5h16M7 12h10M10 19h4" />
+          /* 스트리머 선택 = 사람 아이콘 */
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="3.6" />
+            <path d="M4.5 19.5c1.4-3.3 4.2-5 7.5-5s6.1 1.7 7.5 5" />
           </svg>
         )}
       </button>
