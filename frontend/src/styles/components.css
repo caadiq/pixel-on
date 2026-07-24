@@ -3233,20 +3233,20 @@
   color: rgba(255, 255, 255, 0.75);
   font-weight: 600;
 }
-/* 업타임 = 대표색 솔리드 / 카테고리 = 대표색 틴트 (펼침 카드와 동일한 구분) */
+/* 업타임 = 회색 고정 / 카테고리 = 대표색 틴트 — 네모 칩으로 구분 */
 .lpop-row .up {
   margin-left: auto;
-  background: var(--c, var(--mint));
-  color: #16181d;
-  border-radius: 99px;
-  padding: 2.5px 10px;
-  font-weight: 800;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  border-radius: 6px;
+  padding: 2.5px 9px;
+  font-weight: 700;
 }
 .lpop-row .ct {
-  background: color-mix(in srgb, var(--c, #888) 24%, transparent);
-  color: color-mix(in srgb, var(--c, #ccc) 80%, #fff);
-  border: 1px solid color-mix(in srgb, var(--c, #888) 34%, transparent);
-  border-radius: 99px;
-  padding: 2px 10px;
+  /* 흰 글씨 + 대표색 배경 (파스텔색 대비 확보를 위해 살짝 어둡게) */
+  background: color-mix(in srgb, var(--c, #888) 78%, #16181d);
+  color: #fff;
+  border-radius: 6px;
+  padding: 2.5px 9px;
   font-weight: 700;
 }
