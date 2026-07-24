@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { avatar } from '../lib/avatar';
 import { useTitle } from '../lib/useTitle';
@@ -7,7 +8,7 @@ import { FALLBACK_COLOR, fmtCompact, fmtDurKo, fmtMinOfDay } from '../lib/format
 
 export function Home() {
   useTitle();
-  const { data: streamers, isLoading } = useStreamers();
+  const { data: streamers, isLoading, dataUpdatedAt } = useStreamers();
 
   // 로딩 문구가 잠깐 떴다 사라지면 깜빡이는 느낌 — 빈 화면 뒤 진입 애니메이션으로 자연스럽게
   if (isLoading || !streamers) return <main />;
@@ -61,7 +62,7 @@ export function Home() {
             </div>
             <div className="lives">
               {live.map((s, i) => (
-                <LiveCard key={s.id} s={s} index={i} />
+                <LiveCard key={s.id} s={s} index={i} stamp={dataUpdatedAt} />
               ))}
             </div>
           </div>
@@ -111,9 +112,29 @@ function WeeklyChip() {
   );
 }
 
-function LiveCard({ s, index }: { s: Streamer; index: number }) {
+/** 라이브 썸네일 — 새 스냅샷을 백그라운드에서 미리 로드한 뒤 교체 (깜빡임 없음) */
+function LiveThumb({ src }: { src: string }) {
+  const [shown, setShown] = useState(src);
+  useEffect(() => {
+    if (src === shown) return;
+    let alive = true;
+    const img = new Image();
+    img.onload = () => {
+      if (alive) setShown(src);
+    };
+    img.src = src;
+    return () => {
+      alive = false;
+    };
+  }, [src, shown]);
+  return <img className="thumbimg" src={shown} alt="" decoding="async" />;
+}
+
+function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: number }) {
   const c = s.color ?? FALLBACK_COLOR;
-  const thumb = s.live?.thumbnail ?? null;
+  // 방송 중 썸네일 URL은 고정이라 캐시버스터를 붙여야 30초 갱신 때 새 스냅샷이 옴
+  const raw = s.live?.thumbnail ?? null;
+  const thumb = raw ? `${raw}${raw.includes('?') ? '&' : '?'}t=${stamp}` : null;
   return (
     <a
       href={s.live!.url}
@@ -124,7 +145,7 @@ function LiveCard({ s, index }: { s: Streamer; index: number }) {
     >
       <div className="thumb">
         {thumb ? (
-          <img className="thumbimg" src={thumb} alt="" loading="lazy" decoding="async" />
+          <LiveThumb src={thumb} />
         ) : (
           <div className="thumbfallback" />
         )}
