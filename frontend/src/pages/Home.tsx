@@ -160,7 +160,7 @@ function LivePreview({ s, anchor }: { s: Streamer; anchor: DOMRect }) {
   const top = Math.min(Math.max(anchor.top + anchor.height / 2 - total / 2, 8), window.innerHeight - total - 8);
 
   return createPortal(
-    <div className="lpop" style={{ left, top, width: POP_W }}>
+    <div className="lpop" style={{ left, top, width: POP_W, '--c': s.color ?? FALLBACK_COLOR } as React.CSSProperties}>
       <div className="lpop-vid">
         {s.live?.thumbnail && <img src={s.live.thumbnail} alt="" />}
         <video ref={videoRef} className={playing ? 'on' : ''} muted playsInline onPlaying={() => setPlaying(true)} />
