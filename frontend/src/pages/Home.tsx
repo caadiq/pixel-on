@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { avatar } from '../lib/avatar';
 import { useTitle } from '../lib/useTitle';
@@ -112,8 +113,10 @@ function WeeklyChip() {
   );
 }
 
-/** 호버 미리보기 — hls.js 지연 로드로 라이브를 음소거 저화질 재생 (치지직만) */
-function LivePreview({ id }: { id: number }) {
+const POP_W = 480;
+
+/** 호버 미리보기 — 카드 옆 플로팅 팝업에서 hls.js 재생 (치지직만, 720p) */
+function LivePreview({ s, anchor }: { s: Streamer; anchor: DOMRect }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
 
@@ -121,15 +124,20 @@ function LivePreview({ id }: { id: number }) {
     let hls: { destroy(): void } | null = null;
     let alive = true;
     void (async () => {
-      const res = await fetch(`/api/streamers/${id}/preview`);
+      const res = await fetch(`/api/streamers/${s.id}/preview`);
       const { url } = (await res.json()) as { url: string | null };
       const video = videoRef.current;
       if (!alive || !url || !video) return;
       const { default: Hls } = await import('hls.js');
       if (!alive) return;
       if (Hls.isSupported()) {
-        const h = new Hls({ startLevel: 0, capLevelToPlayerSize: true, maxBufferLength: 12 });
+        const h = new Hls({ maxBufferLength: 12 });
         hls = h;
+        h.on(Hls.Events.MANIFEST_PARSED, () => {
+          // 720p 고정 (없으면 최고 화질) — levels는 낮은 화질부터 정렬
+          const idx = h.levels.findIndex((l) => l.height >= 720);
+          h.currentLevel = idx >= 0 ? idx : h.levels.length - 1;
+        });
         h.loadSource(url);
         h.attachMedia(video);
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -143,16 +151,32 @@ function LivePreview({ id }: { id: number }) {
       alive = false;
       hls?.destroy();
     };
-  }, [id]);
+  }, [s.id]);
 
-  return (
-    <video
-      ref={videoRef}
-      className={`pvid ${playing ? 'on' : ''}`}
-      muted
-      playsInline
-      onPlaying={() => setPlaying(true)}
-    />
+  // 카드 오른쪽에, 공간 없으면 왼쪽에. 세로는 카드 중앙 정렬 후 화면 안으로 클램프
+  const total = (POP_W * 9) / 16 + 88;
+  let left = anchor.right + 14;
+  if (left + POP_W > window.innerWidth - 8) left = anchor.left - POP_W - 14;
+  const top = Math.min(Math.max(anchor.top + anchor.height / 2 - total / 2, 8), window.innerHeight - total - 8);
+
+  return createPortal(
+    <div className="lpop" style={{ left, top, width: POP_W }}>
+      <div className="lpop-vid">
+        {s.live?.thumbnail && <img src={s.live.thumbnail} alt="" />}
+        <video ref={videoRef} className={playing ? 'on' : ''} muted playsInline onPlaying={() => setPlaying(true)} />
+        <span className="lpop-live">● LIVE</span>
+        <span className="lpop-vw num">{s.live!.viewers.toLocaleString('ko-KR')}명 시청 중</span>
+      </div>
+      <div className="lpop-info">
+        <b>{s.live!.title}</b>
+        <div className="lpop-row">
+          <span className="nm">{s.name}</span>
+          <span className="up num">{fmtDurKo(Date.now() - new Date(s.live!.startedAt).getTime())}</span>
+          {s.live!.category && <span className="ct">{s.live!.category}</span>}
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -198,16 +222,24 @@ function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: numb
   const thumb = raw ? `${raw}${raw.includes('?') ? '&' : '?'}t=${stamp}` : null;
 
   // 호버 0.5초 유지 시 라이브 미리보기 (치지직만 — 숲은 재생 토큰 체계가 달라 미지원)
-  const [preview, setPreview] = useState(false);
+  const [anchor, setAnchor] = useState<DOMRect | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
-  const enter = () => {
+  const enter = (e: React.MouseEvent) => {
     if (!CAN_HOVER || s.platform !== 'chzzk') return;
-    hoverTimer.current = window.setTimeout(() => setPreview(true), 500);
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    hoverTimer.current = window.setTimeout(() => setAnchor(rect), 500);
   };
   const leave = () => {
     window.clearTimeout(hoverTimer.current);
-    setPreview(false);
+    setAnchor(null);
   };
+  // 스크롤하면 위치가 어긋나므로 닫기
+  useEffect(() => {
+    if (!anchor) return;
+    const close = () => setAnchor(null);
+    window.addEventListener('scroll', close, { passive: true });
+    return () => window.removeEventListener('scroll', close);
+  }, [anchor]);
 
   return (
     <a
@@ -225,7 +257,7 @@ function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: numb
         ) : (
           <div className="thumbfallback" />
         )}
-        {preview && <LivePreview id={s.id} />}
+        {anchor && <LivePreview s={s} anchor={anchor} />}
         <span className="lbdg">
           <span className="onair">
             <i />

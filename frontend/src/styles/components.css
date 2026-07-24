@@ -3155,19 +3155,95 @@
   from { opacity: 0; }
 }
 
-/* 호버 라이브 미리보기 — 재생 시작되면 썸네일 위로 페이드인 */
-.lvc .pvid {
+/* ── 호버 라이브 미리보기 팝업 (카드 옆 플로팅) ── */
+.lpop {
+  position: fixed;
+  z-index: 300;
+  background: var(--ink);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px -16px rgba(10, 14, 25, 0.55);
+  pointer-events: none;
+  animation: fadein 0.18s ease both;
+}
+.lpop-vid {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.lpop-vid img,
+.lpop-vid video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 1; /* 배지(z2) 아래, 썸네일 위 */
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  pointer-events: none;
-  background: transparent;
 }
-.lvc .pvid.on {
+.lpop-vid video {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.lpop-vid video.on {
   opacity: 1;
+}
+.lpop-live {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--live);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: 5px;
+}
+.lpop-vw {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 5px;
+}
+.lpop-info {
+  padding: 12px 14px 13px;
+  color: #fff;
+}
+.lpop-info b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lpop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+  font-size: 12.5px;
+}
+.lpop-row .nm {
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+}
+.lpop-row .up {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 99px;
+  padding: 2.5px 9px;
+  font-weight: 700;
+}
+.lpop-row .ct {
+  background: color-mix(in srgb, var(--c, #888) 30%, transparent);
+  color: #fff;
+  border-radius: 99px;
+  padding: 2.5px 9px;
+  font-weight: 700;
 }
