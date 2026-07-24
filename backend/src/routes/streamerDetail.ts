@@ -4,7 +4,7 @@ import { and, desc, eq, gte, lt } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { sessions, streamers } from '../db/schema.js';
 import { kstDateStr, kstParts } from '../lib/time.js';
-import { fetchChzzkVideos } from '../services/chzzk.js';
+import { fetchChzzkLiveHls, fetchChzzkVideos } from '../services/chzzk.js';
 import { fetchSoopVods } from '../services/soop.js';
 import { liveNow } from '../worker/poller.js';
 
@@ -163,6 +163,24 @@ streamerDetailRoute.get('/pattern', async (c) => {
     }
   }
   return c.json({ grid: grid.map((row) => row.map((v) => Math.round(v * 10) / 10)) });
+});
+
+/** 호버 미리보기용 HLS URL (치지직만, 30초 캐시 — 토큰이 만료되므로 짧게) */
+const previewCache = new Map<number, { at: number; url: string | null }>();
+const PREVIEW_CACHE_MS = 30_000;
+
+streamerDetailRoute.get('/preview', async (c) => {
+  const id = Number(c.req.param('id'));
+  const s = await getStreamer(id);
+  if (!s) return c.json({ error: 'not found' }, 404);
+  if (s.platform !== 'chzzk' || !s.chzzkId) return c.json({ url: null });
+
+  const hit = previewCache.get(id);
+  if (hit && Date.now() - hit.at < PREVIEW_CACHE_MS) return c.json({ url: hit.url });
+
+  const url = await fetchChzzkLiveHls(s.chzzkId).catch(() => null);
+  previewCache.set(id, { at: Date.now(), url });
+  return c.json({ url });
 });
 
 /** 다시보기 목록 (플랫폼 프록시 + 10분 캐시) */

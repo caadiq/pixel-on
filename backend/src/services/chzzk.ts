@@ -99,6 +99,30 @@ export async function fetchChzzkLiveThumbnail(channelId: string): Promise<string
   return c?.liveImageUrl ? c.liveImageUrl.replace('{type}', '480') : null;
 }
 
+interface LivePlaybackRaw {
+  status?: string;
+  adult?: boolean;
+  livePlaybackJson?: string | null;
+}
+
+/**
+ * 라이브 HLS 마스터 재생목록 URL (호버 미리보기용).
+ * CDN(livecloud.pstatic.net)이 CORS *를 내려줘 외부 사이트에서도 hls.js 재생 가능 (실측).
+ * 성인 인증 방송 등 재생 정보가 없으면 null.
+ */
+export async function fetchChzzkLiveHls(channelId: string): Promise<string | null> {
+  const c = await get<LivePlaybackRaw>(
+    `https://api.chzzk.naver.com/service/v3/channels/${channelId}/live-detail`,
+  );
+  if (c?.status !== 'OPEN' || !c.livePlaybackJson) return null;
+  try {
+    const pb = JSON.parse(c.livePlaybackJson) as { media?: { mediaId?: string; path?: string }[] };
+    return pb.media?.find((m) => m.mediaId === 'HLS')?.path ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export interface ChzzkVideo {
   videoNo: number;
   title: string;

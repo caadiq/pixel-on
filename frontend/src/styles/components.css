@@ -3154,3 +3154,20 @@
 @keyframes thumbfade {
   from { opacity: 0; }
 }
+
+/* 호버 라이브 미리보기 — 재생 시작되면 썸네일 위로 페이드인 */
+.lvc .pvid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1; /* 배지(z2) 아래, 썸네일 위 */
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  background: transparent;
+}
+.lvc .pvid.on {
+  opacity: 1;
+}

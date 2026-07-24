@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { avatar } from '../lib/avatar';
 import { useTitle } from '../lib/useTitle';
@@ -112,6 +112,50 @@ function WeeklyChip() {
   );
 }
 
+/** 호버 미리보기 — hls.js 지연 로드로 라이브를 음소거 저화질 재생 (치지직만) */
+function LivePreview({ id }: { id: number }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    let hls: { destroy(): void } | null = null;
+    let alive = true;
+    void (async () => {
+      const res = await fetch(`/api/streamers/${id}/preview`);
+      const { url } = (await res.json()) as { url: string | null };
+      const video = videoRef.current;
+      if (!alive || !url || !video) return;
+      const { default: Hls } = await import('hls.js');
+      if (!alive) return;
+      if (Hls.isSupported()) {
+        const h = new Hls({ startLevel: 0, capLevelToPlayerSize: true, maxBufferLength: 12 });
+        hls = h;
+        h.loadSource(url);
+        h.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url; // Safari 네이티브 HLS
+      } else {
+        return;
+      }
+      void video.play().catch(() => {});
+    })();
+    return () => {
+      alive = false;
+      hls?.destroy();
+    };
+  }, [id]);
+
+  return (
+    <video
+      ref={videoRef}
+      className={`pvid ${playing ? 'on' : ''}`}
+      muted
+      playsInline
+      onPlaying={() => setPlaying(true)}
+    />
+  );
+}
+
 /** 라이브 썸네일 — 새 스냅샷을 미리 로드한 뒤 이전 장면 위로 크로스페이드 */
 function LiveThumb({ src }: { src: string }) {
   const [curr, setCurr] = useState(src);
@@ -145,11 +189,26 @@ function LiveThumb({ src }: { src: string }) {
   );
 }
 
+const CAN_HOVER = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
+
 function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: number }) {
   const c = s.color ?? FALLBACK_COLOR;
   // 방송 중 썸네일 URL은 고정이라 캐시버스터를 붙여야 30초 갱신 때 새 스냅샷이 옴
   const raw = s.live?.thumbnail ?? null;
   const thumb = raw ? `${raw}${raw.includes('?') ? '&' : '?'}t=${stamp}` : null;
+
+  // 호버 0.5초 유지 시 라이브 미리보기 (치지직만 — 숲은 재생 토큰 체계가 달라 미지원)
+  const [preview, setPreview] = useState(false);
+  const hoverTimer = useRef<number | undefined>(undefined);
+  const enter = () => {
+    if (!CAN_HOVER || s.platform !== 'chzzk') return;
+    hoverTimer.current = window.setTimeout(() => setPreview(true), 500);
+  };
+  const leave = () => {
+    window.clearTimeout(hoverTimer.current);
+    setPreview(false);
+  };
+
   return (
     <a
       href={s.live!.url}
@@ -157,6 +216,8 @@ function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: numb
       rel="noreferrer"
       className="lvc"
       style={{ '--c': c, animationDelay: `${index * 0.06}s` } as React.CSSProperties}
+      onMouseEnter={enter}
+      onMouseLeave={leave}
     >
       <div className="thumb">
         {thumb ? (
@@ -164,6 +225,7 @@ function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: numb
         ) : (
           <div className="thumbfallback" />
         )}
+        {preview && <LivePreview id={s.id} />}
         <span className="lbdg">
           <span className="onair">
             <i />
