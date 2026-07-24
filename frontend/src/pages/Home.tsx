@@ -112,22 +112,37 @@ function WeeklyChip() {
   );
 }
 
-/** 라이브 썸네일 — 새 스냅샷을 백그라운드에서 미리 로드한 뒤 교체 (깜빡임 없음) */
+/** 라이브 썸네일 — 새 스냅샷을 미리 로드한 뒤 이전 장면 위로 크로스페이드 */
 function LiveThumb({ src }: { src: string }) {
-  const [shown, setShown] = useState(src);
+  const [curr, setCurr] = useState(src);
+  const [prev, setPrev] = useState<string | null>(null);
   useEffect(() => {
-    if (src === shown) return;
+    if (src === curr) return;
     let alive = true;
     const img = new Image();
     img.onload = () => {
-      if (alive) setShown(src);
+      if (!alive) return;
+      setPrev(curr);
+      setCurr(src);
     };
     img.src = src;
     return () => {
       alive = false;
     };
-  }, [src, shown]);
-  return <img className="thumbimg" src={shown} alt="" decoding="async" />;
+  }, [src, curr]);
+  return (
+    <>
+      {prev && <img className="thumbimg" src={prev} alt="" />}
+      <img
+        key={curr}
+        className={`thumbimg ${prev ? 'xfade' : ''}`}
+        src={curr}
+        alt=""
+        decoding="async"
+        onAnimationEnd={() => setPrev(null)}
+      />
+    </>
+  );
 }
 
 function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: number }) {

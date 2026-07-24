@@ -3146,3 +3146,11 @@
     padding: 2px 8px;
   }
 }
+
+/* 라이브 썸네일 크로스페이드 — 새 스냅샷이 이전 장면 위로 서서히 */
+.lvc .thumbimg.xfade {
+  animation: thumbfade 0.6s ease both;
+}
+@keyframes thumbfade {
+  from { opacity: 0; }
+}
