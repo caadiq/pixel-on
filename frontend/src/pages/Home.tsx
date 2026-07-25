@@ -213,7 +213,8 @@ function LiveThumb({ src }: { src: string }) {
   );
 }
 
-const CAN_HOVER = typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
+/** 진짜 마우스 환경(PC)인지 — 터치 기기의 탭은 mouseenter를 흉내내므로 이벤트 시점에 판정 */
+const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: number }) {
   const c = s.color ?? FALLBACK_COLOR;
@@ -225,7 +226,7 @@ function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: numb
   const [anchor, setAnchor] = useState<DOMRect | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
   const enter = (e: React.MouseEvent) => {
-    if (!CAN_HOVER || s.platform !== 'chzzk') return;
+    if (!canHover() || s.platform !== 'chzzk') return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     hoverTimer.current = window.setTimeout(() => setAnchor(rect), 500);
   };

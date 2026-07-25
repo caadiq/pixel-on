@@ -114,15 +114,20 @@ export function History() {
   const [tip, setTip] = useState<Tip | null>(null);
   const isToday = date === kstToday();
 
-  // 모바일: 트랙 탭 → 툴팁(이동 버튼 포함) / PC: 호버 툴팁 + 클릭 즉시 이동
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 720px)').matches,
-  );
+  // 모바일/터치: 트랙 탭 → 시트(이동 버튼 포함) / PC 마우스: 호버 툴팁 + 클릭 즉시 이동
+  // 가로 태블릿은 폭이 넓어도 터치라 시트 모드여야 함 → 폭 또는 터치 기기 여부로 판정
+  const calcMobile = () =>
+    window.matchMedia('(max-width: 720px)').matches ||
+    window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && calcMobile());
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 720px)');
-    const h = () => setIsMobile(mq.matches);
-    mq.addEventListener('change', h);
-    return () => mq.removeEventListener('change', h);
+    const mqs = [
+      window.matchMedia('(max-width: 720px)'),
+      window.matchMedia('(hover: none) and (pointer: coarse)'),
+    ];
+    const h = () => setIsMobile(calcMobile());
+    mqs.forEach((mq) => mq.addEventListener('change', h));
+    return () => mqs.forEach((mq) => mq.removeEventListener('change', h));
   }, []);
 
   useEffect(() => setTip(null), [date]);
