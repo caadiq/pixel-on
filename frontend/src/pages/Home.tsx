@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { avatar } from '../lib/avatar';
+import { canHover } from '../lib/device';
 import { useTitle } from '../lib/useTitle';
 import { useDaySessions, useStreamers, useWeeklyStats } from '../api/hooks';
 import type { Streamer } from '../api/types';
@@ -213,8 +214,6 @@ function LiveThumb({ src }: { src: string }) {
   );
 }
 
-/** 진짜 마우스 환경(PC)인지 — 터치 기기의 탭은 mouseenter를 흉내내므로 이벤트 시점에 판정 */
-const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 function LiveCard({ s, index, stamp }: { s: Streamer; index: number; stamp: number }) {
   const c = s.color ?? FALLBACK_COLOR;

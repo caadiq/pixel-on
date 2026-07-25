@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { avatar, vodThumb } from '../lib/avatar';
+import { useNarrow } from '../lib/device';
 import { useSearchParams } from 'react-router-dom';
 import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useStreamers } from '../api/hooks';
@@ -29,20 +30,6 @@ async function fetchVods(page: number, filter: number | null): Promise<{ total: 
   return res.json();
 }
 
-/** 좁은 모바일(≤480px) 여부 — 무한 스크롤 + 플로팅 필터 모드 */
-function useIsNarrow() {
-  const [narrow, setNarrow] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 480px)').matches,
-  );
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 480px)');
-    const h = () => setNarrow(mq.matches);
-    mq.addEventListener('change', h);
-    return () => mq.removeEventListener('change', h);
-  }, []);
-  return narrow;
-}
-
 /** 다시보기 — PC·태블릿은 페이지네이션, 좁은 모바일은 무한 스크롤 + 플로팅 필터 */
 export function Vods() {
   useTitle('다시보기');
@@ -50,7 +37,7 @@ export function Vods() {
   const [params, setParams] = useSearchParams();
   const filter = params.get('s') ? Number(params.get('s')) : null;
   const [page, setPage] = useState(0);
-  const narrow = useIsNarrow();
+  const narrow = useNarrow(); // ≤480px: 무한 스크롤 + 플로팅 필터 모드
 
   useEffect(() => {
     setPage(0);
