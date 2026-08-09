@@ -2,7 +2,7 @@
 
 > 픽셀네트워크 소속 스트리머 29명의 방송 상태를 실시간으로 보여주고,
 > 언제 켜고 껐는지 전부 기록하는 개인용 팬사이트.
-> 도메인: `pixel.caadiq.co.kr` · GitHub: `git@github.com:caadiq/pixel.git` (private)
+> 도메인: `pixel.caadiq.co.kr` · GitHub: `git@github.com:caadiq/pixel-on.git` (private)
 
 ## 1. 확정 사항
 
