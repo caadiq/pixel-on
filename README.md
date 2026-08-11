@@ -1,6 +1,6 @@
 # 📺 PIXEL ON
 
-픽셀네트워크(MCN) 소속 스트리머 29명의 방송을 추적·기록하는 비공식 팬사이트입니다. 치지직·숲(SOOP) 라이브 현황, 방송 이력 타임라인, 방송 기록 달력, 다시보기까지 한곳에서 볼 수 있습니다.
+픽셀네트워크(MCN) 소속 스트리머들의 방송을 추적·기록하는 비공식 팬사이트입니다. 치지직·숲(SOOP) 라이브 현황, 방송 이력 타임라인, 방송 기록 달력, 다시보기까지 한곳에서 볼 수 있습니다.
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
