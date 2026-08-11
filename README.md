@@ -4,7 +4,7 @@
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite)
 ![Hono](https://img.shields.io/badge/Hono-4-E36002?logo=hono)
 ![Drizzle](https://img.shields.io/badge/Drizzle_ORM-C5F74F?logo=drizzle)
 ![MySQL](https://img.shields.io/badge/MariaDB-MySQL2-003545?logo=mariadb)
@@ -23,6 +23,23 @@
 - 🛰️ **자동 수집 워커** - 치지직·숲 비공식 API 60초 폴링, 10분 내 재시작 병합, VOD 백필, 직전 방송 리커버리
 - 🛠️ **관리자** - JWT 로그인(bcrypt), 스트리머 추가/삭제·플랫폼 전환·대표색 관리·백필 트리거
 - 📱 **반응형** - PC / 태블릿 / 모바일 레이아웃 분기 (모바일은 치지직 앱 스타일 리스트)
+
+---
+
+## 🏗 시스템 구조
+
+![시스템 구조도](docs/images/architecture.png)
+
+| 구성 | 역할 |
+| --- | --- |
+| **Caddy** | 리버스 프록시 · 자동 HTTPS. prod/dev 도메인을 각 컨테이너로 분기 |
+| **프로덕션 / 개발 프론트엔드** | 같은 소스를 정적 빌드(nginx) / Vite watch 두 갈래로 서빙 |
+| **Backend (Hono)** | REST API + 관리자 JWT 인증 + **수집 워커**(폴링·세션 기록·백필)를 한 프로세스에서 운영 |
+| **MariaDB** | `pixel` 스키마 — streamers · sessions · snapshots · admin_users (Drizzle ORM, 전용 계정) |
+| **치지직 · 숲(SOOP)** | 비공식 API. 어댑터(`services/chzzk.ts` · `soop.ts`)로 격리해 스펙 변경 시 두 파일만 수정 |
+
+> 방송 기록은 **60초 폴링**으로 켜짐/꺼짐 전환을 잡고, 폴링이 놓친 구간은 **VOD 백필**로 메꿉니다.
+> 자세한 수집 규칙은 아래 [데이터 수집 규칙](#-데이터-수집-규칙) 참고.
 
 ---
 
@@ -47,6 +64,7 @@ pixel/
 │       ├── scripts/          # seed · set-admin · backfill-initial 등 일회성 도구
 │       └── lib/              # time(KST) · color
 │
+├── docs/images/              # 시스템 구조도 (architecture.html → png)
 ├── PLAN.md                   # 설계·비공식 API 실측 기록
 └── docker-compose.yml        # backend + frontend(dev watch) + frontend-prod(nginx)
 ```
@@ -60,7 +78,7 @@ pixel/
 | 기술 | 설명 |
 |------|------|
 | **React 19 + TypeScript** | UI |
-| **Vite 7** | 빌드 도구 / 개발 서버 |
+| **Vite 6** | 빌드 도구 / 개발 서버 |
 | **순수 CSS** | 단일 컴포넌트 시트, 화이트 테마 고정 |
 | **TanStack React Query 5** | 서버 상태 / 폴링 갱신 |
 | **TanStack React Virtual** | 모바일 다시보기 창 가상화 |
@@ -134,4 +152,4 @@ cd backend && npx drizzle-kit generate   # SQL 생성 후 docker exec로 적용
 
 ## 📄 라이선스
 
-MIT — 비공식 팬 제작 사이트로 픽셀네트워크 및 소속 스트리머와 무관합니다.
+[MIT License](LICENSE) — 비공식 팬 제작 사이트로 픽셀네트워크 및 소속 스트리머와 무관합니다.
