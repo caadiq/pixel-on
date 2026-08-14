@@ -27,6 +27,8 @@ interface Tip {
   x: number;
   y: number;
   s: DaySession;
+  /** 터치/펜으로 연 것인지 — 시트로 띄울지 결정 (마우스면 따라다니는 툴팁) */
+  touch: boolean;
 }
 
 const DP_HEADS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -158,7 +160,7 @@ export function History() {
   const totalMs = startedAll.reduce((a, r) => a + fullMs(r), 0);
 
   const showTip = (s: DaySession) => (e: React.MouseEvent) => {
-    setTip({ x: e.clientX, y: e.clientY, s });
+    setTip({ x: e.clientX, y: e.clientY, s, touch: false });
   };
 
   /** 한 세션의 트랙 내 위치·상태 계산 */
@@ -222,10 +224,14 @@ export function History() {
                         key={s.id}
                         className={`${seg.carried ? 'cont' : ''} ${seg.over ? 'over' : ''} ${seg.url || isMobile ? 'linked' : ''}`}
                         style={{ left: `${seg.st * 100}%`, width: `${Math.max(0.5, (seg.en - seg.st) * 100)}%` }}
-                        onMouseMove={isMobile ? undefined : showTip(s)}
-                        onMouseLeave={isMobile ? undefined : () => setTip(null)}
+                        /* 호버 툴팁은 마우스 입력일 때만 — 터치는 클릭 처리로 */
+                        onPointerMove={(e) => e.pointerType === 'mouse' && showTip(s)(e)}
+                        onPointerLeave={(e) => e.pointerType === 'mouse' && setTip(null)}
                         onClick={(e) => {
-                          if (isMobile) setTip({ x: e.clientX, y: e.clientY, s });
+                          // click의 pointerType이 비어 있으면(키보드 등) 기기 판정으로 대체
+                          const pt = (e.nativeEvent as PointerEvent).pointerType;
+                          const byTouch = pt ? pt !== 'mouse' : isMobile;
+                          if (byTouch) setTip({ x: e.clientX, y: e.clientY, s, touch: true });
                           else if (seg.url) window.open(seg.url, '_blank', 'noopener');
                         }}
                       />
@@ -246,7 +252,9 @@ export function History() {
         )}
       </section>
 
-      {tip && <GanttTip tip={tip} dayStart={dayStart} mobile={isMobile} onClose={() => setTip(null)} />}
+      {tip && (
+        <GanttTip tip={tip} dayStart={dayStart} mobile={tip.touch || isMobile} onClose={() => setTip(null)} />
+      )}
 
       <style>{`
         .mb-only { display: none; }
