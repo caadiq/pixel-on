@@ -3056,6 +3056,8 @@
   .vod .th {
     width: 44%;
     flex: none;
+    /* align-items:stretch가 aspect-ratio를 덮어 제목 줄수만큼 세로로 늘어나던 것 방지 */
+    align-self: flex-start;
     border-radius: 9px;
     overflow: hidden;
   }
