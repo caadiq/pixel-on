@@ -3073,18 +3073,20 @@
     padding: 2px 0;
     display: flex;
     flex-direction: column;
+    /* 썸네일 높이에 맞춰 제목(위)·이름·태그(아래)를 분산 */
+    justify-content: space-between;
   }
+  /* 제목 한 줄 고정 — 줄수에 따라 카드 높이가 들쭉날쭉해지는 것 방지 */
   .vod .bd b {
     font-size: 14.5px;
     line-height: 1.35;
     height: auto;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    display: block;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
   .vod .bd .sub {
-    margin-top: auto; /* 이름·날짜는 하단 */
     padding-top: 6px;
     font-size: 12px;
     gap: 6px;
