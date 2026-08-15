@@ -1263,16 +1263,48 @@
   .bexp {
     padding: 14px 14px 6px;
   }
+  /* 모바일: 썸네일을 가로로 꽉 채우고, 아래에 내용(좌) · 다시보기(우) */
   .bexp .brow {
-    grid-template-columns: 96px 1fr;
+    grid-template-columns: 1fr auto;
+    column-gap: 10px;
+    row-gap: 0;
+    align-items: end;
+    padding: 14px 0;
   }
-  .bexp .bv {
-    grid-column: 2;
-    justify-self: start;
-    padding: 6px 13px;
+  .bexp .bthumb {
+    grid-column: 1 / -1;
+  }
+  .bexp .binfo {
+    grid-column: 1;
+  }
+  .bexp .bthumb {
+    width: 100%;
+    border-radius: 11px;
+  }
+  .bexp .binfo {
+    margin-top: 11px;
   }
   .bexp .bt {
     font-size: 13.5px;
+    gap: 6px;
+  }
+  .bexp .btl {
+    font-size: 15.5px;
+    margin-top: 7px;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* 카테고리(좌) · 다시보기 버튼(우)을 한 줄에 */
+  .bexp .bsub {
+    margin-top: 10px;
+  }
+  .bexp .bv {
+    grid-column: 2;
+    align-self: end;
+    justify-self: end;
+    padding: 7px 14px;
   }
 }
 
