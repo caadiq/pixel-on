@@ -1274,8 +1274,11 @@
   .bexp .bthumb {
     grid-column: 1 / -1;
   }
+  /* 방송이력 시트와 같은 구성: 제목 → 구분선 → 시간·길이 → 카테고리 */
   .bexp .binfo {
-    grid-column: 1;
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
   }
   .bexp .bthumb {
     width: 100%;
@@ -1284,27 +1287,43 @@
   .bexp .binfo {
     margin-top: 11px;
   }
-  .bexp .bt {
-    font-size: 13.5px;
-    gap: 6px;
-  }
   .bexp .btl {
-    font-size: 15.5px;
-    margin-top: 7px;
+    order: 1;
+    font-size: 16px;
+    margin-top: 0;
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
-  /* 카테고리(좌) · 다시보기 버튼(우)을 한 줄에 */
-  .bexp .bsub {
-    margin-top: 10px;
+  .bexp .bt {
+    order: 2;
+    font-size: 14px;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
+  .bexp .bsub {
+    order: 3;
+    margin-top: 11px;
+  }
+  /* 다시보기/방송 보기는 시트처럼 폭 꽉 채운 버튼 */
   .bexp .bv {
-    grid-column: 2;
-    align-self: end;
-    justify-self: end;
-    padding: 7px 14px;
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 13px;
+    padding: 12px;
+    text-align: center;
+    border-radius: 11px;
+    background: #fff;
+    color: #16181d;
+    font-size: 14.5px;
+    font-weight: 800;
+  }
+  .bexp .bv.live {
+    background: var(--live);
+    color: #fff;
   }
 }
 
