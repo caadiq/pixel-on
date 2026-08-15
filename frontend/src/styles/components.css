@@ -1082,12 +1082,12 @@
   .bcal {
     gap: 4px;
   }
-  /* 방송 유무와 무관하게 모든 칸을 같은 정사각형으로 */
+  /* 방송 유무와 무관하게 모든 칸을 같은 크기로 (세로로 살짝 여유) */
   .bday {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 5;
     min-height: 0;
     border-radius: 8px;
-    padding: 6px 6px 7px;
+    padding: 7px 6px 8px;
   }
   .bday .dn {
     font-size: 12px;
