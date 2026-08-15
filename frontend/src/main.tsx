@@ -8,7 +8,8 @@ import './styles/components.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, staleTime: 10_000, refetchOnWindowFocus: false },
+    // 모바일 네트워크에서 간헐 실패가 잦아 재시도를 넉넉히 (지수 백오프)
+    queries: { retry: 3, retryDelay: (n) => Math.min(1000 * 2 ** n, 5000), staleTime: 10_000, refetchOnWindowFocus: false },
   },
 });
 

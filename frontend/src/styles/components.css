@@ -3316,3 +3316,16 @@
   padding: 2.5px 9px;
   font-weight: 700;
 }
+
+.retrybtn {
+  margin-top: 12px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.retrybtn:disabled {
+  opacity: 0.5;
+}

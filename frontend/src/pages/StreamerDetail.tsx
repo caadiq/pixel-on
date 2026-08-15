@@ -7,10 +7,23 @@ import { useTitle } from '../lib/useTitle';
 
 export function StreamerDetail() {
   const id = Number(useParams().id);
-  const { data: s, isLoading } = useStreamerDetail(id);
+  const { data: s, isLoading, isError, refetch, isFetching } = useStreamerDetail(id);
   useTitle(s?.name);
 
   if (isLoading) return <div className="loading">불러오는 중…</div>;
+  // 통신 실패(모바일 네트워크 끊김·캐시된 오류 등)와 '없는 스트리머'를 구분하고 재시도 제공
+  if (isError)
+    return (
+      <main className="wrap">
+        <div className="loading">
+          불러오지 못했어요
+          <br />
+          <button className="retrybtn" onClick={() => void refetch()} disabled={isFetching}>
+            {isFetching ? '다시 시도 중…' : '다시 시도'}
+          </button>
+        </div>
+      </main>
+    );
   if (!s) return <div className="loading">스트리머를 찾을 수 없어요</div>;
 
   const c = s.color ?? FALLBACK_COLOR;
