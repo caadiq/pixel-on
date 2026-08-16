@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { and, desc, eq, gte, isNotNull, lt, sql } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { sessions, streamers } from '../db/schema.js';
-import { kstDateStr, kstDayRange, kstParts } from '../lib/time.js';
+import { kstDateStr, kstDayRange, kstParts, kstWeekStart } from '../lib/time.js';
 
 export const statsRoute = new Hono();
 
@@ -141,9 +141,9 @@ statsRoute.get('/vods', async (c) => {
   });
 });
 
-/** 주간 집계 (최근 7일) — 홈 우측 패널 */
+/** 주간 집계 (이번 주 월~일, KST) — 홈 우측 패널 */
 statsRoute.get('/stats/weekly', async (c) => {
-  const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const from = kstWeekStart();
   const rows = await db
     .select({
       streamerId: sessions.streamerId,
@@ -180,6 +180,8 @@ statsRoute.get('/stats/weekly', async (c) => {
     maxCount > 0 ? { weekday: byWeekday.indexOf(maxCount), count: maxCount } : null;
 
   return c.json({
+    /** 이번 주 월요일 (KST) — 프론트가 월~일 칸을 그릴 기준 */
+    weekStart: kstDateStr(from),
     totalHours: Math.round(totalMs / 3_600_000),
     longest: longest ? { name: longest.name, hours: Math.round((longest.ms / 3_600_000) * 10) / 10 } : null,
     bestPeak: best,

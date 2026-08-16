@@ -3329,3 +3329,10 @@
 .retrybtn:disabled {
   opacity: 0.5;
 }
+
+/* 이번 주 잔디 — 아직 오지 않은 날은 흐리게 */
+.wcal .d.future {
+  opacity: 0.45;
+  border: 1px dashed var(--line2);
+  background: transparent !important;
+}

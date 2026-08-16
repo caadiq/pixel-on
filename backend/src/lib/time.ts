@@ -22,3 +22,11 @@ export function kstParts(d: Date): { weekday: number; hour: number; minute: numb
   const k = new Date(d.getTime() + KST_OFFSET_MS);
   return { weekday: (k.getUTCDay() + 6) % 7, hour: k.getUTCHours(), minute: k.getUTCMinutes() };
 }
+
+/** 오늘이 속한 주의 월요일(KST 00:00) — 주간 집계 기준 */
+export function kstWeekStart(now: Date = new Date()): Date {
+  const k = new Date(now.getTime() + KST_OFFSET_MS);
+  const weekday = (k.getUTCDay() + 6) % 7; // 0=월
+  const midnightKst = Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate());
+  return new Date(midnightKst - KST_OFFSET_MS - weekday * 24 * 60 * 60 * 1000);
+}

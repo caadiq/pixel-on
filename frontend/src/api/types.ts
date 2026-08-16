@@ -63,6 +63,8 @@ export interface DaySession {
 }
 
 export interface WeeklyStats {
+  /** 이번 주 월요일 (KST, YYYY-MM-DD) */
+  weekStart: string;
   totalHours: number;
   longest: { name: string; hours: number } | null;
   bestPeak: { name: string; peak: number } | null;

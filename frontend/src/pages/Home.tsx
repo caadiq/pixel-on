@@ -357,15 +357,14 @@ function WeekPanel() {
   const { data } = useWeeklyStats();
   if (!data) return <div className="panel loading">…</div>;
 
-  // 최근 7일을 월~일 순서로
+  // 이번 주 월요일부터 일요일까지 고정 (아직 오지 않은 날은 빈 칸)
   const byDate = new Map(data.daily.map((d) => [d.date, d.hours]));
-  const days: { label: string; hours: number }[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400_000);
-    const key = new Date(d.getTime() + 9 * 3600_000).toISOString().slice(0, 10);
-    const weekday = (new Date(d.getTime() + 9 * 3600_000).getUTCDay() + 6) % 7;
-    days.push({ label: DAY_LABELS[weekday], hours: byDate.get(key) ?? 0 });
-  }
+  const todayKey = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
+  const monday = new Date(`${data.weekStart}T00:00:00+09:00`);
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const key = new Date(monday.getTime() + i * 86400_000 + 9 * 3600_000).toISOString().slice(0, 10);
+    return { label: DAY_LABELS[i], hours: byDate.get(key) ?? 0, future: key > todayKey };
+  });
   const max = Math.max(...days.map((d) => d.hours), 1);
   const level = (h: number) =>
     h === 0 ? '#f1f3f6' : h < max * 0.34 ? '#d3f5e9' : h < max * 0.67 ? '#96e6c9' : 'var(--mint)';
@@ -383,7 +382,12 @@ function WeekPanel() {
           </div>
         ))}
         {days.map((d, i) => (
-          <div key={`c${i}`} className="d" data-tip={`${d.hours}시간`} style={{ background: level(d.hours) }} />
+          <div
+            key={`c${i}`}
+            className={`d ${d.future ? 'future' : ''}`}
+            data-tip={d.future ? '아직 오지 않은 날' : `${d.hours}시간`}
+            style={{ background: level(d.hours) }}
+          />
         ))}
       </div>
       <dl className="kv">
