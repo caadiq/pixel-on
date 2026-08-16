@@ -411,10 +411,9 @@ function WeekPanel() {
           <>
             <dt>가장 많이 켠 요일</dt>
             <dd>
-              {DAY_LABELS[data.topWeekday.weekday]}요일
-              <span className="kwho" style={{ marginLeft: 7, marginRight: 0 }}>
-                {data.topWeekday.count}회
-              </span>
+              {/* 위 항목들과 동일하게 왼쪽이 칩(대상), 오른쪽이 값 */}
+              <span className="kwho">{DAY_LABELS[data.topWeekday.weekday]}요일</span>
+              {data.topWeekday.count}회
             </dd>
           </>
         )}
