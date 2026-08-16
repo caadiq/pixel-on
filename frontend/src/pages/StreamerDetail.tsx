@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { avatar, vodThumb } from '../lib/avatar';
 import { useStreamerDetail, useStreamerVods } from '../api/hooks';
 import { BroadcastRecord } from '../components/BroadcastRecord';
-import { FALLBACK_COLOR, fmtCompact, fmtDurClock, fmtMinOfDay, fmtRelDate } from '../lib/format';
+import { FALLBACK_COLOR, fmtCompact, fmtDurClock, fmtDurKo, fmtRelDate } from '../lib/format';
 import { useTitle } from '../lib/useTitle';
 
 export function StreamerDetail() {
@@ -62,8 +62,23 @@ export function StreamerDetail() {
             </b>
           </div>
           <div className="dstat">
-            <i>평균 시작 시각</i>
-            <b className="num">{s.stats.avgStartMin != null ? fmtMinOfDay(s.stats.avgStartMin) : '—'}</b>
+            <i>마지막 방송</i>
+            <b className={s.stats.lastSession ? 'num' : ''}>
+              {s.stats.lastSession ? (
+                <>
+                  {s.stats.lastSession.endedAt === null
+                    ? '방송 중'
+                    : fmtRelDate(s.stats.lastSession.startedAt)}
+                  <em>
+                    {s.stats.lastSession.endedAt === null
+                      ? ` · ${fmtDurKo(s.stats.lastSession.durationMs)}째`
+                      : ` · ${fmtDurKo(s.stats.lastSession.durationMs)}`}
+                  </em>
+                </>
+              ) : (
+                '—'
+              )}
+            </b>
           </div>
           <div className="dstat">
             <i>최고 동시 시청</i>

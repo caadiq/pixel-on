@@ -22,7 +22,8 @@ export interface StreamerDetail extends Streamer {
   stats: {
     monthCount: number;
     monthHours: number;
-    avgStartMin: number | null;
+    /** 가장 최근 방송 (기간 제한 없음) */
+    lastSession: { startedAt: string; endedAt: string | null; durationMs: number } | null;
     topCategory: string | null;
     bestPeak: number;
   };

@@ -31,12 +31,24 @@ streamerDetailRoute.get('/', async (c) => {
     .where(and(eq(sessions.streamerId, id), gte(sessions.startedAt, monthAgo)));
 
   const totalMs = recent.reduce((a, r) => a + durMs(r), 0);
-  // 평균 시작 시각 (KST 분 단위 평균)
-  const mins = recent.map((r) => {
-    const p = kstParts(r.startedAt);
-    return p.hour * 60 + p.minute;
-  });
-  const avgMin = mins.length ? Math.round(mins.reduce((a, b) => a + b, 0) / mins.length) : null;
+
+  /**
+   * 마지막 방송 — 가장 최근 세션의 시작·종료.
+   * 기간 제한 없이 조회해 한 달 이상 쉰 경우도 표시된다.
+   */
+  const [lastRow] = await db
+    .select({ startedAt: sessions.startedAt, endedAt: sessions.endedAt })
+    .from(sessions)
+    .where(eq(sessions.streamerId, id))
+    .orderBy(desc(sessions.startedAt))
+    .limit(1);
+  const lastSession = lastRow
+    ? {
+        startedAt: lastRow.startedAt.toISOString(),
+        endedAt: lastRow.endedAt?.toISOString() ?? null,
+        durationMs: (lastRow.endedAt ?? new Date()).getTime() - lastRow.startedAt.getTime(),
+      }
+    : null;
   // 최다 카테고리
   const catCount = new Map<string, number>();
   for (const r of recent) if (r.category) catCount.set(r.category, (catCount.get(r.category) ?? 0) + 1);
@@ -68,7 +80,7 @@ streamerDetailRoute.get('/', async (c) => {
     stats: {
       monthCount: recent.length,
       monthHours: Math.round(totalMs / 3_600_000),
-      avgStartMin: avgMin,
+      lastSession,
       topCategory,
       bestPeak: peakRow?.peak ?? 0,
     },
