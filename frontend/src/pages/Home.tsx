@@ -6,7 +6,7 @@ import { canHover } from '../lib/device';
 import { useTitle } from '../lib/useTitle';
 import { useDaySessions, useStreamers, useWeeklyStats } from '../api/hooks';
 import type { Streamer } from '../api/types';
-import { FALLBACK_COLOR, fmtCompact, fmtDurKo, fmtMinOfDay } from '../lib/format';
+import { FALLBACK_COLOR, fmtCompact, fmtDurKo } from '../lib/format';
 
 export function Home() {
   useTitle();
@@ -407,10 +407,15 @@ function WeekPanel() {
             </dd>
           </>
         )}
-        {data.avgStartMin != null && (
+        {data.topWeekday && (
           <>
-            <dt>평균 시작 시각</dt>
-            <dd className="num">{fmtMinOfDay(data.avgStartMin)}</dd>
+            <dt>가장 많이 켠 요일</dt>
+            <dd>
+              {DAY_LABELS[data.topWeekday.weekday]}요일
+              <span className="kwho" style={{ marginLeft: 7, marginRight: 0 }}>
+                {data.topWeekday.count}회
+              </span>
+            </dd>
           </>
         )}
       </dl>

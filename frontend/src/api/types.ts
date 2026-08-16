@@ -66,7 +66,8 @@ export interface WeeklyStats {
   totalHours: number;
   longest: { name: string; hours: number } | null;
   bestPeak: { name: string; peak: number } | null;
-  avgStartMin: number | null;
+  /** 가장 많이 켠 요일 (0=월 … 6=일) */
+  topWeekday: { weekday: number; count: number } | null;
   daily: { date: string; hours: number }[];
 }
 

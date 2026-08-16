@@ -159,7 +159,8 @@ statsRoute.get('/stats/weekly', async (c) => {
   let totalMs = 0;
   let longest: { name: string; ms: number } | null = null;
   let best: { name: string; peak: number } | null = null;
-  const startMins: number[] = [];
+  /** 요일별 방송 건수 (0=월 … 6=일) — 가장 많이 켠 요일 */
+  const byWeekday = new Array<number>(7).fill(0);
   /** KST 날짜별 활동 시간 (홈 주간 캘린더) */
   const daily = new Map<string, number>();
 
@@ -169,20 +170,20 @@ statsRoute.get('/stats/weekly', async (c) => {
     if (!longest || ms > longest.ms) longest = { name: r.name, ms };
     if (!best || r.peakViewers > best.peak) best = { name: r.name, peak: r.peakViewers };
     const p = kstParts(r.startedAt);
-    startMins.push(p.hour * 60 + p.minute);
+    byWeekday[p.weekday] += 1;
     const key = kstDateStr(r.startedAt);
     daily.set(key, (daily.get(key) ?? 0) + ms / 3_600_000);
   }
 
-  const avgMin = startMins.length
-    ? Math.round(startMins.reduce((a, b) => a + b, 0) / startMins.length)
-    : null;
+  const maxCount = Math.max(...byWeekday);
+  const topWeekday =
+    maxCount > 0 ? { weekday: byWeekday.indexOf(maxCount), count: maxCount } : null;
 
   return c.json({
     totalHours: Math.round(totalMs / 3_600_000),
     longest: longest ? { name: longest.name, hours: Math.round((longest.ms / 3_600_000) * 10) / 10 } : null,
     bestPeak: best,
-    avgStartMin: avgMin,
+    topWeekday,
     daily: [...daily.entries()].map(([date, hours]) => ({ date, hours: Math.round(hours * 10) / 10 })),
   });
 });
