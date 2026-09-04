@@ -132,13 +132,33 @@ function LivePreview({ s, anchor }: { s: Streamer; anchor: DOMRect }) {
       const { default: Hls } = await import('hls.js');
       if (!alive) return;
       if (Hls.isSupported()) {
-        const h = new Hls({ maxBufferLength: 12 });
+        let h: InstanceType<typeof Hls>;
+        try {
+          /**
+           * 저지연 설정 — 목표 지연 ≈ 3초 (치지직 본 플레이어와 같은 거리).
+           * ⚠ liveSyncDuration / liveSyncDurationCount / liveMaxLatency* 는 절대 지정하지 말 것:
+           *   지정하면 hls.js가 재생목록의 PART-HOLD-BACK(3.05초) 대신 그 값을 쓰고(latency-controller
+           *   targetLatency), count×targetduration = 3×10 = 30초로 되돌아간다. count와 duration을
+           *   섞어 쓰면 생성자에서 예외까지 던진다.
+           */
+          h = new Hls({
+            lowLatencyMode: true,
+            maxBufferLength: 10,
+            maxMaxBufferLength: 20,
+            backBufferLength: 0,
+            maxLiveSyncPlaybackRate: 1.5, // 밀리면 살짝 빨리 돌려 따라잡음 (무음이라 티 안 남)
+          });
+        } catch (e) {
+          console.error('[preview] hls.js 설정 오류', e);
+          return;
+        }
         hls = h;
         h.on(Hls.Events.MANIFEST_PARSED, () => {
           // 720p 고정 (없으면 최고 화질) — levels는 낮은 화질부터 정렬
           const idx = h.levels.findIndex((l) => l.height >= 720);
           h.currentLevel = idx >= 0 ? idx : h.levels.length - 1;
         });
+        if (import.meta.env.DEV) (window as unknown as { __hls?: unknown }).__hls = h; // dev 지연 측정용
         h.loadSource(url);
         h.attachMedia(video);
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {

@@ -106,8 +106,14 @@ interface LivePlaybackRaw {
 }
 
 /**
- * 라이브 HLS 마스터 재생목록 URL (호버 미리보기용).
+ * 라이브 재생목록 URL (호버 미리보기용).
  * CDN(livecloud.pstatic.net)이 CORS *를 내려줘 외부 사이트에서도 hls.js 재생 가능 (실측).
+ *
+ * ⚠ LLHLS 우선 — 두 경로는 서로 다른 재생목록이다 (실측):
+ *   HLS  : EXT-X-TARGETDURATION:10 뿐, SERVER-CONTROL 없음
+ *          → hls.js가 targetLatency 0으로 보고 liveSyncDurationCount(3) × 10초 = 30초 뒤에서 재생
+ *   LLHLS: PART-HOLD-BACK=3.05 · PART-TARGET=1.0 · PRELOAD-HINT · CAN-BLOCK-RELOAD
+ *          → 저지연 모드에서 목표 지연 3초 (치지직 본 플레이어와 동일 거리)
  * 성인 인증 방송 등 재생 정보가 없으면 null.
  */
 export async function fetchChzzkLiveHls(channelId: string): Promise<string | null> {
@@ -117,7 +123,12 @@ export async function fetchChzzkLiveHls(channelId: string): Promise<string | nul
   if (c?.status !== 'OPEN' || !c.livePlaybackJson) return null;
   try {
     const pb = JSON.parse(c.livePlaybackJson) as { media?: { mediaId?: string; path?: string }[] };
-    return pb.media?.find((m) => m.mediaId === 'HLS')?.path ?? null;
+    const media = pb.media ?? [];
+    return (
+      media.find((m) => m.mediaId === 'LLHLS')?.path ??
+      media.find((m) => m.mediaId === 'HLS')?.path ??
+      null
+    );
   } catch {
     return null;
   }
