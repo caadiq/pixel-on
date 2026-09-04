@@ -132,31 +132,28 @@ function LivePreview({ s, anchor }: { s: Streamer; anchor: DOMRect }) {
       const { default: Hls } = await import('hls.js');
       if (!alive) return;
       if (Hls.isSupported()) {
-        let h: InstanceType<typeof Hls>;
-        try {
-          /**
-           * 저지연 설정 — 목표 지연 ≈ 3초 (치지직 본 플레이어와 같은 거리).
-           * ⚠ liveSyncDuration / liveSyncDurationCount / liveMaxLatency* 는 절대 지정하지 말 것:
-           *   지정하면 hls.js가 재생목록의 PART-HOLD-BACK(3.05초) 대신 그 값을 쓰고(latency-controller
-           *   targetLatency), count×targetduration = 3×10 = 30초로 되돌아간다. count와 duration을
-           *   섞어 쓰면 생성자에서 예외까지 던진다.
-           */
-          h = new Hls({
-            lowLatencyMode: true,
-            maxBufferLength: 10,
-            maxMaxBufferLength: 20,
-            backBufferLength: 0,
-            maxLiveSyncPlaybackRate: 1.5, // 밀리면 살짝 빨리 돌려 따라잡음 (무음이라 티 안 남)
-          });
-        } catch (e) {
-          console.error('[preview] hls.js 설정 오류', e);
-          return;
-        }
+        /**
+         * 저지연 설정 — 목표 지연은 재생목록의 PART-HOLD-BACK(치지직 실측 ≈3.05초)을 따른다.
+         * ⚠ liveSyncDuration / liveSyncDurationCount / liveMaxLatency* 를 "생성자 인자"로 주지 말 것:
+         *   hls.js는 userConfig에 그 키가 있는지만 보고 PART-HOLD-BACK을 통째로 버린 뒤
+         *   liveSyncDurationCount(3) × targetduration(10) = 30초로 되돌아간다
+         *   (latency-controller.ts targetLatency). 두 계열을 섞으면 생성자에서 예외까지 던진다.
+         */
+        const h = new Hls({
+          lowLatencyMode: true, // 1.6.16 기본값도 true — 의도 고정용 명시
+          maxMaxBufferLength: 20, // 실효 버퍼 상한 (maxBufferLength는 하한이라 여기서 무의미)
+          backBufferLength: 0,
+          maxLiveSyncPlaybackRate: 1.2, // 밀렸을 때만 개입해 따라잡음 (무음이라 티 안 남)
+          abrEwmaDefaultEstimate: 3_000_000, // 첫 조각부터 720p로 시작
+        });
+        // 저지연 재생목록이 아닌 경우(PART-HOLD-BACK 없음)의 폴백을 30초 → 6초로.
+        // userConfig가 아니라 config에만 넣어야 위 경고의 덮어쓰기를 피한다.
+        h.config.liveSyncDuration = 6;
         hls = h;
         h.on(Hls.Events.MANIFEST_PARSED, () => {
-          // 720p 고정 (없으면 최고 화질) — levels는 낮은 화질부터 정렬
+          // 720p 상한 (팝업 크기상 1080p는 낭비) — 고정이 아니라 상한이라 회선이 나쁘면 ABR이 내려감
           const idx = h.levels.findIndex((l) => l.height >= 720);
-          h.currentLevel = idx >= 0 ? idx : h.levels.length - 1;
+          if (idx >= 0) h.autoLevelCapping = idx;
         });
         if (import.meta.env.DEV) (window as unknown as { __hls?: unknown }).__hls = h; // dev 지연 측정용
         h.loadSource(url);
